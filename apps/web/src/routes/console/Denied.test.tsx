@@ -18,7 +18,7 @@ describe('the Console 404 and Denied on R2 (D-160 R2-1b)', () => {
           setRecord: () => {},
           toast: () => {},
           role: 'Owner',
-          counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 },
+          counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0, failed: 0 },
           cohort: { id: 'dec26', label: 'December 2026 Cohort', choices: [], pick: () => {}, create: null },
         }}
       >

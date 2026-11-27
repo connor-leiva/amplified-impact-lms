@@ -158,7 +158,8 @@ describe('learnersR2VM (D-160 R2-3a)', () => {
 describe('tiersR2VM (D-160 R2-3a)', () => {
   it('counts each Team Tier size’s own teams, and the revenue they make', () => {
     const vm = tiersR2VM(parityDb('/admin/tiers'));
-    expect(vm.summary).toBe('December 2026 Cohort revenue $148,445 · 104 Agent licenses · 7 teams');
+    // D-269: no revenue line (it named December by id; revenue is Revenue › Summary's).
+    expect(vm).not.toHaveProperty('summary');
     expect(vm.cards.map((c) => [c.title, c.seats, c.count, c.price, c.per, c.revenue])).toEqual([
       ['Agent Tier', '1 seat', '104 licenses', 995, 'per agent, per cohort', '$103,480'],
       ['Team Tier', '16 seats', '5 teams', 4995, 'per team, per cohort', '$24,975'],
@@ -193,7 +194,6 @@ describe('tiersR2VM (D-160 R2-3a)', () => {
     const db = { ...zero(seed('live')), tiers: [] };
     const vm = tiersR2VM(db);
     expect(vm.cards).toEqual([]);
-    expect(vm.summary).toMatch(/^December 2026 Cohort revenue — · \d+ Agent licenses · \d+ teams$/);
     expect(vm.requests.every((r) => r.value === '—')).toBe(true);
     // A request with no recorded ask reads "Agent → Team".
     expect(vm.requests[0]!.ask).toBe('Agent → Team');

@@ -6,6 +6,8 @@
 
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import {
+  monthOf,
+  monthStart,
   BILLING_CONFIRM_MESSAGES,
   CONFIRM_TTL_MS,
   CONSOLE_ERRORS,
@@ -32,7 +34,12 @@ import type {
   BillingRefundRow,
   BillingSubscriptionRow,
   BillingSummary,
+  BillingLine,
+  ComingKind,
   InvoiceStatus,
+  RevenueCohortFigures,
+  RevenuePeriod,
+  RevenueSummary,
 } from '@ai/core';
 import type { PlanKind, PlanStatus } from '@ai/core/offer';
 import { ConsoleError } from './console';
@@ -44,6 +51,7 @@ import {
   BILLING_REFUNDS,
   BILLING_SAMPLE,
   INV,
+  REVENUE_R2 as RV,
   STAFF,
   SUPPORT_WS,
   mockCents,
@@ -118,6 +126,100 @@ export function fixtureBillingSummary(now: number): BillingSummary {
       opensAt: COURSE_OPENS_AT,
     },
     skillPurchases: [],
+  };
+}
+
+/**
+ * D-269 (R-5 Phase 8): Revenue › Summary as the API answers it, from the reference's own figures (`REVENUE_R2`): every
+ * cohort the snapshot holds at its capacity, December with the reference's seats, every other with none.
+ */
+export function fixtureRevenueSummary(now: number, period: RevenuePeriod, cohorts: readonly { id: string; capacity: number }[]): RevenueSummary {
+  const month = period === 'month';
+  const D = RV.december;
+  const empty = (id: string, cap: number): RevenueCohortFigures => ({
+    cohortId: id,
+    sold: 0,
+    cap,
+    paidInFull: 0,
+    paidInFullCents: 0,
+    twoPay: 0,
+    twoPayInCents: 0,
+    scheduledCents: 0,
+    scheduledPayments: 0,
+    refunds: 0,
+    refundedCents: 0,
+    collectedCents: 0,
+  });
+  return {
+    asOf: now,
+    period,
+    periodStart: month ? monthStart(monthOf(now)) : mockStamp(RV.firstPaid),
+    stripeError: null,
+    cash: { collectedCents: mockCents(month ? RV.cash.month : RV.cash.all) },
+    stillToCollect: { cents: mockCents(RV.still.amount), payments: RV.still.payments, nextAt: mockStamp(RV.still.next) },
+    mrr: { cents: mockCents(RV.mrr.amount), subscriptions: RV.mrr.subscriptions },
+    failed: RV.failed,
+    months: RV.months.map(([m, collected, calendar, n, second]) => ({
+      month: m,
+      collectedCents: mockCents(collected),
+      calendarCents: mockCents(calendar),
+      secondPayments: n,
+      secondCents: mockCents(second),
+    })),
+    cohorts: cohorts.map((c) =>
+      c.id === D.cohortId
+        ? {
+            ...empty(c.id, c.capacity),
+            sold: D.sold,
+            paidInFull: D.paidInFull,
+            paidInFullCents: mockCents(D.paidInFullCents),
+            twoPay: D.twoPay,
+            twoPayInCents: mockCents(D.twoPayIn),
+            scheduledCents: mockCents(D.scheduled),
+            scheduledPayments: D.twoPay,
+            collectedCents: mockCents(month ? D.collected.month : D.collected.all),
+          }
+        : empty(c.id, c.capacity),
+    ),
+    lines: RV.lines.map(([line, active, people, collected, mrr]) => ({
+      line,
+      kind: line === 'agents16' || line === 'agents41' ? 'agents' : line,
+      active,
+      people,
+      collectedCents: mockCents(collected[month ? 1 : 0]),
+      mrrCents: mockCents(mrr),
+    })),
+    skills: { bought: RV.skills[period][0], collectedCents: mockCents(RV.skills[period][1]) },
+    coming: RV.coming.map(([day, kind, line, n, amount, teamId, name]) => ({
+      at: mockStamp(day),
+      kind: kind as ComingKind,
+      line: line as BillingLine,
+      n,
+      amountCents: mockCents(amount),
+      customerId: null,
+      workspace: { teamId, name },
+      name,
+    })),
+    refunds30d: { cents: 0, count: 0, latest: null },
+  };
+}
+
+/** The same answer with Stripe unreadable, as the API gives it: every Stripe figure null, the seats still answered. */
+export function fixtureRevenueUnreadable(s: RevenueSummary, error: NonNullable<RevenueSummary['stripeError']>): RevenueSummary {
+  return {
+    ...s,
+    stripeError: error,
+    periodStart: s.period === 'month' ? s.periodStart : null,
+    cash: null,
+    stillToCollect: { ...s.stillToCollect, nextAt: null },
+    mrr: null,
+    failed: null,
+    months: null,
+    cohorts: s.cohorts.map((c) => ({ ...c, collectedCents: null })),
+    lines: s.lines.map((l) => ({ ...l, active: null, people: null, collectedCents: null, mrrCents: null })),
+    skills: { ...s.skills, collectedCents: null },
+    coming: null,
+    refunds30d: null,
   };
 }
 

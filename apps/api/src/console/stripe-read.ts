@@ -41,6 +41,10 @@ export interface ReadInvoice {
   attemptCount: number;
   created: number;
   nextPaymentAttempt: number | null;
+  /** R-5 Phase 8 (D-269): when Stripe marked it paid (`status_transitions.paid_at`), for Revenue's months. */
+  paidAt?: number | null;
+  /** R-5 Phase 8 (D-269): Stripe's `billing_reason` (`subscription_create` is a checkout's own invoice). */
+  billingReason?: string | null;
   /** From the invoice's payment: its payment intent, or its charge when there is no intent. */
   paymentIntentId: string | null;
   chargeId: string | null;
@@ -212,6 +216,11 @@ function subscriptionOf(s: Stripe.Subscription): BillingSubscription {
       intervalCount: i.price?.recurring?.interval_count ?? 1,
       quantity: i.quantity ?? 1,
     })),
+    // R-5 Phase 8 (D-269): its next charge, as Revenue reads it. The period's end is on the items (API 2025-10-29): the
+    // first item's, which every item of one subscription shares.
+    currentPeriodEnd: ms(s.items?.data?.[0]?.current_period_end),
+    trialEnd: ms(s.trial_end),
+    cancelAtPeriodEnd: s.cancel_at_period_end === true,
   };
 }
 
@@ -230,6 +239,8 @@ function invoiceOf(inv: Stripe.Invoice): ReadInvoice {
     attemptCount: inv.attempt_count,
     created: inv.created * 1000,
     nextPaymentAttempt: ms(inv.next_payment_attempt),
+    paidAt: ms(inv.status_transitions?.paid_at),
+    billingReason: inv.billing_reason ?? null,
     paymentIntentId: idOf(pay?.payment?.payment_intent),
     chargeId: idOf(pay?.payment?.charge),
   };

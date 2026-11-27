@@ -4,7 +4,7 @@ import { AREA_COPY, areaCounts } from './area.vm';
 
 // D-253: the four pages' heads (the mockup's words) and their tabs' counts, each one a number today's page shows.
 
-const COUNTS = { drafts: 6, requests: 2, incidents: 1, waiting: 3 };
+const COUNTS = { drafts: 6, requests: 2, incidents: 1, waiting: 3, failed: 0 };
 
 describe('the four pages (D-253)', () => {
   it('say what the mockup says', () => {

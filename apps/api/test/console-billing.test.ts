@@ -259,7 +259,9 @@ describe('the billing summary (spec § 7.6) @console', () => {
 describe('Stripe refusals (spec § 7.6) @console', () => {
   it('no key: 503 stripe_not_connected, on every billing route', async () => {
     await start({ stripe: null });
-    for (const path of Object.values(P)) {
+    // R-5 Phase 8 (D-269): Revenue › Summary answers without Stripe (its seats are the database's, every Stripe figure
+    // null: "Unavailable"), and the sidebar's count is memory only (`console-revenue.test.ts`).
+    for (const path of Object.values(P).filter((x) => x !== P.billingRevenue && x !== P.billingFailedCount)) {
       const res = await get(path);
       expect(res.statusCode, path).toBe(503);
       expect(body<{ code: string }>(res).code).toBe('stripe_not_connected');

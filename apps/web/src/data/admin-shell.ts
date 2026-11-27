@@ -24,7 +24,7 @@ export interface AdminShellData {
   programKey: ProgramKey;
   environment: string;
   /** `waiting` (D-239, D-238): Community threads whose last word is a member's (`useWaitingThreads`). */
-  counts: { drafts: number; requests: number; incidents: number; waiting: number };
+  counts: { drafts: number; requests: number; incidents: number; waiting: number; failed: number };
   /** The mockup's whole `NAV`: the parity fixture only. */
   fullNav: boolean;
 }
@@ -55,7 +55,7 @@ export function cohortLabel(cohort: Pick<Cohort, 'name'>): string {
   return /\bcohort$/i.test(name) ? name : `${name} Cohort`;
 }
 
-export function shellDataFrom(db: Db, staffId: string | null, role: string | null, openIncidents = 0, waiting = 0): AdminShellData {
+export function shellDataFrom(db: Db, staffId: string | null, role: string | null, openIncidents = 0, waiting = 0, failed = 0): AdminShellData {
   const me = db.staff.find((x) => x.id === staffId) ?? null;
   return {
     viewer: { name: me?.name ?? '', role: role ?? me?.role ?? '' },
@@ -67,6 +67,8 @@ export function shellDataFrom(db: Db, staffId: string | null, role: string | nul
       requests: db.requests.filter((q) => q.status === 'new').length,
       incidents: openIncidents,
       waiting,
+      // R-5 Phase 8 (D-269): Revenue's "N failed", from what Billing holds in memory (0, drawn as nothing, while unknown).
+      failed,
     },
     fullNav: false,
   };

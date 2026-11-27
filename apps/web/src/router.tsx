@@ -164,13 +164,13 @@ const routes: RouteObject[] = [
       { path: 'admin/people/:userId', lazy: () => import('./routes/console/User') },
       // The mockup's learner view (its `as`) keeps its address (spec § 3).
       { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },
-      // Revenue: Billing's Summary (until Phase 8), its five lists as Payments (D-163, each at its tab's address),
-      // Plans & upgrades (Tiers & Upgrades) and Usage (D-166).
+      // Revenue: Summary (R-5 Phase 8, D-269: the mockup's Revenue), Billing's five lists as Payments (D-163, each at its
+      // tab's address), Plans & upgrades (Tiers & Upgrades) and Usage (D-166).
       {
         path: 'admin/revenue',
         lazy: () => import('./routes/admin/areas/RevenueArea'),
         children: [
-          { index: true, lazy: () => import('./routes/console/Billing').then((m) => ({ Component: m.Summary })) },
+          { index: true, lazy: () => import('./routes/admin/revenue/RevenueSummary') },
           { path: 'payments', lazy: () => import('./routes/console/Billing') },
           { path: 'payments/:tab', lazy: () => import('./routes/console/Billing') },
           { path: 'plans', lazy: () => import('./routes/admin/Tiers') },

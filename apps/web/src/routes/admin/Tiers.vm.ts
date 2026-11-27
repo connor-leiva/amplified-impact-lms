@@ -264,7 +264,6 @@ export interface AccessR2Row {
 }
 
 export interface TiersR2VM {
-  summary: string;
   cards: TierR2Card[];
   requests: RequestR2Row[];
   matrix: AccessR2Row[];
@@ -311,9 +310,8 @@ export function tiersR2VM(db: Db): TiersR2VM {
       revenue: fmt.money(n * t.price),
     };
   });
-  const revenue = db.tiers.reduce((a, t) => a + (t.id === 'team' ? teamsFor(t.seats) : agentN) * t.price, 0);
-  const teamN = B.teams + rosterTeamsAll(db).length;
-  const cohort = db.cohorts.find((c) => c.id === 'dec26') ?? db.cohorts[0];
+  // R-5 Phase 8 (D-269): the line "December 2026 Cohort revenue $… · N Agent licenses · N teams" goes. Plans & Upgrades
+  // never drew it (the reference's description is its own), and it named December by id; revenue is Revenue › Summary's.
 
   const agentPrice = db.tiers.find((t) => t.id === 'agent')?.price;
   const teamPrice = teamTiers[0]?.price;
@@ -344,7 +342,6 @@ export function tiersR2VM(db: Db): TiersR2VM {
     });
 
   return {
-    summary: `${cohort ? `${cohort.name} Cohort` : 'Cohort'} revenue ${db.tiers.length ? fmt.money(revenue) : '—'} · ${agentN} Agent licenses · ${teamN} teams`,
     cards,
     requests,
     matrix: sortedModules(db).map((m) => ({

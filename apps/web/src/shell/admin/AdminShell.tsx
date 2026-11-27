@@ -27,6 +27,7 @@ import { cohortLabel } from '../../data/admin-shell';
 import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { AcademyLogo } from './Wordmark';
+import { useFailedPayments } from './useFailedPayments';
 import { useOpenIncidents } from './useOpenIncidents';
 import { useWaitingThreads } from './useWaitingThreads';
 import s from './AdminShell.module.css';
@@ -136,9 +137,11 @@ export function AdminShell() {
   const openIncidents = useOpenIncidents(parity === null && consoleCan(role, 'incidents.read'), path);
   // R-5 audit (D-267): the threads waiting in the cohort the admin is on, as Cohort › Community lists them.
   const waiting = useWaitingThreads(parity === null && consoleCan(role, 'console.view'), path, cohortId);
+  // R-5 Phase 8 (D-269): Revenue's "N failed", from what Billing holds in memory.
+  const failed = useFailedPayments(parity === null && consoleCan(role, 'billing.read'), path);
   const data = useMemo(
-    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents, waiting)),
-    [db, openIncidents, parity, role, staffId, waiting],
+    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents, waiting, failed)),
+    [db, failed, openIncidents, parity, role, staffId, waiting],
   );
 
   // ---- the sidebar's form --------------------------------------------------------------------------

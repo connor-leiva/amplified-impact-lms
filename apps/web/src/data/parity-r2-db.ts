@@ -376,6 +376,9 @@ export function parityDb(path = '/admin/curriculum'): Db {
   ];
   const at = path.replace(/\/+$/, '');
   if (COHORT_PAGE.test(at)) cohortPageDb(db, at);
+  // D-269 (R-5 Phase 8): Revenue › Summary names every cohort (a By Product row each), January created as a draft, as the
+  // reference's `P3_COH` holds it.
+  else if (at === '/admin/revenue') cohortPageDb(db, `/admin/cohort/${JANUARY}`);
   // D-268 (R-5 Phase 7): Utah Life's "What They Can Open" quotes the line a locked skill shows its members, a copy
   // string (Words): the reference's own Words, as Program › Course Settings holds them.
   if (/^\/admin\/people\/groups\//.test(at)) db.copy = P6_WORDS.map(([key, value, audience]) => ({ key, value, audience }));

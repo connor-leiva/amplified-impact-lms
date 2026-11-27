@@ -1,17 +1,15 @@
-import { useMemo, useState } from 'react';
-import clsx from 'clsx';
-import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { SEAT_TIER_GATED } from '@ai/core';
 import type { BillingActionResult, ConsoleCap } from '@ai/core';
 import { Button } from '../../components/r2/Button';
-import { Card } from '../../components/r2/Card';
 import type { MenuEntry } from '../../components/r2/Menu';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Bar, KV, Locked, PageHead, Pill, Skel, Stat, Tabs, Two, k, Stamp } from '../../components/r2/kit';
-import { masqueradeActive } from '../../data/console';
+import { PageHead, Pill, Skel, Tabs, Two, k, Stamp } from '../../components/r2/kit';
+import { BILLING_READ, masqueradeActive } from '../../data/console';
 import type { BillingListKind, BillingRows, ConsoleApi } from '../../data/console';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { useViewportWidth } from '../../shell/hooks';
@@ -33,7 +31,6 @@ import {
   refundVM,
   subscriptionVM,
 } from './billing.vm';
-import { REVIEW_SKILL_ROWS } from './users.vm';
 import type {
   ActionTarget,
   BillingSummaryVM,
@@ -41,7 +38,6 @@ import type {
   CustomerVM,
   FailedVM,
   InvoiceVM,
-  PlanRowVM,
   RefundVM,
   SubscriptionVM,
 } from './billing.vm';
@@ -61,27 +57,16 @@ const stripe = (url: string | null): MenuEntry[] =>
 
 /** Revenue › Payments (`/admin/revenue/payments[/:tab]`): Billing's five lists. */
 export function Component() {
-  return <Billing part="payments" />;
+  return <Billing />;
 }
 
-/** Revenue › Summary (`/admin/revenue`): Billing's own Summary, until Phase 8. */
-export function Summary() {
-  return <Billing part="summary" />;
-}
-
-// D-253: one page in two tabs. The Summary has no head of its own (Revenue's head says what it is); Payments keeps
-// Billing's description (the mockup's words) and its lists as a segmented control, Customers first.
-function Billing({ part }: { part: 'summary' | 'payments' }) {
+// D-253: Payments keeps Billing's description (the mockup's words) and its lists as a segmented control, Customers
+// first. R-5 Phase 8 (D-269): Revenue › Summary is the mockup's Revenue (`routes/admin/revenue/RevenueSummary.tsx`), so
+// Billing's own Summary (its four tiles, Plan economics and the one AI Accelerator card) is drawn nowhere now; the
+// summary is still read here for the Failed payments tab's count.
+function Billing() {
   const { tab: raw } = useParams();
-  const [params] = useSearchParams();
-  const tab: BillingTab | null =
-    part === 'summary'
-      ? 'summary'
-      : raw === undefined
-        ? 'customers'
-        : isBillingTab(raw) && raw !== 'summary'
-          ? raw
-          : null;
+  const tab: Exclude<BillingTab, 'summary'> | null = raw === undefined ? 'customers' : isBillingTab(raw) && raw !== 'summary' ? raw : null;
   const gate = useConsoleGate('billing');
   const navigate = useNavigate();
   const phone = useViewportWidth() < 768;
@@ -96,6 +81,10 @@ function Billing({ part }: { part: 'summary' | 'payments' }) {
     () => (summary.data ? billingSummaryVM(summary.data, api?.billingSample?.() ?? null) : null),
     [summary.data, api],
   );
+  // D-269: the summary was read, so the sidebar's "N failed" is known now.
+  useEffect(() => {
+    if (summary.data) window.dispatchEvent(new Event(BILLING_READ));
+  }, [summary.data]);
 
   if (gate.kind === 'hidden') return null;
   if (gate.kind === 'denied') return <Denied what={C.title} role={gate.role} />;
@@ -120,33 +109,10 @@ function Billing({ part }: { part: 'summary' | 'payments' }) {
 
   return (
     <Page>
-      {part === 'payments' ? (
-        <>
-          <PageHead
-            title={C.title}
-            meta={ro ? <Pill tone="neutral">{C.readOnly}</Pill> : undefined}
-            description={C.description}
-          />
-          <Tabs
-            tabs={tabs}
-            value={tab}
-            onChange={(t) => navigate(billingTabPath(t))}
-            phone={phone}
-            label={C.sections}
-          />
-        </>
-      ) : null}
+      <PageHead title={C.title} meta={ro ? <Pill tone="neutral">{C.readOnly}</Pill> : undefined} description={C.description} />
+      <Tabs tabs={tabs} value={tab} onChange={(t) => navigate(billingTabPath(t))} phone={phone} label={C.sections} />
       {gate.kind === 'error' ? (
         <LoadError failure={gate.failure} retry={gate.retry} />
-      ) : tab === 'summary' ? (
-        summary.status === 'error' && summary.failure ? (
-          <LoadError failure={summary.failure} detail={summary.detail} retry={summary.retry} />
-        ) : (
-          <SummaryView
-            vm={vm}
-            review={import.meta.env.VITE_DATA_SOURCE === 'fixture' && params.get('review') === 'skills'}
-          />
-        )
       ) : api ? (
         <List
           key={tab}
@@ -167,72 +133,8 @@ function Billing({ part }: { part: 'summary' | 'payments' }) {
   );
 }
 
-function SummaryView({ vm, review }: { vm: BillingSummaryVM | null; review: boolean }) {
-  const cols: Column<PlanRowVM>[] = [
-    {
-      key: 'plan',
-      label: C.plans.plan,
-      width: 'minmax(180px,1.4fr)',
-      value: (r) => r.plan,
-      cell: (r) => <span className={k.w5}>{r.plan}</span>,
-    },
-    { key: 'price', label: C.plans.price, width: 'minmax(160px,1fr)', value: (r) => r.price },
-    { key: 'active', label: C.plans.active, width: 'minmax(110px,1fr)', value: (r) => r.active },
-    { key: 'mrr', label: C.plans.mrr, width: '96px', num: true, value: (r) => r.mrr },
-  ];
-  const a = vm?.accelerator;
-  return (
-    <>
-      {vm ? (
-        <div className={k.g4}>
-          {vm.stats.map((s) => (
-            <Stat key={s.key} label={s.label} value={s.value} sub={s.sub} tone={s.tone} to={s.to} />
-          ))}
-        </div>
-      ) : (
-        <Skel lines={3} />
-      )}
-      <Table
-        title={vm?.plansTitle ?? C.plans.title}
-        label={C.plans.title}
-        cols={cols}
-        rows={vm?.plans ?? []}
-        rowKey={(r) => r.key}
-        loading={!vm}
-        empty={{ icon: 'r2Billing', title: C.empty.subscriptions }}
-      />
-      {a ? (
-        <Card
-          title={C.accelerator.title}
-          right={a.status ? <Status tone={a.status.tone}>{a.status.label}</Status> : undefined}
-        >
-          <KV
-            rows={[
-              { label: C.accelerator.price, value: a.price },
-              {
-                label: C.accelerator.sold,
-                value: (
-                  <span className={clsx(k.row, k.nw)} style={{ maxWidth: 260 }}>
-                    <Bar pct={a.seats.pct} kind={a.seats.bar} />
-                    <span className={k.tn}>{a.seats.text}</span>
-                  </span>
-                ),
-              },
-              { label: C.accelerator.cap, value: <Locked>{a.cap}</Locked> },
-              { label: C.accelerator.collected, value: a.collected },
-              { label: C.accelerator.second, value: a.second },
-            ]}
-          />
-        </Card>
-      ) : (
-        <Skel />
-      )}
-      <SkillPurchases rows={review ? REVIEW_SKILL_ROWS : (vm?.skillPurchases ?? [])} />
-    </>
-  );
-}
-
-function SkillPurchases({ rows }: { rows: BillingSummaryVM['skillPurchases'] }) {
+/** Today's Skill Purchases list (D-163's summary), drawn under Revenue › Summary when there is one (D-269). */
+export function SkillPurchases({ rows }: { rows: BillingSummaryVM['skillPurchases'] }) {
   if (!rows.length) return null;
   const cols: Column<BillingSummaryVM['skillPurchases'][number]>[] = [
     { key: 'skill', label: C.skills.skill, wrap: true, width: 'minmax(220px,2fr)', value: (r) => r.skill },

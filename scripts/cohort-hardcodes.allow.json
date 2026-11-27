@@ -113,13 +113,6 @@
       "phase": "9"
     },
     {
-      "file": "apps/web/src/routes/admin/Tiers.vm.ts",
-      "match": "c.id === 'dec26') ?? db.cohorts[0]",
-      "count": 1,
-      "reason": "Plans & Upgrades names December in its revenue line until Revenue › Summary (PLAN § 5.4).",
-      "phase": "8"
-    },
-    {
       "file": "apps/web/src/routes/console/Flags.tsx",
       "match": "?? 'dec26')",
       "count": 1,
