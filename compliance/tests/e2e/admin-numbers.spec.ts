@@ -11,7 +11,7 @@ import { APP_BASE, PARITY_NOW, PARITY_QUERY, PARITY_TZ } from '../../lib/admin-r
  * ("Sun, Nov 29 · 12:00 PM MT / 1:00 PM CT") opens nothing by this rule.
  *
  * It walks every screen of R-5 (the Overview, Program and its pages (D-265), every Cohort tab for December and for January as a draft, People's
- * tabs and Utah Life, Revenue's Payments and Plans & Upgrades) on the mockup's data (the parity fixture), at 1440. The planted check at the end
+ * tabs and Utah Life, Revenue's Summary (D-269), Payments and Plans & Upgrades) on the mockup's data (the parity fixture), at 1440. The planted check at the end
  * proves it fails on a number that is not a link.
  */
 
@@ -40,12 +40,16 @@ const SCREENS = [
   '/admin/people',
   '/admin/people/teams',
   '/admin/people/groups/utah-life',
+  // D-269 (R-5 Phase 8): Revenue › Summary, both periods: each figure opens the payments behind it, or this page's
+  // section that lists them; a cohort card's seat count opens its Enrollment.
+  '/admin/revenue',
+  '/admin/revenue?period=month',
   '/admin/revenue/payments',
   '/admin/revenue/plans',
 ];
-// Not walked, and why (D-267, "Decided overnight"): Revenue › Summary is Billing's own until Phase 8, which draws it as the
-// mockup's Revenue, every figure opening the payments behind it; Revenue › Usage is today's Usage, whose figures are
-// counters (requests, storage) with no list behind them. Both are pages R-5 wraps and has not built yet.
+// Not walked, and why (D-267, "Decided overnight"): Revenue › Usage is today's Usage, whose figures are counters
+// (requests, storage) with no list behind them, a page R-5 wraps and has not built. Revenue › Summary is walked since
+// Phase 8 (D-267 left it out "for Phase 8").
 
 /** A date or a time, not a count: a weekday or a month with a day, a clock, MT or CT. */
 const DATE = /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d|\b\d{1,2}:\d{2}\b|\b(AM|PM|MT|CT)\b/;
@@ -80,7 +84,7 @@ test.describe('every admin number opens the list it counts (D-267, spec § 4 rul
       const marked = await page.locator('main [data-number]').count();
       expect(await unlinked(page), `${path}: numbers that open nothing`).toEqual([]);
       // The walk saw something to check on the pages that have numbers.
-      if (path === '/admin' || path === '/admin/cohort/dec26' || path === '/admin/cohort/jan27') expect(marked).toBeGreaterThan(0);
+      if (path === '/admin' || path === '/admin/cohort/dec26' || path === '/admin/cohort/jan27' || path === '/admin/revenue') expect(marked).toBeGreaterThan(0);
     });
   }
 

@@ -81,7 +81,7 @@ import {
   fixtureWorkspace,
   fixtureWorkspaceRows,
 } from './console-fixture-records';
-import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
+import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary, fixtureRevenueSummary, fixtureRevenueUnreadable } from './console-fixture-billing';
 import { fixtureEndpoints, fixtureJobRows, fixtureJobs, fixtureRunJob, fixtureWebhookRows, fixtureWebhooks } from './console-fixture-ops';
 import { FIXTURE_ME, fixtureIncidentChange, fixtureIncidentPage, fixtureIncidents, fixturePerson } from './console-fixture-incidents';
 import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from './console-fixture-infra';
@@ -590,6 +590,28 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(billing[kind] as never[], cursor);
       }),
     billingSample: () => ({ ...BILLING_SAMPLE_LABELS }),
+    // D-269: Revenue › Summary, the reference's figures, every cohort of the snapshot at its capacity; and the sidebar's
+    // "N failed", which the fixture holds from the start.
+    // `?console-state=stripe_off` / `stripe_scope`: the answer with Stripe unreadable, as the API gives it (never a 503).
+    revenueSummary: async (period) => {
+      const cohorts = (await repo.snapshot()).cohorts.map((c) => ({ id: c.id, capacity: c.capacity }));
+      if (state === 'stripe_off' || state === 'stripe_scope') {
+        need('billing.read');
+        return fixtureRevenueUnreadable(
+          fixtureRevenueSummary(now(), period, cohorts),
+          state === 'stripe_off' ? { reason: 'not_connected' } : { reason: 'permission', scope: 'Invoices' },
+        );
+      }
+      return settle(() => {
+        need('billing.read');
+        return fixtureRevenueSummary(now(), period, cohorts);
+      });
+    },
+    billingFailedCount: () =>
+      settle(() => {
+        need('billing.read');
+        return { failed: fixtureBillingSummary(now()).failedPayments, asOf: now() };
+      }),
     billingPreview: (action, params) =>
       settle(() => {
         need(action === 'refund' ? 'billing.refund' : 'billing.void');

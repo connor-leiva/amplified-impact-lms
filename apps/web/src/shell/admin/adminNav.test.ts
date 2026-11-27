@@ -23,7 +23,7 @@ import type { AdminNavEntry, AdminNavGroup, AdminNavInput, AdminNavPage } from '
 // at most. D-253 (R-5 Phase 1, ADMIN-RESTRUCTURE-SPEC.md § 3): Overview, Program, Cohort, People and Revenue as single
 // rows, a hairline, then Operations and Access.
 
-const COUNTS = { drafts: 6, requests: 2, incidents: 1, waiting: 0 };
+const COUNTS = { drafts: 6, requests: 2, incidents: 1, waiting: 0, failed: 0 };
 const nav = (over: Partial<AdminNavInput> = {}) =>
   adminNav({ pathname: '/admin/no-such-page', role: 'Owner', fullNav: true, counts: COUNTS, cohortId: 'dec26', peek: undefined, ...over });
 const pages = (e: AdminNavEntry[]) => e.filter((x): x is AdminNavPage => x.kind === 'page');
@@ -209,8 +209,11 @@ describe('the admin sidebar (D-253: the frame)', () => {
     expect(roll('Cohort', { counts: { ...COUNTS, waiting: 3 }, cohortDraft: true })).toEqual({ text: 'Draft', draft: true });
     // An Instructor has no Community tab, so no "waiting" on its Cohort row.
     expect(roll('Cohort', { counts: { ...COUNTS, waiting: 3 }, role: 'Instructor', fullNav: false })).toBeUndefined();
-    // Revenue: no "N failed" until there is a count Billing already holds (D-253). Upgrade requests are on the tab.
+    // Revenue: "N failed", the Failed list's count as Billing holds it in memory (D-269), hidden at zero and for a role that
+    // can't open its Summary (an Instructor). Upgrade requests are on the tab.
     expect(roll('Revenue', { counts: { ...COUNTS, requests: 5 } })).toBeUndefined();
+    expect(roll('Revenue', { counts: { ...COUNTS, failed: 3 } })).toEqual({ text: '3 failed' });
+    expect(roll('Revenue', { counts: { ...COUNTS, failed: 3 }, role: 'Instructor', fullNav: false })).toBeUndefined();
     expect(roll('Overview')).toBeUndefined();
     expect(roll('People')).toBeUndefined();
     // A row's roll-up shows whether or not it is the page (the mockup's Cohort row, lit, with "3 waiting").

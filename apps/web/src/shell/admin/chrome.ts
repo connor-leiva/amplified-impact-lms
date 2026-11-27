@@ -34,7 +34,7 @@ const Ctx = createContext<AdminChrome>({
   setRecord: () => {},
   toast: () => {},
   role: null,
-  counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0 },
+  counts: { drafts: 0, requests: 0, incidents: 0, waiting: 0, failed: 0 },
   cohort: { id: null, label: '', choices: [], pick: () => {}, create: null },
 });
 

@@ -36,9 +36,7 @@ const rows = (page: Page) =>
 const crumbs = (page: Page) => page.locator('header nav[aria-label="Breadcrumb"]');
 
 test.describe('Billing on R2 (D-163) @g9 @console', () => {
-  test('the Summary: the stats, the plan lines and the AI Accelerator card, with its view-only cap', async ({
-    browser,
-  }) => {
+  test('the Summary is Revenue’s (D-269): its figures, from the address Billing had', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/billing');
     await expect(page).toHaveURL(/\/admin\/revenue\?/);
     await expect(page.getByRole('heading', { level: 1, name: 'Revenue' })).toBeVisible();
@@ -49,25 +47,11 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await expect(page.getByRole('tab', { name: /^Failed payments/ })).toHaveCount(0);
     // The Owner may act, so no read-only pill.
     await expect(page.getByText('Read-only for your role')).toHaveCount(0);
-    for (const t of [
-      'MRR · sample',
-      '$18,516',
-      '+$695 this week',
-      '77',
-      'Needs review',
-      'Refunds, 30d',
-      'Plan economics · sample figures',
-      '212 agents',
-      '11 of 15 seats',
-    ])
+    // R-5 Phase 8 (D-269): the mockup's Revenue in place of Billing's own Summary (`admin-revenue.spec.ts` holds the rest).
+    for (const t of ['Cash collected', '$82,694', 'Still to collect', 'Total revenue', 'MRR', '$12,429', 'Needs review'])
       await expect(page.locator('main').getByText(t, { exact: true }).first()).toBeVisible();
-    const card = page.locator('main section').filter({ has: page.getByRole('heading', { name: 'AI Accelerator' }) });
-    await expect(card).toContainText('$7,500, or two payments of $3,750');
-    await expect(card).toContainText('11 of 15');
-    await expect(card).toContainText('15 seats. Product rule, view only.');
-    await expect(card).toContainText('4 × $3,750 = $15,000');
-    // The cap is view-only: nothing on the card can be changed.
-    await expect(card.locator('button, input, select, textarea')).toHaveCount(0);
+    for (const gone of ['MRR · sample', 'Plan economics · sample figures', 'Second payments due'])
+      await expect(page.locator('main').getByText(gone, { exact: true })).toHaveCount(0);
     await expectAccessible(page);
     // A stat that goes somewhere is a link to its tab.
     await page.getByRole('link', { name: /Failed payments/ }).click();
@@ -148,12 +132,13 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
   });
 
   test('Denied without billing.read; an unknown tab is the Console 404', async ({ browser }) => {
-    for (const path of [
-      '/admin/billing?console-role=Instructor',
-      '/admin/billing/invoices?console-role=Content%20Editor',
-    ]) {
+    // D-269: the Summary is Revenue's, and says so.
+    for (const [path, what] of [
+      ['/admin/billing?console-role=Instructor', 'Revenue'],
+      ['/admin/billing/invoices?console-role=Content%20Editor', 'Billing'],
+    ] as const) {
       const { page, close } = await openAt(browser, path);
-      await expect(page.getByRole('heading', { level: 1, name: "Your role can't open Billing" })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: `Your role can't open ${what}` })).toBeVisible();
       await close();
     }
     const { page, close } = await openAt(browser, '/admin/billing/nope');
@@ -169,7 +154,8 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
       ['empty', '/admin/billing/invoices', 'No invoices yet'],
       ['error', '/admin/billing', 'This didn’t load.'],
       ['rate_limited', '/admin/billing/refunds', 'Too many requests.'],
-      ['stripe_off', '/admin/billing', "Stripe isn't connected"],
+      // D-269: Revenue › Summary answers Stripe unreadable as "Unavailable" (`admin-revenue.spec.ts`); a list refuses.
+      ['stripe_off', '/admin/billing/subscriptions', "Stripe isn't connected"],
       [
         'stripe_scope',
         '/admin/billing/invoices',

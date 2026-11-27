@@ -78,6 +78,8 @@
   --r2-not-started: #dad6cb;
   /* D-268: a picked audience chip's count (People › Everyone, the mockup's `.ch.on .tn`) */
   --r2-chip-on-count: #c9d2cd;
+  /* D-269: Revenue's "on the calendar" hatch (the mockup's `.hat`, over --r2-tint) */
+  --r2-hatch: #bfe3d0;
   /* Toast */
   --r2-toast-bg: #15211d;
   /* D-265: the unsaved-changes bar (`.svb`), the mockup's own colours */

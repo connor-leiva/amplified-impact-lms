@@ -106,7 +106,8 @@ export function Bar({ pct, pct2, kind = 'ok' }: { pct: number; pct2?: number; ki
 
 /**
  * `Stat` (R2-3): a KPI tile, the label over the figure over a muted line, which `tone` colours. A tile
- * that goes somewhere is a link to it, drawn as the mockup's `button.stat`.
+ * that goes somewhere is a link to it, drawn as the mockup's `button.stat`. D-269: one that opens a section of its own
+ * page is that button (`onClick`, Revenue's Still to collect and Total revenue), and `info` is the mockup's blue line.
  */
 export function Stat({
   label,
@@ -114,12 +115,14 @@ export function Stat({
   sub,
   tone,
   to,
+  onClick,
 }: {
   label: string;
   value: string;
   sub?: string;
-  tone?: 'ok' | 'warn' | 'bad' | null;
+  tone?: 'ok' | 'warn' | 'bad' | 'info' | null;
   to?: string | null;
+  onClick?: () => void;
 }) {
   const body = (
     <>
@@ -129,13 +132,19 @@ export function Stat({
       </span>
       {sub ? (
         <span
-          className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn, tone === 'bad' && k.toneBad)}
+          className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn, tone === 'bad' && k.toneBad, tone === 'info' && k.toneInfo)}
         >
           {sub}
         </span>
       ) : null}
     </>
   );
+  if (!to && onClick)
+    return (
+      <button type="button" className={clsx(k.cd, k.stat, k.go, k.statButton)} onClick={onClick}>
+        {body}
+      </button>
+    );
   return to ? (
     <Link to={to} className={clsx(k.cd, k.stat, k.go)}>
       {body}

@@ -7,14 +7,14 @@ import { ENVIRONMENT, PROGRAM, cohortLabel, initials, shellDataFrom, shellDataFr
 // from the snapshot.
 
 describe('the R2 parity fixture (D-160 R2-1b)', () => {
-  it('is the mockup’s: Connor Leiva, Owner; the cohort tile; Production; 6 draft, 2 and 1', () => {
+  it('is the mockup’s: Connor Leiva, Owner; the cohort tile; Production; 6 draft, 2, 1 and 3 failed', () => {
     expect(PARITY_R2.viewer).toEqual({ name: 'Connor Leiva', role: 'Owner' });
     expect(STAFF.map((s) => s.role)).toEqual(['Owner', 'Admin', 'Support']);
     expect(PARITY_R2.program).toBe('Amplified AI Accelerator');
     expect(PARITY_R2.cohort).toBe('December 2026 Cohort');
     expect(PARITY_R2.environment).toBe('Production');
     expect(PARITY_R2.started).toBe(true);
-    expect(PARITY_R2.counts).toEqual({ drafts: 6, requests: 2, incidents: 1 });
+    expect(PARITY_R2.counts).toEqual({ drafts: 6, requests: 2, incidents: 1, failed: 3 });
     expect(MODS0_STATUS).toHaveLength(15);
     expect(INCIDENTS.map((i) => i.id)).toEqual(['INC-0007', 'INC-0006', 'INC-0005']);
     expect(UPGRADE_REQUESTS).toHaveLength(3);
@@ -47,6 +47,7 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
       requests: db.requests.filter((q) => q.status === 'new').length,
       incidents: 0,
       waiting: 0,
+      failed: 0,
     });
     expect(d.fullNav).toBe(false);
     // The fixture build may preview another role; the name stays the viewer's.
@@ -59,7 +60,7 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
       program: 'Amplified AI Accelerator',
       programKey: 'accelerator',
       environment: 'Production',
-      counts: { drafts: 6, requests: 2, incidents: 1, waiting: 0 },
+      counts: { drafts: 6, requests: 2, incidents: 1, waiting: 0, failed: 3 },
       fullNav: true,
     });
   });

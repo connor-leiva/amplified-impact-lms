@@ -835,6 +835,57 @@ export const BILLING_REFUNDS = [
   ['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM'],
 ] as const;
 
+/**
+ * D-269 (R-5 Phase 8): Revenue › Summary, the reference's `Revenue` (`RV_PER`, `RV_MONTHS`, `rvProd`, `RV_NEXT`) as the
+ * API answers it (`RevenueSummary`), at the reference's "now" (Thu, Dec 10). December holds seven seats, five paid in
+ * full and two on two payments; January is a draft with none.
+ */
+export const REVENUE_R2 = {
+  /** The first payment, for "Since Aug 2026". */
+  firstPaid: 'Aug 14, 2026',
+  cash: { all: '$82,694', month: '$8,160' },
+  still: { amount: '$7,500', payments: 2, next: 'Dec 30, 2026' },
+  mrr: { amount: '$12,429', subscriptions: 59 },
+  failed: BILLING_SAMPLE.failed,
+  /** [month, collected, on the calendar, second payments, their amount]. */
+  months: [
+    ['2026-09', '$9,917', '$0', 0, '$0'],
+    ['2026-10', '$12,137', '$0', 0, '$0'],
+    ['2026-11', '$45,000', '$0', 0, '$0'],
+    ['2026-12', '$8,160', '$9,645', 2, '$7,500'],
+    ['2027-01', '$0', '$1,495', 0, '$0'],
+    ['2027-02', '$0', '$1,997', 0, '$0'],
+  ],
+  december: {
+    cohortId: 'dec26',
+    sold: 7,
+    paidInFull: 5,
+    paidInFullCents: '$37,500',
+    twoPay: 2,
+    twoPayIn: '$7,500',
+    scheduled: '$7,500',
+    collected: { all: '$45,000', month: '$0' },
+  },
+  /** [line, subscriptions, people, collected (all time, this month), MRR]. */
+  lines: [
+    ['agents16', 5, 27, ['$10,425', '$2,780'], '$3,475'],
+    ['agents41', 2, 12, ['$8,970', '$1,495'], '$2,990'],
+    ['agent_plan', 46, null, ['$16,146', '$3,483'], '$5,382'],
+    ['membership', 6, null, ['$1,746', '$291'], '$582'],
+    ['insiders_agent', 0, null, ['$0', '$0'], '$0'],
+  ],
+  skills: { all: [11, '$407'], month: [3, '$111'] },
+  /** [day, kind, line, n, amount, team, its name]. */
+  coming: [
+    ['Dec 11, 2026', 'retry', 'membership', 2, '$97', 'ws_tidewater', 'Tidewater Property Co.'],
+    ['Dec 15, 2026', 'renewal', 'agents16', 0, '$695', 'ws_halemarlowe', 'Hale & Marlowe Realty'],
+    ['Dec 20, 2026', 'renewal', 'agent_plan', 0, '$1,450', 'ws_redcliff', 'Red Cliff Collective'],
+    ['Dec 30, 2026', 'second', 'cohort', 2, '$3,750', 'ws_copperbasin', 'Copper Basin Realty'],
+    ['Dec 30, 2026', 'second', 'cohort', 2, '$3,750', 'ws_lantern', 'Lantern Street Partners'],
+    ['Jan 4, 2027', 'renewal', 'agents41', 0, '$1,495', 'ws_northshore', 'Northshore Group'],
+  ],
+} as const;
+
 /** The Workspace screen's staff notes (on Northshore Group), newest first. */
 export const WORKSPACE_NOTES = [
   [
@@ -1315,7 +1366,7 @@ export interface ParityR2 {
   environment: string;
   /** "Cohort: Week 2" (Week 2 of 6), not "before start". */
   started: boolean;
-  counts: { drafts: number; requests: number; incidents: number };
+  counts: { drafts: number; requests: number; incidents: number; failed: number };
   /** Show the mockup's whole `NAV`, built or not. */
   fullNav: true;
 }
@@ -1330,6 +1381,8 @@ export const PARITY_R2: ParityR2 = {
     drafts: MODS0_STATUS.filter((s) => s === 'Draft').length,
     requests: UPGRADE_REQUESTS.filter((r) => r[4] === 'Pending').length,
     incidents: INCIDENTS.filter((i) => i.st === 'Open').length,
+    // D-269: Revenue's "3 failed", the Failed list's count (the reference's `RV_FAILED`).
+    failed: BILLING_SAMPLE.failed,
   },
   fullNav: true,
 };

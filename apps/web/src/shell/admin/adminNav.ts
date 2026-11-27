@@ -32,7 +32,7 @@ export type SystemGroup = 'Operations' | 'Access';
 export const isSolo = (g: R2Group): g is SoloGroup => (SOLO_GROUPS as readonly string[]).includes(g);
 
 /** What a count says (D-239). Each hides at zero. `waiting` (D-238): Community threads whose last word is a member's. */
-export type BadgeKey = 'drafts' | 'requests' | 'incidents' | 'waiting';
+export type BadgeKey = 'drafts' | 'requests' | 'incidents' | 'waiting' | 'failed';
 export type NavCounts = Readonly<Record<BadgeKey, number>>;
 
 /** A row in a group that opens (Operations, Access). */
@@ -157,7 +157,7 @@ export const AREAS: Readonly<Record<AreaId, AreaDef>> = {
     icon: 'r2Billing',
     paletteIcon: 'r2Usage',
     tabs: [
-      // Billing's own Summary, until Phase 8; its five lists are Payments.
+      // R-5 Phase 8 (D-269): the mockup's Revenue; Billing's five lists are Payments.
       { id: 'summary', label: 'Summary', was: 'billing', cap: 'billing.read' },
       { id: 'payments', label: 'Payments', was: 'billing', cap: 'billing.read' },
       { id: 'plans', label: 'Plans & Upgrades', was: 'tiers' },
@@ -396,13 +396,15 @@ export function badgeText(key: BadgeKey | undefined, counts: NavCounts): string 
   if (key === 'drafts') return `${n} draft`;
   if (key === 'requests') return `${n} request${n === 1 ? '' : 's'}`;
   if (key === 'incidents') return `${n} incident${n === 1 ? '' : 's'}`;
+  if (key === 'failed') return `${n} failed`;
   return `${n} waiting`;
 }
 
 /**
  * A single row's roll-up (spec § 3): Program "N draft"; Cohort "N waiting" for the cohort it opens, or "Draft" when that
- * cohort is a draft. Revenue's "N failed" waits for a count Billing already holds (D-253): none is drawn yet. Upgrade
- * requests are counted on Plans & upgrades, not on the row.
+ * cohort is a draft. Revenue "N failed" (R-5 Phase 8, D-269): the count of the Failed list as Billing holds it in memory,
+ * for a role that can open Revenue's Summary; nothing while it is unknown. Upgrade requests are counted on Plans &
+ * upgrades, not on the row.
  */
 function rollOf(area: AreaId, input: AdminNavInput, tabs: AreaTabDef[]): AdminNavPage['roll'] {
   if (area === 'program') {
@@ -413,6 +415,10 @@ function rollOf(area: AreaId, input: AdminNavInput, tabs: AreaTabDef[]): AdminNa
     if (input.cohortDraft) return { text: 'Draft', draft: true };
     // "Waiting" is the Community's, so it shows to a role that can open the Community tab.
     const t = tabs.some((x) => x.id === 'community') ? badgeText('waiting', input.counts) : undefined;
+    return t ? { text: t } : undefined;
+  }
+  if (area === 'revenue') {
+    const t = tabs.some((x) => x.id === 'summary') ? badgeText('failed', input.counts) : undefined;
     return t ? { text: t } : undefined;
   }
   return undefined;

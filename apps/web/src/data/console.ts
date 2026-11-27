@@ -29,6 +29,8 @@ import type {
   BillingRefundRow,
   BillingSubscriptionRow,
   BillingSummary,
+  RevenuePeriod,
+  RevenueSummary,
   ConsoleErrorCode,
   ConsoleSkillRow,
   HealthResponse,
@@ -194,6 +196,10 @@ export interface ConsoleApi {
    * http client has no such method, so production prints its own words (D-163).
    */
   billingSample?(): BillingSample;
+  /** R-5 Phase 8 (D-269): Revenue › Summary for a period (`billing.read`). */
+  revenueSummary(period: RevenuePeriod): Promise<RevenueSummary>;
+  /** R-5 Phase 8 (D-269): the sidebar's "N failed", from what Billing holds in memory; null while unknown. */
+  billingFailedCount(): Promise<{ failed: number | null; asOf: number | null }>;
   // PR 5 (D-164): the confirmed refund and void, in two steps (spec § 7.6).
   /** What the action would do, and a confirm token good for 5 minutes. A refund is of what is left to refund. */
   billingPreview(action: BillingAction, params: { invoiceId: string }): Promise<BillingActionPreview>;
@@ -324,6 +330,8 @@ export function listQuery(values: Record<string, string | number | undefined>, c
 export const INCIDENTS_CHANGED = 'ai-incidents-changed';
 /** D-238: a Community screen changed a thread, so the sidebar's "N waiting" reads again. */
 export const COMMUNITY_CHANGED = 'ai-community-changed';
+/** R-5 Phase 8 (D-269): Billing's figures were read (Revenue › Summary, Payments), so the sidebar's "N failed" is known. */
+export const BILLING_READ = 'ai-billing-read';
 
 /** R-5 audit (D-267): the Community's address for staff on one cohort's tab (`?cohort=`). */
 export const communityQuery = (cohortId?: string): string => (cohortId ? `${COMMUNITY_PATH}?cohort=${encodeURIComponent(cohortId)}` : COMMUNITY_PATH);
@@ -468,6 +476,8 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     changeStaff: async (confirmToken) =>
       json<{ toast: string }>(await request(fetchImpl, '/api/console/staff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ confirmToken }) })),
     billingSummary: async () => json<BillingSummary>(await request(fetchImpl, '/api/console/billing/summary')),
+    revenueSummary: async (period) => json<RevenueSummary>(await request(fetchImpl, `/api/console/billing/revenue?period=${period}`)),
+    billingFailedCount: async () => json<{ failed: number | null; asOf: number | null }>(await request(fetchImpl, '/api/console/billing/failed-count')),
     billingList: async (kind, cursor) => json(await request(fetchImpl, `/api/console/billing/${kind}${listQuery({}, cursor)}`)),
     billingPreview: async (action, params) =>
       json<BillingActionPreview>(await request(fetchImpl, `/api/console/billing/${action}/preview`, JSON_POST({ invoiceId: params.invoiceId }))),

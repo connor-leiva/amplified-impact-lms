@@ -173,8 +173,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // (always, in the Console, by D2) is its "No masquerade session is active" empty state.
   masquerade: { path: '/admin/people/masquerade' },
   as: { path: '/admin/masquerade/learner-view' },
-  // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`). D-253: Revenue › Summary,
-  // Billing's own until Phase 8; and Revenue › Payments, Billing's lists from Customers.
+  // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`). D-253: Revenue › Summary, the
+  // mockup's Revenue since R-5 Phase 8 (D-269); and Revenue › Payments, Billing's lists from Customers.
   billing: { path: '/admin/revenue' },
   payments: { path: '/admin/revenue/payments' },
   // D-165: API & Webhooks (its Endpoints tab, the mockup's default `route.tab || 'endpoints'`) and

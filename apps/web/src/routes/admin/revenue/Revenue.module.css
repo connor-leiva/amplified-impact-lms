@@ -1,0 +1,74 @@
+/* R-5 Phase 8 (D-269): Revenue › Summary's own pieces, the R2 reference's (AdminRedesign.jsx, from the mockup's
+   ia-screens.jsx): the cash-by-month chart (`.rvc`, `.rvm`, `.rvb`), its hatch for what is on the calendar (`.hat`)
+   and its legend (`.lg`). This month is two parts in one column, what was collected under what is on its calendar. */
+
+.rvc {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+  height: 300px;
+}
+.rvm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  min-width: 0;
+}
+.rvb {
+  flex: 1;
+  width: 100%;
+  max-width: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-bottom: 1px solid var(--r2-line);
+}
+.rvb i {
+  display: block;
+  width: 100%;
+  flex: none;
+  border-radius: 6px 6px 0 0;
+  background: var(--r2-for);
+}
+.rvb i + i {
+  border-radius: 0;
+}
+.hat,
+.rvb i.hat {
+  background: repeating-linear-gradient(135deg, var(--r2-hatch) 0 6px, var(--r2-tint) 6px 12px);
+}
+.lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--r2-m);
+  color: var(--r2-f2);
+}
+.lg i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+  display: block;
+}
+.lg i.solid {
+  background: var(--r2-for);
+}
+/* Coming In's From: a block, so its ellipsis holds (the mockup's `display: block`). */
+.block {
+  display: block;
+}
+/* A section a tile scrolls to. */
+.anchor {
+  scroll-margin-top: 16px;
+}
+
+@media (max-width: 767px) {
+  .rvc {
+    gap: 6px;
+    height: 180px;
+  }
+}

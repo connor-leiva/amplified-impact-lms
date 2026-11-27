@@ -13,7 +13,7 @@ import { overviewR2VM, overviewVM } from './Overview.vm';
 import { accessGroupVM, groupDescription } from './people/accessGroup.vm';
 
 const NOW = Date.parse('2026-12-10T16:30:00.000Z');
-const COUNTS = { drafts: 0, requests: 0, incidents: 0, waiting: 0 };
+const COUNTS = { drafts: 0, requests: 0, incidents: 0, waiting: 0, failed: 0 };
 
 /** The ordinary fixture as the API serves it (ZERO_BASE), with a roster: two of its learners and one team count. */
 function withRoster(): { db: Db; cohortId: string; counted: string[]; team: string } {
