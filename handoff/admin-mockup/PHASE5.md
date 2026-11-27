@@ -13,7 +13,7 @@ The decision entry is D-262.
 - Nothing cohort-specific is hard-coded (PLAN § 10.10). The code never creates a Stripe price or a Payment Link (§ 10.1,
   Q-21); it reads them. Stripe writes run in test mode, in tests, against a fake.
 
-## 1. The columns (migration `0046_cohort_selling.sql`; numbered 0046 after #282 took 0045)
+## 1. The columns (migration `0047_cohort_selling.sql`; numbered 0047 after #282 took 0045 and #284 took 0046)
 
 Additive only, every column nullable with no default (D-173): a null reads back as an absent key, so every row made
 before reads as it did.
@@ -57,7 +57,7 @@ no new capability, as the brief asks ("pick the existing permission that fits").
 - **December keeps its answer.** `/api/mutate/openEnrollment` stays the reference's mutation, word for word
   ("Only a draft cohort can open for enrollment." for December), as Phase 3 left it.
 - **Close (Connor, Nov 27)** writes when it was closed (`cohorts.enrollment_closed_at`, a new nullable column in
-  migration 0046) and never `status`: PLAN § 2.5 says R-5 never writes `live` or `completed`. The status stays
+  migration 0047) and never `status`: PLAN § 2.5 says R-5 never writes `live` or `completed`. The status stays
   `enrolling`, so the reminders (`jobs/due.ts`) and the derived status words (D-255) do not move. Open enrollment is
   one rule, `enrollmentOpen`: `enrolling`, not archived, not closed. Close writes nothing to Stripe: its dialog warns
   staff to turn the cohort's Payment Links off in Stripe by hand ("This doesn’t turn off its Payment Links. Turn them

@@ -346,7 +346,7 @@ const cohortRow = (c: Cohort): Row => ({
   overlapOkAt: col(c.overlapOkAt),
   words: col(c.words),
   hosts: col(c.hosts),
-  // R-5 Phase 5 (D-262, migration 0046).
+  // R-5 Phase 5 (D-262, migration 0047).
   founding: col(c.founding),
   foundingClosesAt: col(c.foundingClosesAt),
   lookupKeyFull: col(c.lookupKeyFull),
