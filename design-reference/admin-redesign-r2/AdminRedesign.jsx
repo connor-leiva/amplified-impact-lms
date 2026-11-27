@@ -59,7 +59,16 @@ position:absolute;left:0;top:0;transform-origin:0 0;display:flex;flex-direction:
 .g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
 .gms{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
 .lap .g5{grid-template-columns:repeat(6,minmax(0,1fr))}.lap .g5>*{grid-column:span 2}.lap .g5>:nth-child(n+4){grid-column:span 3}.lap .gms{grid-template-columns:minmax(0,1fr) 300px}
-.ph .g2,.ph .g3,.ph .gms{grid-template-columns:minmax(0,1fr)}.ph .g4,.ph .g5{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ph .g2,.ph .g3,.ph .gms{grid-template-columns:minmax(0,1fr)}
+/* D-269 (R-5 Phase 8): Revenue › Summary's cash by month, from the mockup (ia-screens.jsx). This month is two parts, what
+   was collected under what is on its calendar (.rvb's column); a phone keeps the 16px floor, its figures shortened. */
+.rvc{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:end;height:300px}
+.rvm{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;min-width:0}
+.rvb{flex:1;width:100%;max-width:72px;display:flex;flex-direction:column;justify-content:flex-end;border-bottom:1px solid var(--line)}
+.rvb i{display:block;width:100%;flex:none;border-radius:6px 6px 0 0;background:var(--for)}.rvb i+i{border-radius:0}
+.hat{background:repeating-linear-gradient(135deg,#BFE3D0 0 6px,#E7F1EB 6px 12px)!important}
+.ph .rvc{gap:6px;height:180px}
+.lg{display:inline-flex;align-items:center;gap:6px;font-size:var(--m);color:var(--f2)}.lg i{width:8px;height:8px;border-radius:2px;flex:none;display:block}.ph .g4,.ph .g5{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 /* masquerade banner */
 .mq{background:#F7E2A6;color:#3D2A03;border-bottom:1px solid #DDBE66;padding:6px var(--pad);min-height:40px;display:flex;gap:4px 12px;align-items:center;flex-wrap:wrap;flex:none}
 .mq .who{flex:1 1 300px;min-width:0}
@@ -1412,10 +1421,87 @@ function Groups() {
     </div>
   </div>;
 }
+/* ---------- D-269 (R-5 Phase 8): Revenue › Summary ----------
+   Ported from handoff/admin-mockup/ia-screens.jsx (`Revenue`) on this reference's own data: its "now" (Thu, Dec 10), its
+   teams (`WS`), December at its capacity (`P3_COH.dec26.cap`) and January created as a draft (a By Product row, no card:
+   it is neither selling nor running). Each figure is the app's rule: Cash collected is Stripe's paid invoices and the
+   skills, less refunds, in the period; Still to collect the two-payment seats' remaining payments, dated by Stripe; the
+   chart six months, the three before this one and the two after, this month collected under what is on its calendar; By
+   Product one row per cohort and per billing line, then Skills; Coming in the next 60 days; a card per cohort that is
+   selling or running. Its times are days, so none names a zone. On a phone the chart's figures are shortened ("$45K")
+   to keep the 16px floor, where the mockup set them at 11px. */
+const RV_FAILED = 3;
+const RV_PER = {
+  'All time': { c: '$82,694', cs: 'Since Aug 2026', t: '$90,194' },
+  'This month': { c: '$8,160', cs: 'Dec 1 to Dec 10', t: '$15,660' },
+};
+// [month, collected, on the calendar]: December is this month, both.
+const RV_MONTHS = [['Sep', 9917, 0], ['Oct', 12137, 0], ['Nov', 45000, 0], ['Dec', 8160, 9645], ['Jan', 0, 1495], ['Feb', 0, 1997]];
+const RV_NOW = 'Dec';
+// [product, its line, collected (all time, this month), still to collect, MRR, where it opens]. A function: the cohorts are
+// defined further down.
+const rvProd = () => [
+  ['AI Accelerator', 'December 2026 · 7 of ' + P3_COH.dec26.cap + ' seats', ['$45,000', '$0'], '$7,500', 'One-time', 'dec26'],
+  ['AI Accelerator', 'January 2027 · 0 of ' + P3_COH.jan27.cap + ' seats', ['$0', '$0'], '$0', 'One-time', 'jan27'],
+  ['Team Plan · 16 seats', '5 teams · 27 people', ['$10,425', '$2,780'], '$0', '$3,475', 'subs'],
+  ['Team Plan · 41 seats', '2 teams · 12 people', ['$8,970', '$1,495'], '$0', '$2,990', 'subs'],
+  ['Agent Plan', '46 agents', ['$16,146', '$3,483'], '$0', '$5,382', 'subs'],
+  ['Insiders', '6 members', ['$1,746', '$291'], '$0', '$582', 'subs'],
+  ['Insiders for Agents', '0 members', ['$0', '$0'], '$0', '$0', 'subs'],
+  ['Skills', '11 bought', ['$407', '$111'], '$0', 'One-time', 'invoices'],
+];
+const RV_SKILLS_MONTH = '3 bought';
+const RV_NEXT = [
+  ['Fri, Dec 11', 'Tidewater Property Co.', 'Insiders, second try', '$97', 'Retrying', 'ws_tidewater'],
+  ['Tue, Dec 15', 'Hale & Marlowe Realty', 'Team Plan renewal', '$695', 'Scheduled', 'ws_halemarlowe'],
+  ['Sun, Dec 20', 'Red Cliff Collective', 'Agent Plan renewal', '$1,450', 'Scheduled', 'ws_redcliff'],
+  ['Wed, Dec 30', 'Copper Basin Realty', 'Accelerator, payment 2 of 2', '$3,750', 'Scheduled', 'ws_copperbasin'],
+  ['Wed, Dec 30', 'Lantern Street Partners', 'Accelerator, payment 2 of 2', '$3,750', 'Scheduled', 'ws_lantern'],
+  ['Mon, Jan 4', 'Northshore Group', 'Team Plan renewal', '$1,495', 'Scheduled', 'ws_northshore'],
+];
+const rvShort = n => n >= 10000 ? '$' + Math.round(n / 1000) + 'K' : n >= 1000 ? '$' + (Math.round(n / 100) / 10) + 'K' : '$' + n;
+function Revenue() {
+  const { go, ph } = useC();
+  const [per, setPer] = useState('All time');
+  const r = RV_PER[per], m0 = per === 'All time' ? 0 : 1, max = Math.max(...RV_MONTHS.map(m => m[1] + m[2]));
+  const usd = n => '$' + n.toLocaleString('en-US');
+  const h = v => Math.max(4, (v / max) * 100) + '%';
+  const to = id => document.getElementById(id) && document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const legend = <><span className="lg"><i style={{ background: 'var(--for)' }} />Collected</span><span className="lg"><i className="hat" />On the calendar</span></>;
+  const n = s => +s.slice(1).replace(/,/g, '');
+  const prod = rvProd().map(p => [p[0], p[0] === 'Skills' && m0 ? RV_SKILLS_MONTH : p[1], p[2][m0], p[3], usd(n(p[2][m0]) + n(p[3])), p[4], p[5]]);
+  return <div className="pg">
+    <Head t="Revenue" right={<Sel label="Period" v={per} on={setPer} opts={['All time', 'This month']} />} />
+    <div className="g5">
+      <Stat l="Cash collected" v={r.c} sub={r.cs} go={() => go('payments', null, 'invoices')} />
+      <Stat l="Still to collect" v="$7,500" sub={ph ? '2 payments · Dec 30' : '2 payments · Wed, Dec 30'} tone="info" go={() => to('rv-next')} />
+      <Stat l="Total revenue" v={r.t} sub="Collected + still to collect" go={() => to('rv-prod')} />
+      <Stat l="MRR" v="$12,429" sub="59 subscriptions" tone="ok" go={() => go('payments', null, 'subs')} />
+      <Stat l="Failed payments" v={String(RV_FAILED)} sub="Needs review" tone="bad" go={() => go('payments', null, 'failed')} />
+    </div>
+    <div className="gms">
+      <Card t="Cash By Month" sub="Collected, and what Stripe already has on the calendar" right={!ph && <span className="row" style={{ gap: 12 }}>{legend}</span>}>
+        <div className="rvc" role="img" aria-label="Cash collected by month from September to December, and what is scheduled for December to February.">{RV_MONTHS.map(m => <div key={m[0]} className="rvm"><span className="tn me">{ph ? rvShort(m[1] + m[2]) : usd(m[1] + m[2])}</span><span className="rvb">{m[2] ? <i className="hat" style={{ height: h(m[2]) }} /> : null}{m[1] || !m[2] ? <i style={{ height: h(m[1]) }} /> : null}</span><span className={'w5' + (m[0] === RV_NOW ? '' : ' mu')}>{m[0]}</span></div>)}</div>
+        {ph && <div className="row" style={{ gap: 12, marginTop: 12 }}>{legend}</div>}
+        <p className="me" style={{ marginTop: 12 }}>December counts two second payments ($7,500) and this month’s renewals. It is not a forecast of new sales.</p>
+      </Card>
+      <div className="col">
+        <Card t="AI Accelerator" sub={P3_COH.dec26.n} right={<Btn onClick={() => { P3C = P3_COH.dec26; go('learners'); }}>People</Btn>}><div className="col m">
+          <button className="rdy" onClick={() => { P3C = P3_COH.dec26; go('cohortset'); }}><span style={{ flex: '0 0 96px' }}>Seats sold</span><Bar v={7} max={P3_COH.dec26.cap} fx /><span className="tn w5 rdn">7 of {P3_COH.dec26.cap}</span></button>
+          <div className="kvs"><KV rows={[['Paid in full', '5 teams · $37,500'], ['On two payments', '2 teams · $7,500 in, $7,500 to come'], ['Refunds', 'None']]} /></div></div></Card>
+        <Card t="Refunds" sub="Last 30 days" right={<Btn onClick={() => go('payments', null, 'refunds')}>Open</Btn>}><span className="fig">$0</span><p className="me">None</p></Card>
+      </div>
+    </div>
+    <div id="rv-prod"><Table title="By Product" rows={prod} onRow={p => { if (p[0] === 'AI Accelerator') { P3C = P3_COH[p[6]]; go('learners'); } else go('payments', null, p[6]); }}
+      cols={[{ k: 0, l: 'Product', w: 'minmax(160px,1.4fr)', r: p => <Two a={p[0]} b={p[1]} /> }, { k: 2, l: 'Collected', w: '110px', num: 1 }, { k: 3, l: 'Still to collect', w: '120px', num: 1, hide: 'lap' }, { k: 4, l: 'Total', w: '110px', num: 1, r: p => <span className="w5">{p[4]}</span> }, { k: 5, l: 'MRR', w: '100px', num: 1 }]} /></div>
+    <div id="rv-next"><Table title="Coming In" right={<span className="me">Next 60 days · $11,237</span>} rows={RV_NEXT} onRow={p => go('workspace', p[5])}
+      cols={[{ k: 0, l: 'When', w: '120px', ns: 1 }, { k: 1, l: 'From', w: 'minmax(180px,1.3fr)', r: p => <span className="w5 el" style={{ display: 'block' }}>{p[1]}</span> }, { k: 2, l: 'For', w: 'minmax(190px,1.3fr)', hide: 'lap' }, { k: 3, l: 'Amount', w: '96px', num: 1 }, { k: 4, l: 'Status', w: '112px', r: p => <St v={p[4]} /> }]} /></div>
+  </div>;
+}
 function RevenueArea() {
-  // Plans & upgrades counts the upgrade requests waiting (Tiers & Upgrades' own "2"). Summary is Billing's own until Phase 8.
+  // Plans & upgrades counts the upgrade requests waiting (Tiers & Upgrades' own "2"). D-269: Summary is the mockup's Revenue.
   return <Area k="revenue" t="Revenue" d="What has come in, what is still owed on a payment plan, and what repeats every month. Every figure is from Stripe and opens the payments behind it." counts={{ plans: 2 }}>
-    {tab => tab === 'payments' ? <Billing /> : tab === 'plans' ? <Tiers /> : tab === 'usage' ? <Usage /> : <Billing part="summary" />}</Area>;
+    {tab => tab === 'payments' ? <Billing /> : tab === 'plans' ? <Tiers /> : tab === 'usage' ? <Usage /> : <Revenue />}</Area>;
 }
 
 /* ---------- D-255 (R-5 Phase 3): the Cohort page's Overview, Schedule and Settings, and New cohort ----------
@@ -2026,10 +2112,10 @@ function Sidebar({ rail, setRail, drawer, close }) {
   const [peek, setPeek] = useState(undefined);   // the one group opened by hand (null: all shut); undefined: the group you are in
   useEffect(() => { setPeek(undefined); }, [active]);
   // Program: its draft weeks. Cohort: "N waiting" (Community threads) or "Draft"; this reference has no threads and no draft cohort.
-  // Revenue's "N failed" waits for a count Billing already holds (D-253): none is drawn yet. Upgrade requests are counted on
-  // Plans & upgrades, not on the row.
+  // Revenue: "N failed", the count of the Failed list, as Billing holds it in memory (D-269; the mockup's "3 failed"). Upgrade
+  // requests are counted on Plans & upgrades, not on the row.
   const drafts = mods.filter(m => m.st === 'Draft').length;
-  const badge = n => n[0] === 'program' ? (drafts ? drafts + ' draft' : '') : n[0] === 'cohort' ? (P3C.draft ? 'Draft' : '') : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[3];
+  const badge = n => n[0] === 'program' ? (drafts ? drafts + ' draft' : '') : n[0] === 'cohort' ? (P3C.draft ? 'Draft' : '') : n[0] === 'revenue' ? (RV_FAILED ? RV_FAILED + ' failed' : '') : n[0] === 'incidents' && n[3] ? n[3] + (n[3] === '1' ? ' incident' : ' incidents') : n[3];
   // Collapse and expand travel. Three things, so the width and the layout can change at different moments:
   //   nar   the column is 64px wide        r   the rail's layout (one icon per group)        anim   'collapsing' | 'expanding' while it moves
   // Closing: the column narrows (380 ms, the system's curve) and the logo's window closes to "ai" with it; for the first 160 ms
