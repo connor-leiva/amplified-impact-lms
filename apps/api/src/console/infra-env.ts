@@ -55,6 +55,8 @@ export function envPresence(env: Env = process.env): EnvPresence[] {
     { name: 'Stripe webhook signing secret', group: 'Stripe', state: state(o.stripeWebhookSecret !== null) },
     // `email/transport.ts` reads `RESEND_API_KEY` when it sends.
     { name: 'Resend API key', group: 'Resend', state: state(isSet(env, 'RESEND_API_KEY')) },
+    // D-263: `email/resend-webhook.ts` reads `RESEND_WEBHOOK_SECRET` on each delivery.
+    { name: 'Resend webhook signing secret', group: 'Resend', state: state(isSet(env, 'RESEND_WEBHOOK_SECRET')) },
     // `readGhlConfig` needs both; each is shown, so a half-set pair says which half is missing.
     { name: 'GoHighLevel access token', group: 'GoHighLevel', state: state(isSet(env, 'GHL_TOKEN')) },
     { name: 'GoHighLevel location ID', group: 'GoHighLevel', state: state(isSet(env, 'GHL_LOCATION_ID')) },

@@ -177,11 +177,18 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   jobTicks: { table: 'job_ticks', columns: ['actor_user_id', 'error_kind', 'finished_at', 'id', 'job', 'started_at', 'status', 'trigger'], gate: 9 },
   // D-166: the Admin Console's email log (spec § 7.15), with no column for a body, and usage counts
   // (spec § 7.7). Neither is a `Db` record, like `audit_log`.
+  // D-263: and what Resend's webhook reports about each sent row, folded from `resend_events`.
   emailLog: {
     table: 'email_log',
-    columns: ['at', 'error_kind', 'id', 'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id'],
+    columns: [
+      'at', 'bounce_message', 'bounce_sub_type', 'bounce_type', 'bounced_at', 'click_count', 'clicked_first_at', 'clicked_last_at', 'clicked_link',
+      'complained_at', 'delayed_at', 'delivered_at', 'delivery_status', 'error_kind', 'id', 'open_count', 'opened_first_at', 'opened_last_at',
+      'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id',
+    ],
     gate: 9,
   },
+  // D-263: every Resend webhook event the email log records, once, by its message id. Not a `Db` record.
+  resendEvents: { table: 'resend_events', columns: ['bounce_message', 'bounce_sub_type', 'bounce_type', 'email_id', 'id', 'link', 'occurred_at', 'received_at', 'type'], gate: 9 },
   usageDaily: { table: 'usage_daily', columns: ['count', 'day', 'kind', 'team_id', 'user_id'], gate: 9 },
   // D-167: the Admin Console's incidents and their timelines (spec § 7.14). Not `Db` records, like `audit_log`.
   incidents: {
@@ -427,6 +434,17 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['jobTicks', 'finishedAt'],
   // D-166: when a send was logged, as `clock.now()` stamps it.
   ['emailLog', 'at'],
+  // D-263: when Resend says each delivery event happened, and when the webhook received it.
+  ['emailLog', 'deliveredAt'],
+  ['emailLog', 'delayedAt'],
+  ['emailLog', 'bouncedAt'],
+  ['emailLog', 'complainedAt'],
+  ['emailLog', 'openedFirstAt'],
+  ['emailLog', 'openedLastAt'],
+  ['emailLog', 'clickedFirstAt'],
+  ['emailLog', 'clickedLastAt'],
+  ['resendEvents', 'occurredAt'],
+  ['resendEvents', 'receivedAt'],
   // D-167: when an incident opened, was acknowledged and resolved, and when each timeline line was written.
   ['incidents', 'openedAt'],
   ['incidents', 'acknowledgedAt'],
@@ -509,6 +527,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   jobTicks: { unit: 'epoch-ms', why: 'D-165: a run’s start and end from clock.now(); the next run is the start plus an interval in ms' },
   emailLog: { unit: 'epoch-ms', why: 'D-166: at is clock.now() as written by email/log.ts, pruned against it, and printed in MST by the R2 admin' },
   usageDaily: { unit: 'epoch-ms', why: 'D-166: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
+  resendEvents: { unit: 'epoch-ms', why: 'D-263: occurred_at is Resend’s created_at parsed to ms, received_at is clock.now(); both folded into email_log and pruned against it' },
   incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
   consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at and turned_on_at are clock.now() as written by console/flags.ts, and fmt.* formats them' },
@@ -772,6 +791,13 @@ describe('unique indexes @g9', () => {
       { name: 'email_log_at_idx', unique: false, columns: ['at'] },
       { name: 'email_log_user_idx', unique: false, columns: ['user_id'] },
       { name: 'email_log_template_idx', unique: false, columns: ['template'] },
+      // D-263: a webhook event finds its row by Resend's id.
+      { name: 'email_log_provider_id_idx', unique: false, columns: ['provider_id'] },
+    ],
+    // D-263: an email's events, for its fold; and the 180-day prune by arrival.
+    resendEvents: [
+      { name: 'resend_events_email_idx', unique: false, columns: ['email_id'] },
+      { name: 'resend_events_received_idx', unique: false, columns: ['received_at'] },
     ],
     usageDaily: [{ name: 'usage_daily_team_idx', unique: false, columns: ['team_id', 'day'] }],
     // D-167: one UNRESOLVED incident per fingerprint (partial: the test below pins its `where`), and
@@ -825,6 +851,7 @@ describe('unique indexes @g9', () => {
   it('gives the email log and usage their lookup indexes, none unique (D-166) @g9', () => {
     expect(indexesOf(tableOf('emailLog'))).toEqual(LOOKUP_INDEXES.emailLog);
     expect(indexesOf(tableOf('usageDaily'))).toEqual(LOOKUP_INDEXES.usageDaily);
+    expect(indexesOf(tableOf('resendEvents'))).toEqual(LOOKUP_INDEXES.resendEvents);
   });
 
   it('keeps one unresolved incident per fingerprint, and indexes timelines by incident @g9', () => {

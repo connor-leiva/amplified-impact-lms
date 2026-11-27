@@ -30,6 +30,8 @@ const SECRET_VARS: [name: string, prefix: string, suffix?: string][] = [
   ['STRIPE_SECRET_KEY', 'rk_live_'],
   ['STRIPE_WEBHOOK_SECRET', 'whsec_'],
   ['RESEND_API_KEY', 're_'],
+  // D-263: the Resend webhook's signing secret.
+  ['RESEND_WEBHOOK_SECRET', 'whsec_'],
   ['EMAIL_FROM', 'mail-', '@example.com'],
   ['GHL_TOKEN', 'pit-'],
   ['GHL_LOCATION_ID', ''],

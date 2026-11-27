@@ -552,19 +552,41 @@ export const JOBS = [
 ] as const;
 // ---- PR 7 (D-166): the Email Log's and Usage's figures, verbatim ----------------------------------------
 
-/** `EMAILS`, verbatim: recipient, template, subject, status, sent. */
-export const EMAILS = [
-  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM' },
-  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM' },
-  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Opened', t: 'Dec 9, 3:10 PM' },
-  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM' },
-  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM' },
-  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Queued', t: 'Dec 10, 9:18 AM' },
-  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM' },
-] as const;
+/**
+ * One of `EMAILS`: recipient, template, subject, status, sent; and D-263's delivery from Resend's webhook: when
+ * it was delivered (`dl`), its opens (`op`, first `fo`, last `lo`), its clicks (`cl`, first `fc`, last `lc`), the
+ * last link clicked (`ln`) and a bounce's type, subtype and message (`br`).
+ */
+export interface MockEmail {
+  to: string;
+  tpl: string;
+  sub: string;
+  st: 'Sent' | 'Delivered' | 'Delayed' | 'Bounced' | 'Complained';
+  t: string;
+  dl?: string;
+  op: number;
+  fo?: string;
+  lo?: string;
+  cl: number;
+  fc?: string;
+  lc?: string;
+  ln?: string;
+  br?: string;
+}
 
-/** The Email Log's Status options (`Sel` in `Email`), after "Any status". */
-export const EMAIL_STATUS_OPTIONS = ['Delivered', 'Opened', 'Queued', 'Bounced'] as const;
+/** `EMAILS`, verbatim. */
+export const EMAILS: readonly MockEmail[] = [
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM', dl: 'Dec 8, 12:00 PM', op: 2, fo: 'Dec 8, 12:41 PM', lo: 'Dec 8, 6:40 PM', cl: 1, fc: 'Dec 8, 12:42 PM', lc: 'Dec 8, 12:42 PM', ln: 'https://learn.example.com/sessions/2' },
+  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM', dl: 'Dec 4, 9:04 AM', op: 1, fo: 'Dec 4, 9:30 AM', lo: 'Dec 4, 9:30 AM', cl: 0 },
+  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Delivered', t: 'Dec 9, 3:10 PM', dl: 'Dec 9, 3:10 PM', op: 3, fo: 'Dec 9, 3:12 PM', lo: 'Dec 9, 8:12 PM', cl: 2, fc: 'Dec 9, 3:13 PM', lc: 'Dec 9, 8:13 PM', ln: 'https://learn.example.com/replays/2' },
+  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM', dl: 'Dec 9, 11:26 AM', op: 1, fo: 'Dec 9, 11:27 AM', lo: 'Dec 9, 11:27 AM', cl: 1, fc: 'Dec 9, 11:27 AM', lc: 'Dec 9, 11:27 AM', ln: 'https://learn.example.com/sign-in' },
+  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM', op: 0, cl: 0, br: 'Permanent · General · The mailbox does not exist.' },
+  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Sent', t: 'Dec 10, 9:18 AM', op: 0, cl: 0 },
+  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM', dl: 'Dec 8, 3:00 PM', op: 0, cl: 0 },
+];
+
+/** The Email Log's Status options (`Sel` in `Email`), after "Any status" (D-263). */
+export const EMAIL_STATUS_OPTIONS = ['Sent', 'Delivered', 'Delayed', 'Bounced', 'Complained', 'Failed', 'Skipped'] as const;
 
 /** `Usage`'s chart (`bars`), verbatim: each day's height in percent, Nov 27 to Dec 10. */
 export const USAGE_BARS = [62, 71, 68, 80, 77, 31, 28, 74, 85, 88, 92, 81, 36, 30] as const;

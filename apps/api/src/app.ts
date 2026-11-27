@@ -71,6 +71,7 @@ import { close as closeDatabase, getDb } from './db/client';
 import { renderTemplate } from './email/templates';
 import { setRenderer, setSendObserver } from './email/transport';
 import { logSend } from './email/log';
+import { registerResendWebhook } from './email/resend-webhook';
 import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
 import { registerLegalPages } from './routes/legal';
@@ -669,6 +670,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     setRenderer(renderTemplate);
     // D-166: the email log, written after each send and never in its way (`email/log.ts`).
     setSendObserver(logSend);
+    // D-263: Resend's delivery events on that log, signed with RESEND_WEBHOOK_SECRET (503 until it is set).
+    await registerResendWebhook(app);
 
     events = registerEventsRoute(app);
     // A thunk, not `events.broadcast` by reference: the routes then call whatever the hub's

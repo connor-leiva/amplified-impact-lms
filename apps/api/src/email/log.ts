@@ -5,7 +5,9 @@
 // What a row keeps: when, to whom (and that address's user, when there is one), the template, the
 // subject, the provider and Resend's message id, and the outcome. NEVER THE BODY: the observer is not
 // handed it, and the table has no column for it. A failure keeps its kind, never its words, which can
-// hold an address. v1 has no delivery events, so `sent` means Resend accepted it.
+// hold an address. `sent` means Resend accepted it; what happened next comes from Resend's webhook
+// (D-263, `email/resend-webhook.ts`). A webhook event can beat this write, so a sent row is refolded from
+// any events already kept for its id, right after it is written.
 
 import { sql } from 'drizzle-orm';
 import { EMAIL_SUBJECT_MAX, EMAIL_TO_MAX, emailErrorKind } from '@ai/core';
@@ -13,6 +15,7 @@ import type { EmailErrorKind, EmailProvider, EmailStatus } from '@ai/core';
 import { getDb } from '../db/client';
 import { clock } from '../lib/clock';
 import { observe } from '../lib/observe';
+import { refoldLogged } from './resend-webhook';
 import type { SendRecord } from './transport';
 
 export interface EmailLogEntry {
@@ -45,11 +48,13 @@ export function emailLogEntry({ result, providerId }: SendRecord, at: number): E
 /** `transport.send()`'s observer: one row per send, never awaited by it. */
 export function logSend(record: SendRecord): void {
   const e = emailLogEntry(record, clock.now());
-  observe('email log', () =>
-    getDb().execute(sql`
+  observe('email log', async () => {
+    const db = getDb();
+    await db.execute(sql`
       insert into email_log (at, "to", user_id, template, subject, provider, provider_id, status, error_kind)
       values (${e.at}, ${e.to}, (select u.id from users u where u.email = lower(btrim(${e.to})) limit 1),
         ${e.template}, ${e.subject}, ${e.provider}, ${e.providerId}, ${e.status}, ${e.errorKind})
-    `),
-  );
+    `);
+    if (e.providerId) await refoldLogged(db, e.providerId);
+  });
 }

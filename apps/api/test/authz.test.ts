@@ -623,6 +623,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/checkout', methods: 'POST', guard: 'open' },
   { path: '/api/offer/waitlist', methods: 'POST', guard: 'open' },
   { path: '/api/stripe/webhook', methods: 'POST', guard: 'open' },
+  // D-263: Resend's delivery events, signed with RESEND_WEBHOOK_SECRET instead of a session.
+  { path: '/api/webhooks/resend', methods: 'POST', guard: 'open' },
   // The skill library (D-079): signed in, like the Vault.
   { path: '/api/skills', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/skills/:id/download/:kind', methods: 'GET, HEAD', guard: 'session' },
@@ -1522,6 +1524,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           ['/api/checkout', app.inject({ method: 'POST', url: '/api/checkout', payload: { cart: 'library', website: 'x' } })],
           ['/api/offer/waitlist', app.inject({ method: 'POST', url: '/api/offer/waitlist', payload: { firstName: 'Probe', email: 'probe@example.test', website: 'x' } })],
           ['/api/stripe/webhook', app.inject({ method: 'POST', url: '/api/stripe/webhook', payload: '{}', headers: { 'content-type': 'application/json' } })],
+          // D-263: Resend's webhook, unsigned: refused for its signature (or 503 with no secret), never for a session.
+          ['/api/webhooks/resend', app.inject({ method: 'POST', url: '/api/webhooks/resend', payload: '{}', headers: { 'content-type': 'application/json' } })],
         ];
 
         for (const [path, pending] of probes) {
@@ -1615,8 +1619,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     expect(EXECUTED.unauthenticated).toBe(109);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
-    // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
-    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5 + 5);
+    // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes. And Resend's webhook (D-263).
+    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5 + 5 + 1);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
     // The + 1: the AI Accelerator's course route (D-110), probed unauthenticated. The + 7: D-132's
     // password routes, two probed unauthenticated and five as exempt. The + 2: the CRM sync log and its
@@ -1642,6 +1646,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the cohort welcome's test send, probed unauthenticated. And + 1 for the Week 0
     // Is Open email's test send, probed unauthenticated. And + 1 for the Cohort page's facts (D-255), probed unauthenticated.
     // And + 2 for Comp a team's cohorts list and comp, probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2);
+    // And + 1 for Resend's webhook (D-263), probed as exempt.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1);
   });
 });

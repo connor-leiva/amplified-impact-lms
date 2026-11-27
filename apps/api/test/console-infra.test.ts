@@ -190,6 +190,7 @@ describe('env presence: booleans and modes only (spec § 7.13) @console', () => 
       ['Stripe secret key', 'present'],
       ['Stripe webhook signing secret', 'not_configured'],
       ['Resend API key', 'not_configured'],
+      ['Resend webhook signing secret', 'not_configured'],
       ['GoHighLevel access token', 'present'],
       ['GoHighLevel location ID', 'present'],
       ['Google OAuth client secret', 'not_configured'],
@@ -268,7 +269,11 @@ describe('integrations (spec § 7.13) @console', () => {
       lastSuccess: { at: NOW - 30 * MIN, detail: null },
       lastError: { at: NOW - 90 * MIN, detail: 'Resend refused it' },
       source: 'email_log',
-      secrets: [{ label: 'API key', state: 'present' }],
+      // D-263: and the webhook's signing secret, not set in this environment.
+      secrets: [
+        { label: 'API key', state: 'present' },
+        { label: 'Webhook signing secret', state: 'not_configured' },
+      ],
       probe: true,
     });
     expect(res.body).not.toContain('a@example.com');
