@@ -1,12 +1,13 @@
 // R-5 audit (D-267): the admin's view-models read one rule for who counts in a cohort (`Db.roster`, the API's), name the
 // selected cohort, draw People's tab for each access group, and Team Hub reads its cohort's name. Pure.
 import { describe, expect, it } from 'vitest';
-import { ZERO_BASE, phaseNow, seed, setViewerZone } from '@ai/core';
+import { ZERO_BASE, phaseNow, rosterOf, seed, setViewerZone } from '@ai/core';
 import type { AccessGroupView, Db } from '@ai/core';
 import { parityDb } from '../../data/parity-r2-db';
 import { areaTabs, crumbsOf, groupOfTab, groupTabId, placeOf, tabPath } from '../../shell/admin/adminNav';
 import { teamHubVM } from '../portal/TeamHub.vm';
 import { areaCounts } from './areas/area.vm';
+import { cohortPeopleVM } from './cohort/people.vm';
 import { learnersR2VM } from './Learners.vm';
 import { overviewR2VM, overviewVM } from './Overview.vm';
 import { accessGroupVM, groupDescription } from './people/accessGroup.vm';
@@ -151,6 +152,63 @@ describe('People › an access group’s tab (Utah Life)', () => {
     const vm = accessGroupVM(parityDb('/admin/people/groups/utah-life'), 'utah-life')!;
     expect(vm.total).toBe(8);
     expect(vm.rows[3]).toMatchObject({ email: 'k••••@liveutah.com', last: 'Invite pending' });
+  });
+});
+
+describe('Utah Life agents are never December’s learners (D-268)', () => {
+  /**
+   * December as production holds it: the seed's teams each own an account with a live cohort plan in December, and
+   * Utah Life's agents are provisioned the way `createGroupMember` writes them: active, Agent tier, `users.cohort_id`
+   * naming December, each the owner of a team of one with an account and no plan row. The roster is the one rule's
+   * (`rosterOf`), as the API reads it for the snapshot.
+   */
+  function december(agents: number): { db: Db; ids: string[] } {
+    const d: Db = { ...seed('live'), base: { ...ZERO_BASE } };
+    const cohortId = d.cohorts[0]!.id;
+    const like = d.users.find((u) => u.teamId !== null && u.status !== 'invited')!;
+    const team = d.teams.find((t) => t.id === like.teamId)!;
+    const ids = Array.from({ length: agents }, (_, i) => `u_utah${i}`);
+    const users = [
+      ...d.users.map((u) => ({ ...u, cohortId })),
+      ...ids.map((id, i) => ({ ...like, id, name: '', email: `agent${i}@liveutah.com`, teamId: `t_${id}`, tier: 'agent' as const, status: 'active' as const, cohortId, last: NOW - DAY, progress: {} })),
+    ];
+    const teams = [...d.teams, ...ids.map((id) => ({ ...team, id: `t_${id}`, name: '', ownerId: id, seats: 1 }))];
+    const roster = rosterOf({
+      accounts: teams.map((t) => ({ id: `a_${t.id}`, teamId: t.id, ownerUserId: t.ownerId })),
+      plans: d.teams.map((t) => ({ accountId: `a_${t.id}`, kind: 'cohort', status: 'active', cohortId, createdAt: NOW - 30 * DAY })),
+      users: users.map((u) => ({ id: u.id, teamId: u.teamId, kind: 'learner', isTest: u.test === true })),
+    });
+    const groups: AccessGroupView[] = [
+      { id: 'utah-life', name: 'Utah Life', emailDomain: 'liveutah.com', plan: 'agent_plan', members: ids.map((userId, i) => ({ userId, name: '', email: `agent${i}@liveutah.com`, last: NOW - DAY, invited: false })) },
+    ];
+    return { db: { ...d, users, teams, roster, groups }, ids };
+  }
+  const DAY = 86_400_000;
+
+  it('the roster leaves them out of December, its learners and its teams', () => {
+    const { db, ids } = december(8);
+    const dec = db.roster![db.cohorts[0]!.id]!;
+    expect(dec.learners.length).toBeGreaterThan(0);
+    for (const id of ids) {
+      expect(dec.learners).not.toContain(id);
+      expect(dec.teams).not.toContain(`t_${id}`);
+    }
+  });
+
+  it('every Overview and Cohort › People figure reads the same with eight active agents as with none', () => {
+    const none = december(0).db;
+    const { db } = december(8);
+    const cohortId = db.cohorts[0]!.id;
+    expect(overviewR2VM(db, NOW, cohortId)).toEqual(overviewR2VM(none, NOW, cohortId));
+    expect(overviewVM(db, NOW, cohortId)).toEqual(overviewVM(none, NOW, cohortId));
+    expect(cohortPeopleVM(db, cohortId, NOW, null)).toEqual(cohortPeopleVM(none, cohortId, NOW, null));
+    expect(learnersR2VM(db, NOW, { tier: 'All tiers', q: '' }, cohortId)).toEqual(learnersR2VM(none, NOW, { tier: 'All tiers', q: '' }, cohortId));
+    expect(areaCounts(db, 'cohort', cohortId, COUNTS)).toEqual(areaCounts(none, 'cohort', cohortId, COUNTS));
+  });
+
+  it('People counts them once, under Utah Life', () => {
+    const { db } = december(8);
+    expect(areaCounts(db, 'people', db.cohorts[0]!.id, COUNTS)).toEqual({ [groupTabId('utah-life')]: 8 });
   });
 });
 
