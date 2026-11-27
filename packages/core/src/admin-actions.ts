@@ -27,10 +27,13 @@ import { fmt } from './time';
 import { withoutRetired } from './course-retired';
 import { changedFields, checklistIssues, copyIssues, diffSummary, issueLine, moduleCopyFields, tourIssues, videoIssues } from './course-rules';
 import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, saveSession } from './course-actions';
+import { saveCohortEnrollment, saveCohortPrice } from './cohort-selling';
 import {
   addCohortSessions,
+  closeCohortEnrollment,
   createCohortFromShape,
   keepCohortOverlap,
+  openCohortEnrollment,
   saveCohortHosts,
   saveCohortIncluded,
   saveCohortRun,
@@ -784,6 +787,11 @@ export const ADMIN_ACTIONS = {
   saveCohortIncluded,
   saveCohortHosts,
   keepCohortOverlap,
+  // R-5 Phase 5 (D-262): Settings › Enrollment (`cohort-selling.ts`, `cohort-actions.ts`), the `billing` permission.
+  saveCohortPrice,
+  saveCohortEnrollment,
+  openCohortEnrollment,
+  closeCohortEnrollment,
 };
 
 export type AdminActionName = keyof typeof ADMIN_ACTIONS;

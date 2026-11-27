@@ -11,7 +11,7 @@
 // and `GET /api/course`.
 
 import { and, eq, inArray } from 'drizzle-orm';
-import { DEFAULT_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming, cohortOpensAt } from '@ai/core/accelerator';
+import { DEFAULT_COHORT_ID, acceleratorOpen, acceleratorPaused, acceleratorUpcoming, courseOpensAt } from '@ai/core/accelerator';
 import { cohortOfPlans } from '@ai/core/cohort-run';
 import type { CohortPlan } from '@ai/core/cohort-run';
 import type { AcceleratorPlan, CourseRoster } from '@ai/core/accelerator';
@@ -55,14 +55,16 @@ export async function viewerCohortId(db: Reader, userId: string): Promise<string
   return cohortOfPlans(rows.map((r): CohortPlan => ({ kind: r.kind, status: r.status, cohortId: r.cohortId, createdAt: Number(r.createdAt) })));
 }
 
-/** R-5 (D-254): when the course opens for a cohort's plans (`cohortOpensAt`): December's is D-153's instant. */
+/**
+ * R-5 (D-254): when the course opens for a cohort's plans. R-5 Phase 5 (D-262, PLAN § 10.10): every cohort's first live
+ * build, read the same way (`courseOpensAt`); December's, `dec26-s1`, starts at D-153's instant.
+ */
 export async function opensAtOf(db: Reader, cohortId: string): Promise<number> {
-  if (cohortId === DEFAULT_COHORT_ID) return cohortOpensAt(cohortId, []);
   const rows = await db
     .select({ cohortId: sessions.cohortId, start: sessions.start, kind: sessions.kind })
     .from(sessions)
     .where(and(eq(sessions.cohortId, cohortId), eq(sessions.kind, 'live_build')));
-  return cohortOpensAt(
+  return courseOpensAt(
     cohortId,
     rows.map((r) => ({ cohortId: r.cohortId, start: Number(r.start), kind: 'live_build' as const })),
   );
@@ -101,14 +103,14 @@ export async function acceleratorAccess(db: Reader, userId: string, now: number)
  */
 export async function acceleratorRoster(db: Reader): Promise<CourseRoster> {
   const { byTeam, teamOf, cohortOfTeam } = await rosterInputs(db);
-  // R-5 (D-254): each learner's course opens when their own cohort's does (`cohortOpensAt`); December's is the
-  // constant, so `courseRoster`'s single instant is what every team without another cohort still reads.
+  // R-5 (D-254): each learner's course opens when their own cohort's does. R-5 Phase 5 (D-262): every cohort's first
+  // live build, read the same way (`courseOpensAt`); December's is D-153's instant.
   const builds = await db.select({ cohortId: sessions.cohortId, start: sessions.start }).from(sessions).where(eq(sessions.kind, 'live_build'));
   const opensAt = new Map<string, number>();
   const openingOf = (cohortId: string): number => {
     let at = opensAt.get(cohortId);
     if (at === undefined) {
-      at = cohortOpensAt(
+      at = courseOpensAt(
         cohortId,
         builds.map((b) => ({ cohortId: b.cohortId, start: Number(b.start), kind: 'live_build' as const })),
       );

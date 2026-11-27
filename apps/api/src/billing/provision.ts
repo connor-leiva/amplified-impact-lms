@@ -25,19 +25,24 @@
 // from the plan (`agent_plan` opens the agent set) from Jan 4, not from the role. A buyer who already
 // holds a Team tier plan keeps it: `provisionOwner` raises a tier and never lowers one.
 
-import { and, eq, isNull, ne, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { provisionOwner } from '@ai/core';
 import type { Effect } from '@ai/core';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { loadDb, persistDiff } from '../db/io';
-import { accounts, orders, plans, users } from '../db/schema';
+import { accounts, orders, plans, teams, users } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { dispatchEffects, pendingSendsFor } from '../routes/mutate';
 import type { PendingSend } from '../routes/mutate';
-import { COHORT_ONE, COHORT_SEATS, cartFor, initialPlanDates } from './catalog';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { cohortOfPlans } from '@ai/core/cohort-run';
+import { NO_SELLING_ENV } from '@ai/core/cohort-selling';
+import { audit } from '../console/audit';
+import { cartFor, initialPlanDates } from './catalog';
 import type { PlanDates } from './catalog';
 import type { PlanKind, PlanStatus } from './catalog';
+import { cohortExists, orderCohortId, planCohortOf, sellingOf } from './cohort-sale';
 
 export interface BillingLog {
   info(obj: Record<string, unknown>, msg: string): void;
@@ -47,10 +52,18 @@ export interface BillingLog {
 
 export type ProvisionOutcome =
   | { ok: true; accountId: string; planId: string; createdAccount: boolean; createdPlan: boolean; invite: 'sent' | 'held' | 'already' }
-  | { ok: false; reason: 'no-order' | 'not-paid' | 'unknown-cart' | 'staff-email' | 'member-of-another-team' };
+  | {
+      ok: false;
+      // R-5 Phase 5 (D-262): `unknown-cohort`, an `ai_cohort` the database does not hold; `cohort-not-ready`, a cohort with
+      // no included-time end to pay a seat through. Both are recorded and paid, and staff provision them by hand.
+      reason: 'no-order' | 'not-paid' | 'unknown-cart' | 'staff-email' | 'member-of-another-team' | 'unknown-cohort' | 'cohort-not-ready';
+    };
 
-/** The team every owner joins: cohort one, the platform's one production cohort (D-078). */
-const OWNER_COHORT = COHORT_ONE.id;
+/**
+ * The cohort every owner who buys no cohort seat joins: the default cohort (D-078), where it is inert (their plan is
+ * the gate). An AI Accelerator buyer joins the cohort the seat is sold in (R-5 Phase 5, D-262).
+ */
+const OWNER_COHORT = DEFAULT_COHORT_ID;
 
 /**
  * Every owner is Team tier, so the Team Hub is theirs to add the logins their plan includes (the
@@ -117,10 +130,17 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     if (!cart || !order.email) return { ok: false, reason: 'unknown-cart' };
     const email = order.email.trim().toLowerCase();
 
+    // R-5 Phase 5 (D-262): the cohort a seat is sold in: the checkout's `ai_cohort`, else December, forever. A comp
+    // (#282) names its cohort itself (`options.cohortId`). The cohort's record gives the plan its dates
+    // (`initialPlanDates`: its first live build and its included-time end), unless the caller hands them in (a comp's).
+    const cohortId = cart.plan === 'cohort' ? (options.cohortId ?? orderCohortId(order)) : null;
+    if (cart.plan === 'cohort' && order.cohortId !== null && !(await cohortExists(tx, order.cohortId))) return { ok: false, reason: 'unknown-cohort' };
+    const sale = cohortId !== null && !options.planDates ? await planCohortOf(tx, cohortId, NO_SELLING_ENV) : undefined;
+    if (sale && sale.liveUntil === null) return { ok: false, reason: 'cohort-not-ready' };
+
     // The team and its owner, through core.
     const before = await loadDb(tx);
     const [existingAccount] = await tx.select().from(accounts).where(eq(accounts.ownerEmail, email)).limit(1);
-    const cohortId = options.cohortId ?? OWNER_COHORT;
     const owner = provisionOwner(
       before,
       {
@@ -129,7 +149,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
         teamName: options.applyTeamName && order.company ? order.company : (existingAccount?.name ?? (order.company || order.name || email)),
         seats: cart.seats,
         tier: ownerTier(cart.plan),
-        cohortId,
+        cohortId: cohortId ?? options.cohortId ?? OWNER_COHORT,
         applyTeamName: options.applyTeamName,
         applyOwnerName: options.applyOwnerName,
         placeInCohort: options.placeInCohort,
@@ -170,8 +190,9 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     let [plan] = await tx.select().from(plans).where(eq(plans.orderId, order.id)).limit(1);
     const createdPlan = !plan;
     if (!plan) {
-      // Charged today, or a trial with nothing paid yet (the Agent Plan before Jan 4, D-106).
-      const dates = options.planDates ?? initialPlanDates(cart, now, order.status === 'paid');
+      // Charged today, or a trial with nothing paid yet (the Agent Plan before Jan 4, D-106). A cohort seat's are its
+      // cohort's (R-5 Phase 5, D-262); a comp's are the ones it hands in (#282).
+      const dates = options.planDates ?? initialPlanDates(cart, now, order.status === 'paid', sale);
       [plan] = await tx
         .insert(plans)
         .values({
@@ -197,18 +218,22 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     }
     if (order.accountId !== acct.id) await tx.update(orders).set({ accountId: acct.id }).where(eq(orders.id, order.id));
 
-    // Fifteen founding seats across both links (D-104). The sale that fills the last one tells Connor
-    // and Ampy: the offer page has already switched to the waitlist, and the webhook turns both Stripe
-    // links off once this commits (D-154, `payment-links.ts`). A checkout already open when it sold
-    // can still finish: that 16th seat is provisioned, and reported.
-    // A comp is not a sale: it does not fill a founding seat, so it does not announce a sell-out.
-    if (createdPlan && cart.plan === 'cohort' && order.origin !== 'comp') {
-      const n = await cohortSeatsSold(tx);
-      if (n === COHORT_SEATS) {
-        log.error({ order: order.id, seat: n }, `AI Accelerator sold out: seat ${n} of ${COHORT_SEATS}. The page shows the waitlist; both Accelerator Payment Links are being turned off`);
-      } else if (n > COHORT_SEATS) {
-        log.error({ order: order.id, seat: n }, `AI Accelerator seat ${n} sold, past the ${COHORT_SEATS} seats: Connor follows up`);
+    // The cohort's seats, across both its links (D-104, R-5 Phase 5: per cohort, at its own cap). The sale that fills the
+    // last one tells Connor and Ampy: the offer page has already switched to the waitlist, and the webhook turns the
+    // cohort's Payment Links off once this commits (D-154, `payment-links.ts`). A checkout already open when it sold can
+    // still finish: that seat past the cap is provisioned, and reported. A comp is not a sale (#282): it fills no
+    // founding seat, so it announces no sell-out; it is placed like any seat, so its team is in one cohort.
+    if (createdPlan && cart.plan === 'cohort' && cohortId !== null) {
+      if (order.origin !== 'comp') {
+        const cap = (await sellingOf(tx, cohortId, NO_SELLING_ENV)).capacity;
+        const n = await cohortSeatsSold(tx, cohortId);
+        if (n === cap) {
+          log.error({ order: order.id, seat: n, cohort: cohortId }, `AI Accelerator sold out: seat ${n} of ${cap}. The page shows the waitlist; both Accelerator Payment Links are being turned off`);
+        } else if (n > cap) {
+          log.error({ order: order.id, seat: n, cohort: cohortId }, `AI Accelerator seat ${n} sold, past the ${cap} seats: Connor follows up`);
+        }
       }
+      await placeTeam(tx, acct.teamId, order.id, now, log);
     }
 
     // The invite.
@@ -310,8 +335,52 @@ export async function provisionSkillBuyer(
 }
 
 /**
+ * R-5 Phase 5 (D-262): the team follows its newest live cohort plan (`cohortOfPlans`, Q-23's stated assumption: a team
+ * is in one cohort at a time). Every learner on the team gets that cohort as `users.cohort_id`, so Community and files
+ * (which read plans) and the snapshot and join (which read `users.cohort_id`) agree. A team that held a live seat in
+ * another cohort is moved, and the move is written to the audit log for Connor (`cohort.team_moved`); its progress and
+ * files stay, keyed by team and week. A brand-new team has nothing to move: provisioning made it in the cohort.
+ */
+async function placeTeam(tx: Pick<Database, 'select' | 'update' | 'insert'>, teamId: string, orderId: string, now: number, log: BillingLog): Promise<void> {
+  const accts = await tx.select({ id: accounts.id }).from(accounts).where(eq(accounts.teamId, teamId));
+  const held = accts.length
+    ? await tx
+        .select({ kind: plans.kind, status: plans.status, cohortId: plans.cohortId, createdAt: plans.createdAt, orderId: plans.orderId })
+        .from(plans)
+        .where(and(inArray(plans.accountId, accts.map((a) => a.id)), eq(plans.kind, 'cohort'), ne(plans.status, 'ended')))
+    : [];
+  const cohort = cohortOfPlans(held.map((p) => ({ kind: p.kind, status: p.status, cohortId: p.cohortId, createdAt: Number(p.createdAt) })));
+  const moved = await tx
+    .select({ id: users.id, cohortId: users.cohortId })
+    .from(users)
+    .where(and(eq(users.teamId, teamId), eq(users.kind, 'learner'), ne(users.cohortId, cohort)));
+  if (!moved.length) return;
+  await tx.update(users).set({ cohortId: cohort }).where(inArray(users.id, moved.map((u) => u.id)));
+  // Q-23: a sale that takes a team out of a cohort it holds a live seat in is Connor's to see.
+  const from = [...new Set(held.filter((p) => p.orderId !== orderId && p.cohortId && p.cohortId !== cohort).map((p) => p.cohortId!))];
+  if (!from.length) return;
+  const [team] = await tx.select({ name: teams.name }).from(teams).where(eq(teams.id, teamId)).limit(1);
+  await audit(
+    null,
+    {
+      action: 'cohort.team_moved',
+      outcome: 'ok',
+      actor: { source: 'system', role: 'stripe' },
+      target: { type: 'team', id: teamId, label: team?.name ?? teamId },
+      before: { cohortId: from.length === 1 ? from[0] : from },
+      after: { cohortId: cohort, order: orderId, learners: moved.length, at: now },
+      reason: 'A team that holds a seat in another cohort bought one in this cohort (Q-23): it is in the newest one now; its progress and files stay.',
+    },
+    tx,
+  );
+  log.error({ team: teamId, order: orderId, from, to: cohort }, 'a team with a seat in another cohort bought one in this cohort: moved to it (Q-23). Connor follows up');
+}
+
+/**
  * AI Accelerator seats sold: cohort plans not ended (a refund ends one and frees its seat). Paid in
- * full or after the first of two payments, both links count toward the same 15 (D-104).
+ * full or after the first of two payments, both links count toward the same cap (D-104). R-5 Phase 5 (D-262): per
+ * cohort, by `plans.cohort_id` (a plan with none is December's, as every cohort plan before R-5 was). Without a cohort,
+ * every cohort's together, as D-154 counted before.
  */
 /**
  * A cohort plan that counts as a seat (D-202). A seeded test account's plan is the same shape as a
@@ -333,10 +402,14 @@ export const countedCohortSeat = and(
   )`,
 );
 
-export async function cohortSeatsSold(db: Pick<Database, 'select'>): Promise<number> {
-  const [{ n }] = (await db.select({ n: sql<number>`count(*)::int` }).from(plans).where(countedCohortSeat)) as [{ n: number }];
+export async function cohortSeatsSold(db: Pick<Database, 'select'>, cohortId?: string): Promise<number> {
+  const where = cohortId === undefined ? countedCohortSeat : and(countedCohortSeat, inCohort(cohortId));
+  const [{ n }] = (await db.select({ n: sql<number>`count(*)::int` }).from(plans).where(where)) as [{ n: number }];
   return n;
 }
+
+/** A cohort plan in this cohort: its `cohort_id`, or none, which is December's (every cohort plan before R-5 had one). */
+export const inCohort = (cohortId: string) => sql`coalesce(${plans.cohortId}, ${DEFAULT_COHORT_ID}) = ${cohortId}`;
 
 /** Send every invite that was held for `INVITES_FROM`. Returns how many went out. */
 export async function sendHeldInvites(options: { db?: Database; log: BillingLog; now: number; invitesFrom: number }): Promise<number> {

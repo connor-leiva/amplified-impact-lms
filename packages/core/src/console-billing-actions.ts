@@ -137,6 +137,8 @@ export interface RefundFacts {
   match: RefundMatch | null;
   /** D-154's counter (`cohortSeatsSold`) now; read only when this refund would end a seat. */
   seatsSold: number | null;
+  /** R-5 Phase 5 (D-262): the cap of the plan's cohort (`capacity`); absent, December's 15. */
+  seatCap?: number | null;
 }
 
 /** What is left to refund on a payment. */
@@ -183,7 +185,7 @@ export function refundConsequences(f: RefundFacts): string[] {
   if (refundEndsSeat(f) && f.seatsSold !== null) {
     const after = Math.max(0, f.seatsSold - 1);
     out.push(
-      `The AI Accelerator seat is freed (D-154): seats sold go from ${f.seatsSold} to ${after} of ${COHORT_SEATS}. ` +
+      `The AI Accelerator seat is freed (D-154): seats sold go from ${f.seatsSold} to ${after} of ${f.seatCap ?? COHORT_SEATS}. ` +
         'The Payment Links check that runs after the refund turns both links back on if the cap had turned them off and founding seats still sell.',
     );
   }

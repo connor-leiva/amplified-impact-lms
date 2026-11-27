@@ -38,6 +38,7 @@ import { statusForMutationError } from './mutate';
 import { claimSendNowEmails, sendClaimed, withSendNowToast } from '../email/announce-now';
 import type { SendNowClaim } from '../email/announce-now';
 import { cohortFactsOf } from '../lib/cohort-facts';
+import type { StripeFactsReader } from '../lib/cohort-facts';
 
 export const ADMIN_ACTIONS_PATH = '/api/admin/actions/:name';
 
@@ -154,6 +155,25 @@ export const ADMIN_ACTION_SCHEMAS: { [K in AdminActionName]: z.ZodType<AdminActi
   saveCohortIncluded: z.strictObject({ cohortId: id, date: text(10).nullable() }),
   saveCohortHosts: z.strictObject({ cohortId: id, hosts: text(300) }),
   keepCohortOverlap: z.strictObject({ cohortId: id }),
+  // R-5 Phase 5 (D-262): Settings › Enrollment, the `billing` permission. No amount: the price is Stripe's (Q-30).
+  saveCohortPrice: z.strictObject({
+    cohortId: id,
+    full: text(200).nullable(),
+    rollover: text(200).nullable(),
+    twoPay: text(200).nullable(),
+    offerTwoPay: z.boolean(),
+  }),
+  saveCohortEnrollment: z.strictObject({
+    cohortId: id,
+    founding: z.boolean(),
+    foundingCloses: dateTime.nullable(),
+    linkFull: text(2048).nullable(),
+    linkTwoPay: text(2048).nullable(),
+    capacity: z.number().int(),
+    ghlValue: text(40).nullable(),
+  }),
+  openCohortEnrollment: z.strictObject({ cohortId: id }),
+  closeCohortEnrollment: z.strictObject({ cohortId: id }),
 };
 
 type ActionFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => AdminOutcome;
@@ -166,9 +186,14 @@ type Committed =
 export interface AdminActionsRouteOptions {
   /** § 7.6: called after each commit, so every connected client refetches. */
   broadcast: () => void;
+  /** R-5 Phase 5 (D-262): what Stripe says about a cohort's keys and links, read only, for Open enrollment. */
+  stripeFacts?: StripeFactsReader;
 }
 
-export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: AdminActionsRouteOptions): void {
+/** The actions that read what the record holds about a cohort beyond the snapshot. */
+const FACT_ACTIONS: ReadonlySet<string> = new Set(['saveCohortIncluded', 'saveCohortEnrollment', 'openCohortEnrollment']);
+
+export function registerAdminActionsRoute(app: FastifyInstance, { broadcast, stripeFacts }: AdminActionsRouteOptions): void {
   app.post<{ Params: { name: string } }>(
     ADMIN_ACTIONS_PATH,
     { preHandler: [requireSession, requireJsonSameOrigin], config: { rateLimit: { max: ADMIN_ACTION_RATE, timeWindow: '1 minute' } } },
@@ -198,8 +223,12 @@ export function registerAdminActionsRoute(app: FastifyInstance, { broadcast }: A
           const before = await loadDb(tx);
           // D-255: what a cohort write needs beyond the snapshot (its plans, for the included time's freeze).
           const cohortId = (parsed.data as { cohortId?: unknown }).cohortId;
+          // R-5 Phase 5 (D-262): Open enrollment reads Before It Opens (its test sends, and what Stripe says about its keys
+          // and links, read only); a seat cap reads the seats already sold.
           const cohortFacts =
-            name === 'saveCohortIncluded' && typeof cohortId === 'string' ? { [cohortId]: await cohortFactsOf(tx, cohortId) } : undefined;
+            FACT_ACTIONS.has(name) && typeof cohortId === 'string'
+              ? { [cohortId]: await cohortFactsOf(tx, cohortId, name === 'openCohortEnrollment' ? stripeFacts : undefined) }
+              : undefined;
           const out = ACTIONS[name](before, viewer.actor, parsed.data as never, { now, id: ids, ...(cohortFacts ? { cohortFacts } : {}) });
           if (out.error) return { ok: false, status: 422, body: { error: out.error } };
           await persistDiff(tx, before, out.db);

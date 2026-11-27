@@ -27,7 +27,7 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { WEEK0_OPEN_FLAG, WEEK0_OPEN_TEMPLATE, enrolledAtSwitch, firstNameOf, otherEmailReached, week0DueAt, week0OpenDecision, welcomeSchedule } from '@ai/core';
 import type { WelcomeWeek } from '@ai/core';
-import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { DEFAULT_WEEK0_LABEL, DEFAULT_WEEK0_NAME, week0CohortLabel, week0CohortName } from '@ai/core/cohort-learner';
 import type { Database } from '../db/client';
 import { getDb } from '../db/client';
 import { cohortEnrollments, cohorts, consoleFlags, emailLog, sessions, users } from '../db/schema';
@@ -41,11 +41,17 @@ type CohortRow = typeof cohorts.$inferSelect;
 
 /**
  * R-5 Phase 4 (D-261, PLAN.md § 10.4): the cohort the email names, by its stored name (the subject without its year,
- * "January Cohort"; the body with it). December's sends nothing new, so its data, its subject (Connor's approved line)
- * and its body stay byte-identical; a cohort the row no longer finds is named as December's always was.
+ * "January Cohort"; the body with it). R-5 Phase 5 (D-262, § 10.10): read from the cohort's name, with no branch on
+ * December's id: the name goes in the email's data only when its words differ from the ones Connor's approved line
+ * says for December ("December Cohort" in the subject, "December 2026 Cohort" in the body), so December's data,
+ * subject and body stay byte-identical. A cohort that is not founding says so (`founding: false`), so its body drops
+ * "founding"; a founding cohort sends nothing new. A cohort the row no longer finds is named as December's always was.
  */
-export function week0Subject(cohort: Pick<CohortRow, 'id' | 'name'> | undefined): { cohortName?: string } {
-  return cohort && cohort.id !== DEFAULT_COHORT_ID ? { cohortName: cohort.name } : {};
+export function week0Subject(cohort: Pick<CohortRow, 'id' | 'name' | 'founding'> | undefined): { cohortName?: string; founding?: false } {
+  if (!cohort) return {};
+  const named =
+    week0CohortLabel(cohort.name) === DEFAULT_WEEK0_LABEL && week0CohortName(cohort.name) === DEFAULT_WEEK0_NAME ? {} : { cohortName: cohort.name };
+  return { ...named, ...(cohort.founding === false ? { founding: false as const } : {}) };
 }
 
 /** A claim still open after this is treated as lost, and not sent again. */
@@ -210,7 +216,7 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
 }
 
 /** Mark a row skipped, once, and write its `email_log` line. A send's line is the email observer's. */
-async function markSkipped(db: Database, row: PendingRow, now: number, reason: SkipReason, cohort: Pick<CohortRow, 'id' | 'name'> | undefined): Promise<void> {
+async function markSkipped(db: Database, row: PendingRow, now: number, reason: SkipReason, cohort: Pick<CohortRow, 'id' | 'name' | 'founding'> | undefined): Promise<void> {
   const marked = await db
     .update(cohortEnrollments)
     .set({ week0Status: 'skipped', week0Error: reason })

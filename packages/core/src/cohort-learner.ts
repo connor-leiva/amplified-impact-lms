@@ -183,6 +183,8 @@ export function fillFirstLiveBuild<T>(words: T, day: () => string): T {
 
 /** Connor's approved Week 0 Is Open line names December this way (`email/subjects.ts`). */
 export const DEFAULT_WEEK0_LABEL = 'December Cohort';
+/** And its body, with the year (`email/templates/week0-open-html.ts`). */
+export const DEFAULT_WEEK0_NAME = 'December 2026 Cohort';
 
 /** A name with the noun "Cohort", once ("January 2027" is "January 2027 Cohort"). */
 const withNoun = (s: string): string => (!s ? 'Cohort' : /\bcohort$/i.test(s) ? s : `${s} Cohort`);
@@ -212,13 +214,20 @@ export const week0CohortLabel = (name: string): string =>
 const MONTH_TAG = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
 /**
- * What GoHighLevel's Cohort custom field holds for a plan's cohort (PLAN § 10.4, Q-33). December's is its id,
- * `dec26`, the value it has always sent, so nothing in GoHighLevel moves. Another cohort's id is drawn at random
- * (`c_…`), so it sends its start's month and two-digit year in its own zone: "jan27" for Connor's January. A plan with
- * no cohort, or one the database no longer holds, sends December's, as every Accelerator order did before.
+ * What GoHighLevel's Cohort custom field holds for a plan's cohort (PLAN § 10.4, Q-33). R-5 Phase 5 (D-262, § 10.10):
+ * the value stored on the cohort (Settings › Enrollment; December's "dec26", written by its data step). With none stored,
+ * its start's month and two-digit year in its own zone, which is how New cohort prefills it: "jan27" for Connor's
+ * January, and "dec26" for December (it starts Wed, Dec 2, 2026), the value December has always sent. A plan with no
+ * cohort, or one the database no longer holds, sends December's, as every Accelerator order did before.
  */
-export function ghlCohortValue(cohort: Pick<Cohort, 'id' | 'start' | 'timezone'> | null | undefined): string {
-  if (!cohort || cohort.id === DEFAULT_COHORT_ID) return DEFAULT_COHORT_ID;
+export function ghlCohortValue(cohort: Pick<Cohort, 'id' | 'start' | 'timezone' | 'ghlValue'> | null | undefined): string {
+  if (!cohort) return DEFAULT_COHORT_ID;
+  if (cohort.ghlValue) return cohort.ghlValue;
+  return ghlMonthValue(cohort);
+}
+
+/** A cohort's start as GoHighLevel's Cohort value: its month and two-digit year in its zone ("jan27"). */
+export function ghlMonthValue(cohort: Pick<Cohort, 'start' | 'timezone'>): string {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: cohort.timezone ?? COURSE_TZ, month: 'numeric', year: '2-digit' }).formatToParts(cohort.start);
   const month = Number(parts.find((p) => p.type === 'month')?.value ?? '0');
   const year = parts.find((p) => p.type === 'year')?.value ?? '';

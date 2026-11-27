@@ -54,11 +54,13 @@ import type {
   PriceBook,
   StripeMode,
 } from '@ai/core';
-import { COURSE_OPENS_AT } from '@ai/core/accelerator';
+import { COURSE_OPENS_AT, DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import type { PlanKind, PlanStatus } from '@ai/core/offer';
 import { requireSession } from '../auth';
 import type { PriceCache } from '../billing/prices';
-import { cohortSeatsSold, countedCohortSeat } from '../billing/provision';
+import { cohortSeatsSold, countedCohortSeat, inCohort } from '../billing/provision';
+import { sellingOf } from '../billing/cohort-sale';
+import { NO_SELLING_ENV } from '@ai/core/cohort-selling';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { accounts, auditLog, orders, plans, skillPurchases, skills, teams, users } from '../db/schema';
@@ -165,18 +167,22 @@ const liveSubscriptions = async (stripe: ConsoleStripe): Promise<BillingSubscrip
 export const openInvoices = (stripe: ConsoleStripe): Promise<ReadInvoice[]> =>
   readAll((after) => stripe.listInvoices({ status: 'open', limit: 100, startingAfter: after }), (i) => i.id);
 
-/** The AI Accelerator from the database: D-154's own counter (imported, never copied) and its seats' orders. */
-export async function acceleratorFromDb(db: Database, opensAt: number = COURSE_OPENS_AT) {
-  const sold = await cohortSeatsSold(db);
+/**
+ * The AI Accelerator from the database: D-154's own counter (imported, never copied) and its seats' orders. R-5 Phase 5
+ * (D-262): one cohort's, December's until Phase 8 draws a card per cohort, at its own cap (`capacity`, December's 15).
+ */
+export async function acceleratorFromDb(db: Database, opensAt: number = COURSE_OPENS_AT, cohortId: string = DEFAULT_COHORT_ID) {
+  const sold = await cohortSeatsSold(db, cohortId);
   const seats = await db
     .select({ option: plans.option, paymentsMade: orders.paymentsMade, amountTotal: orders.amountTotal })
     .from(plans)
     .leftJoin(orders, eq(orders.id, plans.orderId))
-    .where(countedCohortSeat);
+    .where(and(countedCohortSeat, inCohort(cohortId)));
   return acceleratorFigures(
     seats.map((s) => ({ option: s.option, paymentsMade: s.paymentsMade ?? 0, amountTotal: s.amountTotal })),
     sold,
     opensAt,
+    (await sellingOf(db, cohortId, NO_SELLING_ENV)).capacity,
   );
 }
 

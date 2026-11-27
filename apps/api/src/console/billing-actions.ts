@@ -53,6 +53,9 @@ import type { BillingAction, BillingActionPreview, BillingActionResult, RefundMa
 import type { PlanKind, PlanStatus } from '@ai/core/offer';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { cohortSeatsSold } from '../billing/provision';
+import { sellingOf } from '../billing/cohort-sale';
+import { NO_SELLING_ENV } from '@ai/core/cohort-selling';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { accounts, auditLog, orders, plans, teams } from '../db/schema';
@@ -290,8 +293,15 @@ export function registerBillingActionRoutes(scope: FastifyInstance, deps: Billin
         refundedCents: charge.refundedCents,
         match: await refundMatch(db, { paymentIntentId: inv.paymentIntentId, subscriptionId: inv.subscriptionId }),
         seatsSold: null as number | null,
+        seatCap: null as number | null,
       };
-      if (refundEndsSeat(facts)) facts.seatsSold = await cohortSeatsSold(db);
+      // R-5 Phase 5 (D-262): the seats and cap of the plan's own cohort.
+      if (refundEndsSeat(facts)) {
+        const [p] = await db.select({ cohortId: plans.cohortId }).from(plans).where(eq(plans.orderId, facts.match!.orderId)).limit(1);
+        const cohortId = p?.cohortId ?? DEFAULT_COHORT_ID;
+        facts.seatsSold = await cohortSeatsSold(db, cohortId);
+        facts.seatCap = (await sellingOf(db, cohortId, NO_SELLING_ENV)).capacity;
+      }
       const who = await customerNameOf(db, inv);
       const claims: BillingClaims = {
         action: actionOf('refund'),

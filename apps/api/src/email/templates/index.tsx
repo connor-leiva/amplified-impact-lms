@@ -331,6 +331,8 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
         appUrl,
         // R-5 Phase 4 (D-261): the cohort the email names, when it isn't December.
         ...(optStr(data, 'cohortName') ? { cohortName: optStr(data, 'cohortName')! } : {}),
+        // R-5 Phase 5 (D-262): a cohort that is not founding.
+        ...(data.founding === false ? { founding: false as const } : {}),
       };
       return {
         subject: SUBJECTS['week0-open'](input.cohortName ? { cohortName: input.cohortName } : {}),

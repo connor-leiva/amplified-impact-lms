@@ -394,10 +394,12 @@ export function cartForMetadata(meta: { ai_plan?: string; ai_option?: string; bi
  * others: two payments roll into a separate Insiders subscription, and Insiders paid yearly keeps its
  * link's 365 days. The webhook pins only a date still ahead: Stripe refuses a `trial_end` in the past.
  */
-export function pinnedFirstCharge(cart: Pick<Cart, 'id' | 'plan'>): number | null {
+export function pinnedFirstCharge(cart: Pick<Cart, 'id' | 'plan'>, cohortIncludedEnd: number | null = INSIDERS_FIRST_CHARGE_AT): number | null {
   if (cart.plan === 'agent_plan') return AGENT_PLAN_FIRST_CHARGE_AT;
   if (cart.plan === 'agents') return AGENTS_FIRST_CHARGE_AT;
-  if (cart.id === 'cohort-full') return INSIDERS_FIRST_CHARGE_AT;
+  // R-5 Phase 5 (D-262, PLAN § 10.5): the AI Accelerator's pin is the included-time end of the cohort the seat is
+  // in (its day's start in America/Chicago). December's, 2027-05-04, is `INSIDERS_FIRST_CHARGE_AT`'s instant.
+  if (cart.id === 'cohort-full') return cohortIncludedEnd;
   return null;
 }
 
@@ -492,16 +494,34 @@ export interface PlanDates {
  *     buyer, so cancelling stays locked until Apr 4, 2027. The yearly plan has no minimum. A plan
  *     already on the $79 price is not rewritten.
  */
-export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option' | 'minimumMonths'>, now: number, chargedToday = true): PlanDates {
+/**
+ * R-5 Phase 5 (D-262): the cohort a seat is sold in, as a cohort plan's dates read it: its id, when its course opens
+ * (its first live build) and when its included time ends. `cohortSaleOf` in cohort-selling.ts reads it from the
+ * cohort's record. `COHORT_SALE_ONE` is cohort one as this file held it before Phase 5.
+ */
+export interface PlanCohort {
+  id: string;
+  opensAt: number;
+  liveUntil: number | null;
+}
+export const COHORT_SALE_ONE: PlanCohort = { id: COHORT_ONE.id, opensAt: COHORT_ONE.firstBuildAt, liveUntil: COHORT_ONE_LIVE_UNTIL };
+
+export function initialPlanDates(
+  cart: Pick<Cart, 'plan' | 'option' | 'minimumMonths'>,
+  now: number,
+  chargedToday = true,
+  cohort: PlanCohort = COHORT_SALE_ONE,
+): PlanDates {
   switch (cart.plan) {
     case 'cohort':
-      // D-153: the login works at once, and the course and its skills open at the first live build.
+      // D-153: the login works at once, and the course and its skills open at the first live build. R-5 Phase 5
+      // (D-262, PLAN § 10.10): of the cohort the seat is sold in, paid through its included-time end.
       return {
-        startsAt: Math.max(now, COHORT_ONE.firstBuildAt),
-        paidThrough: COHORT_ONE_LIVE_UNTIL,
-        liveUntil: COHORT_ONE_LIVE_UNTIL,
+        startsAt: Number.isFinite(cohort.opensAt) ? Math.max(now, cohort.opensAt) : now,
+        paidThrough: cohort.liveUntil,
+        liveUntil: cohort.liveUntil,
         minimumUntil: null,
-        cohortId: COHORT_ONE.id,
+        cohortId: cohort.id,
       };
     case 'membership':
     case 'insiders_agent': {

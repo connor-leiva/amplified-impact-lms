@@ -28,14 +28,15 @@ import type { Database } from '../db/client';
 import { orders, plans, stripeEvents } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { AGREEMENT_VERSION } from './agreement';
-import { AI_PLANS, INSIDERS_FIRST_CHARGE_AT, PLAN_KINDS, SKILL_AI_PLAN, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
+import { AI_PLANS, LOOKUP_KEYS, PLAN_KINDS, SKILL_AI_PLAN, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
+import { envOf, orderCohortId, sellingOf } from './cohort-sale';
 import { refundSkillPurchase, skillCheckoutCompleted } from './skill-purchase';
 import type { PlanStatus } from './catalog';
 import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
 import { provisionOrder } from './provision';
 import type { BillingLog } from './provision';
-import { reconcileAcceleratorSeats } from './payment-links';
+import { reconcileCohortSeats } from './payment-links';
 import { idOf, periodEndOfInvoice, subscriptionMetadataOfInvoice, subscriptionOfInvoice } from './stripe';
 import type { BillingStripe, InvoiceLike } from './stripe';
 
@@ -223,6 +224,27 @@ export function crmOf(raw: string | null): 'follow_up_boss' | 'other' | null {
 }
 
 /**
+ * R-5 Phase 5 (D-262): the cohort a checkout names (`ai_cohort`, which Stripe copies from its Payment Link's metadata),
+ * or null for none: December's, forever, so a December link already in someone's inbox still works. A value that is
+ * not a cohort id is none; one that names no cohort is refused at provisioning (`unknown-cohort`), for Connor.
+ */
+export function aiCohortOf(meta: Record<string, string | undefined> | null | undefined): string | null {
+  const v = (meta?.ai_cohort ?? '').trim();
+  return /^[A-Za-z0-9_-]{1,64}$/.test(v) ? v : null;
+}
+
+/** The included-time end of the cohort an order's seat is in (write 1's pin, write 2's trial end). */
+async function includedEndOf(db: Database, cohortId: string, deps: WebhookDeps): Promise<number | null> {
+  return (await sellingOf(db, cohortId, envOf(deps.config))).includedEndAt;
+}
+
+/** Stripe's price under a lookup key: the offer's own keys from the price list, a cohort's own keys by name. */
+async function priceUnder(deps: WebhookDeps, key: string) {
+  if ((LOOKUP_KEYS as readonly string[]).includes(key)) return (await deps.prices.get(deps.now()))?.[key as (typeof LOOKUP_KEYS)[number]] ?? null;
+  return (await deps.prices.lookup?.([key], deps.now()))?.[key] ?? null;
+}
+
+/**
  * The order a completed session belongs to: ours (by `client_reference_id`, then by session id), or
  * a new one for a fallback Payment Link. Null for a session the offer does not sell (the $1 test).
  */
@@ -253,6 +275,8 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
       crm: crmOf(customField(session, CRM_KEYS, /\bcrm\b/i)),
       teamSize: teamSizeOfAgents(customField(session, AGENT_KEYS, /agents/i)),
       campaign: meta.campaign === 'forum' ? 'forum' : null,
+      // R-5 Phase 5 (D-262): the cohort the link sells. None is December's.
+      ...(cart.plan === 'cohort' && aiCohortOf(meta) ? { cohortId: aiCohortOf(meta) } : {}),
       agreementVersion: accepted ? AGREEMENT_VERSION : null,
       agreementAcceptedAt: accepted ? now : null,
       stripeSessionId: session.id,
@@ -319,7 +343,9 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
     })
     .where(eq(orders.id, order.id));
   if (next !== 'paid' && next !== 'trialing') return 'awaiting-payment';
-  const pinAt = pinnedFirstCharge(cart);
+  // R-5 Phase 5 (D-262, PLAN § 10.5): the AI Accelerator's pin is its cohort's included-time end (December's is
+  // `INSIDERS_FIRST_CHARGE_AT`'s instant, so its write is byte-identical).
+  const pinAt = pinnedFirstCharge(cart, cart.plan === 'cohort' ? await includedEndOf(db, orderCohortId(order), deps) : null);
   if (cart.plan === 'agent_plan' && paid && pinAt !== null && now < pinAt) {
     // The Agent Plan's links sell a trial to Jan 4. A charge today means a link lost its trial: the
     // buyer is billed from today, not from Jan 4. Provisioned as paid; Connor and Ampy look at the link.
@@ -368,8 +394,8 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
     await reconcileInstallments(fresh, subscriptionId, deps, db);
   }
 
-  // Every paid AI Accelerator order rolls into Amplified Insiders on May 4, 2027, whichever link it
-  // came through: it is the offer's terms, agreed to at checkout.
+  // Every paid AI Accelerator order rolls into Amplified Insiders when its cohort's included time ends (December's on
+  // May 4, 2027), whichever link it came through: it is the offer's terms, agreed to at checkout.
   if (cart.plan === 'cohort') await ensureInsiders(fresh, session.id, deps, db);
   return 'paid';
 }
@@ -385,14 +411,15 @@ async function startMembership(
   startsAt: number,
   deps: WebhookDeps,
   db: Database,
-  opts: { key: string; source: { plan: string; option: string; session: string } | null },
+  opts: { key: string; source: { plan: string; option: string; session: string } | null; lookupKey: string },
 ): Promise<void> {
   const stripe = deps.stripe!;
   const plan = await planOfOrder(db, order.id);
   if (!plan || plan.stripeSubscriptionId) return;
   const prices = await deps.prices.get(deps.now());
-  const price = prices?.membership_monthly_team_leader;
-  if (!price) throw Object.assign(new Error('membership_monthly_team_leader has no price'), { code: 'no-membership-price' });
+  // R-5 Phase 5 (D-262): the cohort's Insiders key (December's, `membership_monthly_team_leader`).
+  const price = await priceUnder(deps, opts.lookupKey);
+  if (!price) throw Object.assign(new Error(`${opts.lookupKey} has no price`), { code: 'no-membership-price' });
   if (!order.stripeCustomerId) throw Object.assign(new Error('order has no customer'), { code: 'no-customer' });
 
   // A buyer already on Team Leader Insiders, or still on the earlier $197 price, is not enrolled again.
@@ -448,9 +475,15 @@ async function ensureInsiders(order: OrderRow, sessionId: string, deps: WebhookD
     }
     return;
   }
-  await startMembership(order, INSIDERS_FIRST_CHARGE_AT, deps, db, {
+  // R-5 Phase 5 (D-262, PLAN § 10.5): trialing to the cohort's included-time end, on its Insiders key. December's are
+  // May 4, 2027 (`INSIDERS_FIRST_CHARGE_AT`'s instant) and `membership_monthly_team_leader`: byte-identical.
+  const selling = await sellingOf(db, orderCohortId(order), envOf(deps.config));
+  if (selling.includedEndAt === null || !selling.keys.rollover)
+    throw Object.assign(new Error('the cohort has no included-time end or Insiders key'), { code: 'cohort-not-ready' });
+  await startMembership(order, selling.includedEndAt, deps, db, {
     key: `membership-autoroll-${sessionId}`,
     source: { plan: order.plan, option: order.option, session: sessionId },
+    lookupKey: selling.keys.rollover,
   });
 }
 
@@ -532,7 +565,9 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
   // through the pin, not past it. The Agent Plan sells its one recurring item alone: its trial invoice
   // is $0 (ignored above), and anything it does pay covers its own period.
   const planCart = plan ? cartFor(plan.kind, plan.option) : null;
-  const pin = planCart && planCart.items.length > 1 ? pinnedFirstCharge(planCart) : null;
+  // R-5 Phase 5 (D-262, PLAN § 10.5): an AI Accelerator plan's pin is its cohort's included-time end.
+  const cohortEnd = plan && planCart?.plan === 'cohort' ? await includedEndOf(db, plan.cohortId ?? orderCohortId({ cohortId: null }), deps) : null;
+  const pin = planCart && planCart.items.length > 1 ? pinnedFirstCharge(planCart, cohortEnd) : null;
   if (pin !== null && periodEnd !== null && periodEnd > pin && now < pin) periodEnd = pin;
   if (plan && plan.status !== 'ended' && periodEnd !== null) {
     await db
@@ -671,7 +706,7 @@ export async function handleStripeEvent(event: Stripe.Event, deps: WebhookDeps):
   const db = deps.db ?? getDb();
   const result = await handleEvent(event, deps, db);
   // Never throws: a Stripe failure here must not make Stripe redeliver an event that was handled.
-  if (SEAT_EVENTS.has(event.type)) await reconcileAcceleratorSeats({ stripe: deps.stripe, config: deps.config, now: deps.now(), log: deps.log, db });
+  if (SEAT_EVENTS.has(event.type)) await reconcileCohortSeats({ stripe: deps.stripe, config: deps.config, now: deps.now(), log: deps.log, db });
   return result;
 }
 

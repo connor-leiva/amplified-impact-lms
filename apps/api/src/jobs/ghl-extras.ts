@@ -46,6 +46,8 @@ interface OrderFacts {
   cohort_id?: string | null;
   cohort_start?: string | number | null;
   cohort_timezone?: string | null;
+  /** R-5 Phase 5 (D-262): the value stored on the cohort (Settings › Enrollment). */
+  cohort_ghl?: string | null;
 }
 
 const num = (v: string | number | null): number | null => (v === null ? null : Number(v));
@@ -65,10 +67,15 @@ export function orderStage(o: Pick<OrderFacts, 'status' | 'paid_at' | 'payment_f
 }
 
 /** R-5 Phase 4 (D-261): GoHighLevel's Cohort value for an order's plan's cohort; December's for none. */
-const cohortValueOf = (o: Pick<OrderFacts, 'cohort_id' | 'cohort_start' | 'cohort_timezone'>): string =>
+const cohortValueOf = (o: Pick<OrderFacts, 'cohort_id' | 'cohort_start' | 'cohort_timezone' | 'cohort_ghl'>): string =>
   ghlCohortValue(
     o.cohort_id && o.cohort_start !== null && o.cohort_start !== undefined
-      ? { id: o.cohort_id, start: Number(o.cohort_start), ...(o.cohort_timezone ? { timezone: o.cohort_timezone } : {}) }
+      ? {
+          id: o.cohort_id,
+          start: Number(o.cohort_start),
+          ...(o.cohort_timezone ? { timezone: o.cohort_timezone } : {}),
+          ...(o.cohort_ghl ? { ghlValue: o.cohort_ghl } : {}),
+        }
       : null,
   );
 
@@ -85,7 +92,7 @@ export async function contactState(db: Database, email: string): Promise<Contact
   const rows = (await db.execute(sql`
     select o.id, o.plan, o.status, o.origin, o.amount_total, o.paid_at, o.payment_failed_at, o.membership_ended_at,
            o.refunded_at, o.created_at, p.status as plan_status,
-           c.id as cohort_id, c.start as cohort_start, c.timezone as cohort_timezone
+           c.id as cohort_id, c.start as cohort_start, c.timezone as cohort_timezone, c.ghl_value as cohort_ghl
       from ${orders} o left join ${plans} p on p.order_id = o.id
       left join ${cohorts} c on c.id = p.cohort_id
      where lower(o.email) = lower(${email}) and o.status <> 'pending'`)) as unknown as OrderFacts[];

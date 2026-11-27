@@ -182,7 +182,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'seq',
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
-  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt', 'includedUntil', 'wordsCheckedAt', 'overlapOkAt', 'words', 'hosts'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt', 'includedUntil', 'wordsCheckedAt', 'overlapOkAt', 'words', 'hosts', 'founding', 'foundingClosesAt', 'lookupKeyFull', 'lookupKeyRollover', 'lookupKeyTwoPay', 'twoPay', 'linkFull', 'linkTwoPay', 'ghlValue'],
   sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility', 'slot'],
   modules: [
     'id',
@@ -346,6 +346,16 @@ const cohortRow = (c: Cohort): Row => ({
   overlapOkAt: col(c.overlapOkAt),
   words: col(c.words),
   hosts: col(c.hosts),
+  // R-5 Phase 5 (D-262, migration 0045).
+  founding: col(c.founding),
+  foundingClosesAt: col(c.foundingClosesAt),
+  lookupKeyFull: col(c.lookupKeyFull),
+  lookupKeyRollover: col(c.lookupKeyRollover),
+  lookupKeyTwoPay: col(c.lookupKeyTwoPay),
+  twoPay: col(c.twoPay),
+  linkFull: col(c.linkFull),
+  linkTwoPay: col(c.linkTwoPay),
+  ghlValue: col(c.ghlValue),
 });
 
 const sessionRow = (s: Session): Row => ({
@@ -676,6 +686,15 @@ export function fromRows(rows: Rows): Db {
           overlapOkAt: r.overlapOkAt,
           words: r.words,
           hosts: r.hosts,
+          founding: r.founding,
+          foundingClosesAt: r.foundingClosesAt,
+          lookupKeyFull: r.lookupKeyFull,
+          lookupKeyRollover: r.lookupKeyRollover,
+          lookupKeyTwoPay: r.lookupKeyTwoPay,
+          twoPay: r.twoPay,
+          linkFull: r.linkFull,
+          linkTwoPay: r.linkTwoPay,
+          ghlValue: r.ghlValue,
         },
       ),
     ),

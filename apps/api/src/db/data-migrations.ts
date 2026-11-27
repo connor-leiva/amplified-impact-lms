@@ -29,6 +29,9 @@ import { WEEKS_1_2_V1, planWeeks12V1 } from '@ai/core/seed/weeks-1-2-steps-v1';
 import { SEAT_CARD_ONE_COPY_V1, planSeatCardOneCopyV1 } from '@ai/core/seed/seat-card-one-copy-v1';
 import { AI_IMPLEMENTER_V1, planAiImplementerV1 } from '@ai/core/seed/ai-implementer-v1';
 import { DECEMBER_RUN_V1, planDecemberRunV1 } from '@ai/core/seed/december-run-v1';
+import { DECEMBER_SELLING_V1, planDecemberSellingV1 } from '@ai/core/seed/december-selling-v1';
+import { sellingEnvOf } from '@ai/core/cohort-selling';
+import { readOfferConfig } from '../billing/config';
 import { audit } from '../console/audit';
 import type { Database } from './client';
 import { loadDb, persistDiff } from './io';
@@ -127,6 +130,14 @@ export const DATA_MIGRATIONS: readonly DataMigration[] = [
     id: DECEMBER_RUN_V1,
     describe: 'R-5 Phase 3: December’s run written from its own week modules, so its dates are edited on the cohort; nothing it reads moves (D-255)',
     plan: planDecemberRunV1,
+  },
+  {
+    id: DECEMBER_SELLING_V1,
+    describe:
+      'R-5 Phase 5: December’s selling values copied onto its record (founding, its close, its lookup keys, two payments, its Payment Links, its included time, its GoHighLevel value); nothing it reads moves (D-262)',
+    // Production's own values, as the deploy reads them (PLAN § 10.10): `FOUNDING_CLOSES_AT` and the two
+    // `PAYMENT_LINK_COHORT_*`, exactly as `readOfferConfig` reads them, so what is stored reads back as they do.
+    plan: (db) => planDecemberSellingV1(db, sellingEnvOf(readOfferConfig(process.env))),
   },
 ];
 

@@ -14,7 +14,7 @@ import { cohortSeatsSold } from '../src/billing/provision';
 import { BILLING_PATHS } from '../src/console/billing';
 import { cachedConsoleStripe, scopedConsoleStripe } from '../src/console/stripe-read';
 import type { ConsoleStripe, ReadInvoice } from '../src/console/stripe-read';
-import { accounts, auditLog, orders, plans } from '../src/db/schema';
+import { accounts, auditLog, cohorts, orders, plans } from '../src/db/schema';
 import { fakeConsoleStripe, stripeError } from './fake-console-stripe';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -233,7 +233,9 @@ describe('the billing summary (spec § 7.6) @console', () => {
     const db = await testDatabase();
     let s = body<BillingSummary>(await get(P.billingSummary));
     expect(s.accelerator.sold).toBe(await cohortSeatsSold(db));
-    expect(s.accelerator).toMatchObject({ sold: 4, cap: 15, paidInFull: 2, twoPay: 2, collectedCents: 2_250_000, scheduledCents: 750_000 });
+    // R-5 Phase 5 (D-262): the cap is December's own (`capacity`): 15 in production, this demo database's 200.
+    const cap = (await db.select({ capacity: cohorts.capacity }).from(cohorts).where(eq(cohorts.id, 'dec26')))[0]!.capacity;
+    expect(s.accelerator).toMatchObject({ sold: 4, cap, paidInFull: 2, twoPay: 2, collectedCents: 2_250_000, scheduledCents: 750_000 });
     expect(s.accelerator.paidInFull + s.accelerator.twoPay).toBe(s.accelerator.sold);
     await db.update(plans).set({ status: 'ended' }).where(eq(plans.id, 'p_seat0'));
     process.env.FIXED_NOW = new Date(NOW + 11 * 60_000).toISOString();

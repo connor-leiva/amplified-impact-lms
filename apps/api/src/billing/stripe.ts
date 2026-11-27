@@ -21,6 +21,8 @@ export interface PriceInfo {
   currency: string;
   /** `month` for a recurring price, null for a one-time one. */
   interval: 'day' | 'week' | 'month' | 'year' | null;
+  /** R-5 Phase 5 (D-262): every how many intervals it charges (Stripe's `recurring.interval_count`); absent reads as 1. */
+  intervalCount?: number | null;
   productName: string | null;
 }
 
@@ -47,6 +49,11 @@ export interface PaymentLinkInfo {
   metadata: Record<string, string>;
 }
 
+/** R-5 Phase 5 (D-262): a Payment Link found by its address: its id and its URL beside what the seat cap reads. */
+export interface PaymentLinkByUrl extends PaymentLinkInfo {
+  url: string;
+}
+
 /** The one Payment Link change the seat cap makes: on or off, its sold-out line, and its mark. */
 export interface PaymentLinkChange {
   active: boolean;
@@ -61,6 +68,12 @@ export interface BillingStripe {
   retrievePaymentLink(id: string): Promise<PaymentLinkInfo>;
   /** D-154: needs Payment Links: Write on the restricted key. The only Stripe write the seat cap makes. */
   updatePaymentLink(id: string, change: PaymentLinkChange, idempotencyKey: string): Promise<PaymentLinkInfo>;
+  /**
+   * R-5 Phase 5 (D-262): the Payment Links at these addresses (a cohort stores its links' addresses, not their ids),
+   * each found by listing the account's links, or absent from the map when Stripe has none there. Read-only: needs
+   * Payment Links: Read on the restricted key (D-154 added it). Never creates a link.
+   */
+  paymentLinksByUrl?(urls: readonly string[]): Promise<Map<string, PaymentLinkByUrl>>;
   retrieveSubscription(id: string): Promise<SubscriptionInfo>;
   /**
    * H-16: the ids of this subscription's paid invoices that took money (`amount_paid` above $0), every
@@ -151,6 +164,7 @@ export function stripeClient(secretKey: string): BillingStripe {
             unitAmount: p.unit_amount,
             currency: p.currency,
             interval: p.recurring?.interval ?? null,
+            intervalCount: p.recurring?.interval_count ?? null,
             productName: product?.name ?? null,
           });
         }
@@ -173,6 +187,17 @@ export function stripeClient(secretKey: string): BillingStripe {
     async retrievePaymentLink(id) {
       const link = await stripe.paymentLinks.retrieve(id);
       return { id: link.id, active: link.active, metadata: { ...(link.metadata ?? {}) } };
+    },
+
+    async paymentLinksByUrl(urls) {
+      const want = new Set(urls);
+      const out = new Map<string, PaymentLinkByUrl>();
+      if (!want.size) return out;
+      for await (const link of stripe.paymentLinks.list({ limit: 100 })) {
+        if (want.has(link.url)) out.set(link.url, { id: link.id, url: link.url, active: link.active, metadata: { ...(link.metadata ?? {}) } });
+        if (out.size === want.size) break;
+      }
+      return out;
     },
 
     async updatePaymentLink(id, change, idempotencyKey) {

@@ -77,7 +77,7 @@ import {
   sessionState,
 } from '@ai/core';
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
-import { DEFAULT_COHORT_ID, isCourseWeek } from '@ai/core/accelerator';
+import { isCourseWeek } from '@ai/core/accelerator';
 import type { CourseRoster } from '@ai/core/accelerator';
 import { announcementInCohort, nextMeetingDay } from '@ai/core/cohort-learner';
 import { firstNameOf, sessionLabel } from '@ai/core';
@@ -454,9 +454,10 @@ function buildNotFinished48h(db: Db, now: number, accelerator?: CourseAudience):
  */
 export function digestDay(db: Db, u: Learner, now: number): string | null | undefined {
   // R-5 Phase 4 (D-261, PLAN.md § 10.4): a cohort laid out from a shape names its own next meeting's day, or none
-  // (`null`) once it meets no more (`nextMeetingDay`). December, which stores no shape, keeps the rule below.
+  // (`null`) once it meets no more (`nextMeetingDay`). R-5 Phase 5 (D-262): read from the cohort, with no branch on
+  // December's id: December stores no shape (Q-28), so it keeps the rule below.
   const co = db.cohorts.find((c) => c.id === u.cohortId);
-  if (co && co.id !== DEFAULT_COHORT_ID && co.shape !== undefined) return nextMeetingDay(co, db.sessions, now);
+  if (co && co.shape !== undefined) return nextMeetingDay(co, db.sessions, now);
   if (!hasOfficeHoursSeries(db.sessions, u.cohortId)) return undefined;
   const next = db.sessions
     .filter((s) => s.cohortId === u.cohortId && sessionKind(s) === 'build' && s.start > now)

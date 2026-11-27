@@ -28,10 +28,19 @@
 //
 // It never throws: a failure is logged (ids and counts only, never a name or an email) and the next
 // tick tries again. A 403 means the restricted key has no Payment Links permission yet.
+//
+// R-5 PHASE 5 (D-262, PLAN.md § 10.5): PER COHORT. Each cohort's seats are counted on their own (`cohortSeatsSold` by
+// `plans.cohort_id`) against its own cap (`capacity`), and only its own links are turned off and on, with its own
+// sold-out line. December's links are the two D-154 named (`seatCapLinks`: `PAYMENT_LINK_ID_*`, else the live ids), so
+// its calls are byte-identical. Another cohort's are found from the addresses stored on it (`paymentLinksByUrl`, a
+// read), and a link whose `ai_cohort` names another cohort is never touched. A link reopens only while `OFFER_OPEN` is
+// on, its cohort's enrollment is open (Close stops it), and its founding, if it is founding, has not closed.
 
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { cohortSelling, enrollmentOpen, foundingOpenFor, soldOutMessage } from '@ai/core/cohort-selling';
 import { COHORT_SEATS } from './catalog';
-import { foundingOpen } from './config';
 import type { OfferConfig } from './config';
+import { envOf, sellingCohorts } from './cohort-sale';
 import { cohortSeatsSold } from './provision';
 import type { BillingLog } from './provision';
 import type { BillingStripe, PaymentLinkInfo } from './stripe';
@@ -41,10 +50,22 @@ import { getDb } from '../db/client';
 /** Our mark on a link the cap turned off. Cleared when the cap turns it back on. */
 export const SOLD_OUT_MARK = 'ai_soldout';
 
-/** What a turned-off link says to someone who opens it: the sales page's own sold-out line. */
-export const SOLD_OUT_MESSAGE = 'All 15 founding seats are taken. Join the waitlist at amplifiedimpact.io/offer to hear first about the next cohort.';
+/**
+ * What a turned-off link says to someone who opens it: the sales page's own sold-out line, December's. Another
+ * cohort's is `soldOutMessage` of its cap and founding (`@ai/core/cohort-selling`).
+ */
+export const SOLD_OUT_MESSAGE = soldOutMessage({ capacity: COHORT_SEATS, founding: true });
 
-export type LinkAction = 'turned-off' | 'already-off' | 'turned-on' | 'held-off' | 'on' | 'off' | 'skipped:not-accelerator' | 'failed';
+export type LinkAction =
+  | 'turned-off'
+  | 'already-off'
+  | 'turned-on'
+  | 'held-off'
+  | 'on'
+  | 'off'
+  | 'skipped:not-accelerator'
+  | 'skipped:other-cohort'
+  | 'failed';
 
 export interface SeatCapOutcome {
   sold: number;
@@ -79,9 +100,16 @@ export async function syncAcceleratorPaymentLinks(options: {
   mayReopen: boolean;
   now: number;
   log: BillingLog;
+  /** R-5 Phase 5 (D-262): the cohort's cap and sold-out line; December's (15) by default. */
+  cap?: number;
+  message?: string;
+  /** R-5 Phase 5: a link whose `ai_cohort` names another cohort is left alone. Absent: not checked (December's links). */
+  cohortId?: string;
 }): Promise<SeatCapOutcome> {
   const { sold, stripe, ids, mayReopen, now, log } = options;
-  const full = sold >= COHORT_SEATS;
+  const cap = options.cap ?? COHORT_SEATS;
+  const SOLD_OUT = options.message ?? SOLD_OUT_MESSAGE;
+  const full = sold >= cap;
   const links: SeatCapOutcome['links'] = [];
   for (const id of ids) {
     try {
@@ -93,6 +121,11 @@ export async function syncAcceleratorPaymentLinks(options: {
         links.push({ id, action: 'skipped:not-accelerator' });
         continue;
       }
+      if (options.cohortId !== undefined && link.metadata.ai_cohort !== options.cohortId) {
+        log.error({ link: id, cohort: options.cohortId }, 'seat cap: this Payment Link names another cohort (ai_cohort); left alone');
+        links.push({ id, action: 'skipped:other-cohort' });
+        continue;
+      }
       const ours = link.metadata[SOLD_OUT_MARK] === '1';
       const minute = Math.floor(now / MINUTE);
       if (full) {
@@ -102,10 +135,10 @@ export async function syncAcceleratorPaymentLinks(options: {
         }
         await stripe.updatePaymentLink(
           id,
-          { active: false, inactive_message: SOLD_OUT_MESSAGE, metadata: { [SOLD_OUT_MARK]: '1' } },
+          { active: false, inactive_message: SOLD_OUT, metadata: { [SOLD_OUT_MARK]: '1' } },
           `accel-cap-${id}-off-${sold}-${minute}`,
         );
-        log.error({ link: id, sold, seats: COHORT_SEATS }, `AI Accelerator sold out (${sold} of ${COHORT_SEATS}): its Payment Link is turned off`);
+        log.error({ link: id, sold, seats: cap }, `AI Accelerator sold out (${sold} of ${cap}): its Payment Link is turned off`);
         links.push({ id, action: 'turned-off' });
         continue;
       }
@@ -123,7 +156,7 @@ export async function syncAcceleratorPaymentLinks(options: {
         continue;
       }
       await stripe.updatePaymentLink(id, { active: true, metadata: { [SOLD_OUT_MARK]: '' } }, `accel-cap-${id}-on-${sold}-${minute}`);
-      log.warn({ link: id, sold, seats: COHORT_SEATS }, `AI Accelerator seat freed (${sold} of ${COHORT_SEATS}): its Payment Link is back on`);
+      log.warn({ link: id, sold, seats: cap }, `AI Accelerator seat freed (${sold} of ${cap}): its Payment Link is back on`);
       links.push({ id, action: 'turned-on' });
     } catch (err) {
       links.push({ id, action: 'failed' });
@@ -145,32 +178,95 @@ export async function syncAcceleratorPaymentLinks(options: {
   return { sold, links };
 }
 
+type SeatCapConfig = Pick<OfferConfig, 'open' | 'foundingClosesAt' | 'seatCapLinks'> & Partial<Pick<OfferConfig, 'paymentLinks'>>;
+
 /**
- * Count, then reconcile. Skipped (null) with no Stripe key or no link ids (a test key with no
- * `PAYMENT_LINK_ID_*`). A count that fails is not 0: it changes nothing, and the next tick retries.
+ * Count one cohort's seats, then reconcile its links (December's by default). Skipped (null) with no Stripe key or no
+ * links (a test key with no `PAYMENT_LINK_ID_*` for December; no stored addresses, or none Stripe can find, for another
+ * cohort). A count that fails is not 0: it changes nothing, and the next tick retries.
  */
 export async function reconcileAcceleratorSeats(options: {
   stripe: BillingStripe | null;
-  config: Pick<OfferConfig, 'open' | 'foundingClosesAt' | 'seatCapLinks'>;
+  config: SeatCapConfig;
   now: number;
   log: BillingLog;
   db?: Pick<Database, 'select'>;
+  /** R-5 Phase 5 (D-262): the cohort; December's by default, as D-154 reconciled. */
+  cohortId?: string;
 }): Promise<SeatCapOutcome | null> {
   const { stripe, config, now, log } = options;
-  if (!stripe || config.seatCapLinks.length === 0) return null;
+  const cohortId = options.cohortId ?? DEFAULT_COHORT_ID;
+  const db = options.db ?? getDb();
+  if (!stripe) return null;
   let sold: number;
+  let ids: readonly string[];
+  let cap: number;
+  let message: string;
+  let mayReopen: boolean;
   try {
-    sold = await cohortSeatsSold(options.db ?? getDb());
+    const all = await sellingCohorts(db);
+    const row = all.find((c) => c.id === cohortId);
+    const selling = cohortSelling({ cohorts: all }, cohortId, envOf({ foundingClosesAt: config.foundingClosesAt, paymentLinks: config.paymentLinks ?? {} }));
+    ids = options.cohortId === undefined ? config.seatCapLinks : await cohortLinkIds(stripe, [selling.links.full, selling.links.twoPay]);
+    if (ids.length === 0) return null;
+    sold = await cohortSeatsSold(db, cohortId);
+    cap = selling.capacity;
+    message = soldOutMessage(selling);
+    // A database that holds no row for it (December, in a test database) sells it, as before R-5.
+    mayReopen = config.open && (row ? enrollmentOpen(row) : true) && foundingOpenFor(selling, now);
   } catch (err) {
-    log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'seat cap: the seats could not be counted; nothing changed, the next tick retries');
+    log.error({ reason: (err as { code?: string }).code ?? 'error', cohort: cohortId }, 'seat cap: the seats could not be counted; nothing changed, the next tick retries');
     return null;
   }
   return syncAcceleratorPaymentLinks({
     sold,
     stripe,
-    ids: config.seatCapLinks,
-    mayReopen: config.open && foundingOpen(config, now),
+    ids,
+    mayReopen,
     now,
     log,
+    cap,
+    message,
+    ...(options.cohortId === undefined ? {} : { cohortId }),
   });
+}
+
+/** The ids of a cohort's Payment Links, found from their stored addresses (a read; none when Stripe can't be asked). */
+async function cohortLinkIds(stripe: BillingStripe, urls: readonly (string | null)[]): Promise<string[]> {
+  const want = urls.filter((u): u is string => !!u);
+  if (!want.length || !stripe.paymentLinksByUrl) return [];
+  const found = await stripe.paymentLinksByUrl(want);
+  return want.map((u) => found.get(u)?.id).filter((id): id is string => !!id);
+}
+
+/**
+ * R-5 Phase 5 (D-262): every cohort's seat cap, each on its own links: December's (D-154's ids), then every other
+ * cohort that stores a link address. What the webhook and the billing loop run. Never throws.
+ */
+export async function reconcileCohortSeats(options: {
+  stripe: BillingStripe | null;
+  config: SeatCapConfig;
+  now: number;
+  log: BillingLog;
+  db?: Pick<Database, 'select'>;
+}): Promise<{ cohortId: string; outcome: SeatCapOutcome | null }[]> {
+  if (!options.stripe) return [];
+  const out: { cohortId: string; outcome: SeatCapOutcome | null }[] = [];
+  out.push({ cohortId: DEFAULT_COHORT_ID, outcome: await reconcileAcceleratorSeats(options) });
+  let others: string[] = [];
+  try {
+    others = (await sellingCohorts(options.db ?? getDb()))
+      .filter((c) => c.id !== DEFAULT_COHORT_ID && (c.linkFull || c.linkTwoPay) && c.archivedAt === undefined)
+      .map((c) => c.id);
+  } catch (err) {
+    options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'seat cap: the cohorts could not be read; the next tick retries');
+  }
+  for (const cohortId of others) {
+    try {
+      out.push({ cohortId, outcome: await reconcileAcceleratorSeats({ ...options, cohortId }) });
+    } catch (err) {
+      options.log.error({ reason: (err as { code?: string }).code ?? 'error', cohort: cohortId }, 'seat cap: a cohort’s links could not be read; the next tick retries');
+    }
+  }
+  return out;
 }
