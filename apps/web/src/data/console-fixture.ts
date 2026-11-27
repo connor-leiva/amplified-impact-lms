@@ -656,6 +656,10 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         record('week0.test_send', { type: 'cohort', id: cohortId, label: cohortId }, { to });
         return { ok: true as const, subject: '🎉 Welcome to the December Cohort: Week 0 Is Open' };
       }),
+    // D-264: the mockup draws no observer card, so the fixture has none to show (and the page's goldens stay the
+    // mockup's). The card is production's alone.
+    emailObservers: () => Promise.resolve(null),
+    saveEmailObservers: () => Promise.reject(notFound()),
     integrations: () =>
       settle(() => {
         need('ops.read');

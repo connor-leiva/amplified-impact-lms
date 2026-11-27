@@ -6,22 +6,27 @@
 // flag's On/Off is its switch, for a viewer holding the capability its sensitivity asks (the Owner's
 // `flags.write_sensitive` for `masquerade_enabled`, from `/me`'s caps):
 // the R2 Confirm, with the key typed, then one audit row. Owner and Admin read it (`ops.read`).
+//
+// D-264: production adds one card the mockup doesn't draw, "Cohort observer emails" (`observers.vm.ts`): the addresses
+// that get one copy of each cohort-wide email. The fixture has no observer view, so in the fixture build (and its
+// goldens) the page is exactly the mockup's.
 
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Confirm } from '../../components/r2/Modal';
 import { Status } from '../../components/r2/Status';
-import { Facts, PageHead, Pill, Sel, k } from '../../components/r2/kit';
+import { Facts, PageHead, Pill, Sel, TextArea, k } from '../../components/r2/kit';
 import { ConsoleError } from '../../data/console';
 import type { ConsoleApi } from '../../data/console';
-import type { OpsEnv } from '@ai/core';
+import type { EmailObserversView, OpsEnv } from '@ai/core';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { errorCopy } from './console.vm';
 import { FLAGS_COPY as C, flagsVM, flipLabel } from './infra.vm';
 import type { FlagRowVM } from './infra.vm';
 import { InfraFrame } from './InfraFrame';
+import { OBSERVERS_COPY, observersToSave, observersVM } from './observers.vm';
 import s from './Infra.module.css';
 
 function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; caps: readonly string[]; reload: () => void }) {
@@ -75,6 +80,7 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
           ))}
         </Card>
       </div>
+      <ObserverEmails api={api} caps={caps} />
       {vm.flags.some((f) => f.key === 'cohort_welcome_email' && f.flip) ? (
         <TestSend
           title="Send a test welcome"
@@ -102,6 +108,74 @@ function FlagsBody({ env, api, caps, reload }: { env: OpsEnv; api: ConsoleApi; c
         />
       ) : null}
     </>
+  );
+}
+
+/**
+ * D-264: the cohort observer addresses. Nothing until the list is read, and nothing at all where the build has none to
+ * show (the fixture) or it can't be read: the rest of the page never waits on it.
+ */
+function ObserverEmails({ api, caps }: { api: ConsoleApi; caps: readonly string[] }) {
+  const { toast } = useAdminChrome();
+  const [view, setView] = useState<EmailObserversView | null>(null);
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  const hintId = useId();
+  useEffect(() => {
+    let live = true;
+    api.emailObservers().then(
+      (v) => {
+        if (!live) return;
+        setView(v);
+        setText(v ? v.addresses.join('\n') : '');
+      },
+      () => {
+        if (live) setView(null);
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [api]);
+  if (!view) return null;
+  const vm = observersVM(view, caps);
+  const save = () => {
+    const parsed = observersToSave(text);
+    if (!parsed.ok) {
+      toast(parsed.error);
+      return;
+    }
+    setBusy(true);
+    api
+      .saveEmailObservers(parsed.addresses)
+      .then(
+        (v) => {
+          setView(v);
+          setText(v.addresses.join('\n'));
+          toast(OBSERVERS_COPY.saved);
+        },
+        (e: unknown) => toast(e instanceof ConsoleError ? e.message : OBSERVERS_COPY.failed),
+      )
+      .finally(() => setBusy(false));
+  };
+  return (
+    <Card title={OBSERVERS_COPY.title} sub={OBSERVERS_COPY.sub}>
+      <div className={k.col}>
+        <label className={k.col}>
+          <span className={k.me}>{OBSERVERS_COPY.label}</span>
+          <TextArea value={text} rows={3} readOnly={!vm.canEdit} aria-describedby={hintId} onChange={(e) => setText(e.target.value)} />
+        </label>
+        <span id={hintId} className={k.me}>
+          {OBSERVERS_COPY.hint}
+          {vm.source ? ` ${vm.source}` : ''}
+        </span>
+        {vm.canEdit ? (
+          <Button kind="primary" disabled={busy} onClick={save}>
+            {busy ? OBSERVERS_COPY.saving : OBSERVERS_COPY.save}
+          </Button>
+        ) : null}
+      </div>
+    </Card>
   );
 }
 

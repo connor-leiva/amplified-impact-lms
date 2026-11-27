@@ -125,6 +125,7 @@ import type { Queryable } from '../db/io';
 import { announcements, jobRuns } from '../db/schema';
 import { send } from '../email/transport';
 import type { SendRequest, TemplateName } from '../email/transport';
+import { claimObserverCopiesFor, sendObserverCopies } from '../email/observers';
 import { clock } from '../lib/clock';
 import { NO_KEYS, dueWork } from './due';
 import type { Send } from './due';
@@ -236,6 +237,11 @@ export interface SchedulerRun {
   failed: number;
   /** Announcement ids this tick moved `scheduled` → `sent`. */
   flipped: string[];
+  /**
+   * D-264: the cohort observer copies this tick claimed and sent, one per cohort send per observer. Counted here and
+   * NOT in `sent` or `failed`, which stay the learners' own. Absent when the tick owed no copy.
+   */
+  observers?: { claimed: number; sent: number; failed: number };
 }
 
 const DID_NOT_RUN = (now: number): SchedulerRun => ({
@@ -450,6 +456,12 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     const recorded = await recordSends(tx, sends, now, log);
     const flipped = await flipAnnouncements(tx, flip);
 
+    // D-264: the cohort observers' copies of what this tick claimed, one per cohort send per observer, claimed in their
+    // own ledger in a savepoint of this transaction (`email/observers.ts`), so a failure there never costs a learner
+    // their email. Nothing here reads or writes `job_runs`.
+    const cohorts = new Map(snapshot.users.map((u) => [u.id, u.cohortId] as const));
+    const observerCopies = await claimObserverCopiesFor(tx, sends.filter((s) => recorded.has(s.key)), (id) => cohorts.get(id) ?? null, now, log);
+
     if (recorded.size !== sends.length) {
       // Under the advisory lock nothing else should be inserting these keys, so this means either
       // a second runner got past the lock or a previous tick committed rows this one's
@@ -461,7 +473,7 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
       );
     }
 
-    return { candidates: candidates.length, skipped: alreadySent.size, sends, recorded, flipped };
+    return { candidates: candidates.length, skipped: alreadySent.size, sends, recorded, flipped, observerCopies };
   });
 
   // The lock was somebody else's. Nothing was read, nothing was written, and this is the ordinary
@@ -503,6 +515,9 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     }
   }
 
+  // D-264: the observers' copies, after every learner's email, so a copy can never delay a reminder.
+  const observers = claimed.observerCopies.length ? { claimed: claimed.observerCopies.length, ...(await sendObserverCopies(claimed.observerCopies, log)) } : null;
+
   return {
     ran: true,
     now,
@@ -512,6 +527,7 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
     sent,
     failed,
     flipped: claimed.flipped,
+    ...(observers ? { observers } : {}),
   };
 }
 
@@ -659,6 +675,7 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
               sent: run.sent,
               failed: run.failed,
               flipped: run.flipped.length,
+              ...(run.observers ? { observerCopies: run.observers.sent, observerFailed: run.observers.failed } : {}),
             },
             'scheduler tick',
           );

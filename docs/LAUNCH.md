@@ -80,6 +80,7 @@ Railway → **web** → Variables:
 | `EMAIL_FROM` | an address at the domain you verified in step 1 |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | the bucket's **Credentials** tab |
 | `S3_URL_STYLE` | optional: `path` (the default) or `virtual`. The bucket's Credentials tab says which URL style it takes: Railway's buckets created since its move to virtual-hosted URLs want `virtual`. Production's `skills` bucket takes `path` (the pre-deploy uploads through it) |
+| `COHORT_OBSERVER_EMAILS` | optional (D-264): comma-separated addresses that each get one copy of every cohort-wide email per cohort send, never a sign-in, password, invite, nudge or receipt email. Used only until a list is saved in Admin › Environment Flags › Cohort observer emails, which wins (a saved empty list sends no copies). Not a secret |
 
 `DATABASE_URL`, `SESSION_SECRET`, `APP_URL` and `VITE_DATA_SOURCE` are already set. Leave them.
 

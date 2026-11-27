@@ -264,6 +264,8 @@ export const AUDIT_ACTIONS = [
   'welcome.test_send',
   // The Week 0 Is Open email's test send, to the same allowlist only.
   'week0.test_send',
+  // D-264: the cohort observer addresses saved on Environment Flags (before and after, the addresses themselves).
+  'email_observers.save',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

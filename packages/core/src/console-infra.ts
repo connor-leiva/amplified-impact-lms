@@ -29,6 +29,11 @@ export const INFRA_PATHS = {
   welcomeTest: '/api/console/welcome/test',
   /** `POST { to, cohortId }`: send one Week 0 Is Open email to an allowlisted address. `flags.write`. */
   week0Test: '/api/console/week0/test',
+  /**
+   * D-264: `GET` the cohort observer addresses in force (`ops.read`); `POST { addresses }` saves them (`flags.write`),
+   * `{ addresses: null }` forgets the saved list so `COHORT_OBSERVER_EMAILS` applies again.
+   */
+  emailObservers: '/api/console/email-observers',
   integrations: '/api/console/integrations',
   /** `POST`: Check now, Stripe and Resend only, read-only. `integrations.probe`. */
   integrationCheck: '/api/console/integrations/:id/check',

@@ -71,6 +71,8 @@ type RouteName =
   | 'flagFlip'
   | 'welcomeTest'
   | 'week0Test'
+  | 'emailObservers'
+  | 'emailObserversSave'
   | 'integrations'
   | 'integrationCheck'
   | 'deploys'
@@ -250,6 +252,15 @@ const ROUTES: Record<RouteName, Route> = {
     route: `POST ${CONSOLE_PATHS.week0Test}`,
     body: { to: 'accelerator-test@amplifiedimpact.io', cohortId: 'dec26' },
   },
+  // D-264: the cohort observer addresses: read with ops.read, saved with flags.write (Owner, Admin), audited.
+  emailObservers: { path: CONSOLE_PATHS.emailObservers, url: CONSOLE_PATHS.emailObservers, method: 'GET', route: `GET ${CONSOLE_PATHS.emailObservers}` },
+  emailObserversSave: {
+    path: CONSOLE_PATHS.emailObservers,
+    url: CONSOLE_PATHS.emailObservers,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.emailObservers}`,
+    body: { addresses: ['observer@amplifiedimpact.io'] },
+  },
   integrations: { path: CONSOLE_PATHS.integrations, url: CONSOLE_PATHS.integrations, method: 'GET', route: `GET ${CONSOLE_PATHS.integrations}` },
   integrationCheck: { path: CONSOLE_PATHS.integrationCheck, url: '/api/console/integrations/resend/check', method: 'POST', route: `POST ${CONSOLE_PATHS.integrationCheck}` },
   deploys: { path: CONSOLE_PATHS.deploys, url: CONSOLE_PATHS.deploys, method: 'GET', route: `GET ${CONSOLE_PATHS.deploys}` },
@@ -293,6 +304,7 @@ const WRITES = new Set<RouteName>([
   'flagFlip',
   'welcomeTest',
   'week0Test',
+  'emailObserversSave',
   'integrationCheck',
 ]);
 
@@ -374,6 +386,8 @@ const INFRA = (read: number, flip: number, check: number, test: number = read) =
   flagFlip: flip,
   welcomeTest: test,
   week0Test: test,
+  emailObservers: read,
+  emailObserversSave: test,
   integrations: read,
   integrationCheck: check,
   deploys: read,

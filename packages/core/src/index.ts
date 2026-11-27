@@ -45,6 +45,8 @@ export * from './cohort-page';
 export * from './release';
 export * from './welcome';
 export * from './week0-open';
+// D-264: cohort observer emails.
+export * from './email-observers';
 export * from './console-staff';
 export * from './build-audit';
 export * from './uploads';

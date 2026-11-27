@@ -180,9 +180,10 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-263: and what Resend's webhook reports about each sent row, folded from `resend_events`.
   emailLog: {
     table: 'email_log',
+    // D-264: `observer_copy`, true on an observer's copy of a cohort-wide email.
     columns: [
       'at', 'bounce_message', 'bounce_sub_type', 'bounce_type', 'bounced_at', 'click_count', 'clicked_first_at', 'clicked_last_at', 'clicked_link',
-      'complained_at', 'delayed_at', 'delivered_at', 'delivery_status', 'error_kind', 'id', 'open_count', 'opened_first_at', 'opened_last_at',
+      'complained_at', 'delayed_at', 'delivered_at', 'delivery_status', 'error_kind', 'id', 'observer_copy', 'open_count', 'opened_first_at', 'opened_last_at',
       'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id',
     ],
     gate: 9,
@@ -199,6 +200,9 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   incidentEvents: { table: 'incident_events', columns: ['actor_user_id', 'at', 'body', 'id', 'incident_id', 'kind', 'link'], gate: 9 },
   // D-168: the Admin Console's own flags (spec § 7.13). Not a `Db` record, like `audit_log`.
   consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'turned_on_at', 'updated_at', 'updated_by'], gate: 9 },
+  // D-264: the Console's saved settings (the cohort observer addresses) and the observer copies' ledger. Not `Db` records.
+  consoleSettings: { table: 'console_settings', columns: ['key', 'updated_at', 'updated_by', 'value'], gate: 9 },
+  observerCopies: { table: 'observer_copies', columns: ['address', 'cohort_id', 'kind', 'sent_at', 'template', 'unit'], gate: 9 },
   // D-173: the curriculum builder's copy strings. A `Db` record (`Db.copy`), round-tripped by the codec.
   copyStrings: { table: 'copy_strings', columns: ['audience', 'key', 'value'] },
   // D-175: which one-time data steps the deploy has run (release plan, copy strings). Not a `Db` record.
@@ -453,6 +457,9 @@ const EPOCH_COLUMNS: [string, string][] = [
   // D-168: when a Console flag was last flipped, as `clock.now()` stamps it.
   ['consoleFlags', 'updatedAt'],
   ['consoleFlags', 'turnedOnAt'],
+  // D-264: when the observer list was last saved, and when an observer copy was claimed, as `clock.now()` stamps them.
+  ['consoleSettings', 'updatedAt'],
+  ['observerCopies', 'sentAt'],
   // D-175: when the deploy ran a one-time data step, as `clock.now()` stamps it.
   ['dataMigrations', 'ranAt'],
 ];
@@ -531,6 +538,8 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
   incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
   consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at and turned_on_at are clock.now() as written by console/flags.ts, and fmt.* formats them' },
+  consoleSettings: { unit: 'epoch-ms', why: 'D-264: updated_at is clock.now() as written by email/observers.ts, and fmt.* formats it' },
+  observerCopies: { unit: 'epoch-ms', why: 'D-264: sent_at is the scheduler clock (or the job’s now), as job_runs.sent_at is' },
   copyStrings: { unit: 'epoch-ms', why: 'D-173: no instant at all; a key, its words and who reads them' },
   dataMigrations: { unit: 'epoch-ms', why: 'D-175: ran_at is clock.now() as the deploy ran the step' },
 };
@@ -700,6 +709,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   teamSeatCards: ['team_id', 'module_id'],
   // One welcome per team owner and cohort. The pair is the key, so a second plan cannot send a second welcome.
   cohortEnrollments: ['user_id', 'cohort_id'],
+  // D-264: one observer copy per kind, cohort send and address, claimed with `on conflict do nothing` as job_runs is.
+  observerCopies: ['kind', 'unit', 'address'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {

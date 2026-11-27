@@ -133,6 +133,8 @@ const GROUP_LABELS: Record<string, string> = {
   welcome: 'Welcome Email',
   // The Week 0 Is Open email's test send.
   week0: 'Week 0 Email',
+  // D-264: the cohort observer addresses saved on Environment Flags.
+  email_observers: 'Cohort Observer Emails',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;

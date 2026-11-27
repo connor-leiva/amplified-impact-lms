@@ -23,6 +23,9 @@
 //
 // NEVER BOTH. A row the welcome already reached (`welcome_status = 'sent'`, or a lost claim) is skipped
 // (`week0_error = 'welcome_sent'`), and the claim refuses a row the welcome holds.
+//
+// OBSERVERS (D-264). A cohort's first sent email here is copied to each cohort observer, once (`cohortCopier`): with
+// no first name, claimed in `observer_copies`, never in `cohort_enrollments`, and never counted in this run's numbers.
 
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { WEEK0_OPEN_FLAG, WEEK0_OPEN_TEMPLATE, enrolledAtSwitch, firstNameOf, otherEmailReached, week0DueAt, week0OpenDecision, welcomeSchedule } from '@ai/core';
@@ -33,6 +36,7 @@ import { getDb } from '../db/client';
 import { cohortEnrollments, cohorts, consoleFlags, emailLog, sessions, users } from '../db/schema';
 import { SUBJECTS } from '../email/subjects';
 import { send } from '../email/transport';
+import { cohortCopier } from '../email/observers';
 import type { BillingLog } from '../billing/provision';
 import { week0RosterOf } from '../lib/course-access';
 import { readWeeks, recordSwitchOn, sessionOf, upsertCohortEnrollments } from './enrollments';
@@ -128,6 +132,7 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
 
   const cohortIds = [...new Set(pending.map((r) => r.cohort_id))];
   const cohortRows = await db.select().from(cohorts).where(inArray(cohorts.id, cohortIds));
+  const observers = cohortCopier(db, now, log);
   const sessionRows = await db.select().from(sessions).where(inArray(sessions.cohortId, cohortIds));
   // R-5 Phase 4 (D-261, PLAN.md 2.10): each cohort's own weeks, through its run, so its Week 0 due date is its own.
   const weeksByCohort = new Map<string, Promise<WelcomeWeek[]>>();
@@ -189,15 +194,14 @@ export async function sendWeek0Open(options: { db?: Database; log: BillingLog; n
     `)) as unknown as { user_id: string }[];
     if (claimed.length === 0) continue;
 
-    const result = await send({
-      template: 'week0-open',
-      to: row.email,
-      data: { firstName: firstNameOf(row.name), week0DueAt: dueAt, liveBuildAt: built.schedule.session1At, liveBuildMins: built.schedule.session1Mins, ...week0Subject(cohort) },
-    });
+    const data = { firstName: firstNameOf(row.name), week0DueAt: dueAt, liveBuildAt: built.schedule.session1At, liveBuildMins: built.schedule.session1Mins, ...week0Subject(cohort) };
+    const result = await send({ template: 'week0-open', to: row.email, data });
     const where = and(eq(cohortEnrollments.userId, row.user_id), eq(cohortEnrollments.cohortId, row.cohort_id));
     if (result.ok) {
       await db.update(cohortEnrollments).set({ week0Status: 'sent', week0SentAt: now, week0Error: null }).where(where);
       run.sent += 1;
+      // D-264: this cohort's Week 0 email, copied to each observer once (the first one this cohort sends).
+      await observers.copy('week0-open', cohort.id, data);
     } else {
       await db.update(cohortEnrollments).set({ week0Status: 'failed', week0SentAt: now, week0Error: 'send' }).where(where);
       log.error({ user: row.user_id, cohort: row.cohort_id }, 'week 0 email was not delivered');
