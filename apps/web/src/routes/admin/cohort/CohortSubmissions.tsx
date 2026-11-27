@@ -10,7 +10,7 @@ import { Page } from '../../../components/r2/Page';
 import { Status } from '../../../components/r2/Status';
 import { Table } from '../../../components/r2/Table';
 import type { Column } from '../../../components/r2/Table';
-import { Bar, PageHead, Pill, Sel, Tabs, Two, k } from '../../../components/r2/kit';
+import { Bar, PageHead, Pill, Sel, Stamp, Tabs, Two, k } from '../../../components/r2/kit';
 import { useToaster } from '../../../components/primitives/Toaster';
 import { useAct, useDb } from '../../../data/hooks';
 import { teamPath } from '../../../shell/admin/addresses';
@@ -117,12 +117,16 @@ export function Component() {
     {
       key: 'st',
       label: C.columns.status,
-      width: '200px',
+      width: '164px',
       value: (r) => r.statusLabel,
       cell: (r) => (
         <div className={clsx(k.col, s.stw)}>
           <Pill tone={r.tone}>{r.statusLabel}</Pill>
-          {r.when ? <span className={k.me}>{r.when}</span> : null}
+          {r.when ? (
+            <span className={k.me}>
+              <Stamp v={r.when} two />
+            </span>
+          ) : null}
         </div>
       ),
     },
