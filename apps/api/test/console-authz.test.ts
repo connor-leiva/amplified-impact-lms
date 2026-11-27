@@ -86,7 +86,8 @@ type RouteName =
   | 'groupExport';
 
 // PR 4 (D-163): Billing, read-only, every route `billing.read`.
-const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes'] as const;
+// R-5 Phase 8 (D-269): Revenue › Summary and the sidebar's "N failed", billing.read too (no new capability).
+const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes', 'billingRevenue', 'billingFailedCount'] as const;
 type BillingRoute = (typeof BILLING)[number];
 // PR 5 (D-164): the confirmed refund and void, billing.refund and billing.void (Owner, Admin).
 const ACTIONS = ['billingRefundPreview', 'billingRefund', 'billingVoidPreview', 'billingVoid'] as const;

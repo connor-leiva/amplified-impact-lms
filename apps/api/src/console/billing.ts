@@ -14,6 +14,10 @@
 //   GET /api/console/billing/refunds        `?cursor&limit`: Stripe's refunds, with the staff member
 //                                           behind a Console refund (its metadata and audit row)
 //   GET /api/console/billing/scopes         which Read permissions the key has, as presence only
+//   GET /api/console/billing/revenue        R-5 Phase 8 (D-269): Revenue › Summary, `?period=all|month`
+//                                           (`revenue.ts`); Stripe unreadable is an answer, never a zero
+//   GET /api/console/billing/failed-count   R-5 Phase 8 (D-269): the sidebar's "N failed", from memory only:
+//                                           the count the last summary or Revenue read found, or null
 //
 // Every route is `billing.read` (Owner, Admin, Support: Support reads, D3) and a read: 60 a minute per
 // session (the 5-a-minute billing limit is for PR 5's actions). Each row names its Stripe Dashboard page
@@ -28,6 +32,7 @@ import {
   CONSOLE_PAGE_MAX,
   CONSOLE_PLAN_LABELS,
   acceleratorFigures,
+  isRevenuePeriod,
   billingLineLabel,
   buildBillingSummary,
   isPlanKind,
@@ -52,6 +57,8 @@ import type {
   BillingWorkspaceRef,
   ConsolePage,
   PriceBook,
+  RevenuePeriod,
+  RevenueSummary,
   StripeMode,
 } from '@ai/core';
 import { COURSE_OPENS_AT, DEFAULT_COHORT_ID } from '@ai/core/accelerator';
@@ -67,6 +74,7 @@ import { accounts, auditLog, orders, plans, skillPurchases, skills, teams, users
 import { clock } from '../lib/clock';
 import { consoleError, requireConsole } from './guard';
 import { decodeCursor, encodeCursor } from './records';
+import { revenueSummary } from './revenue';
 import { CONSOLE_STRIPE_TTL_MS, StripeReadError, StripeScopeError, probeStripeScopes } from './stripe-read';
 import type { ConsoleStripe, ReadInvoice, StripePage } from './stripe-read';
 
@@ -78,6 +86,8 @@ export const BILLING_PATHS = {
   billingFailed: '/api/console/billing/failed',
   billingRefunds: '/api/console/billing/refunds',
   billingScopes: '/api/console/billing/scopes',
+  billingRevenue: '/api/console/billing/revenue',
+  billingFailedCount: '/api/console/billing/failed-count',
 } as const;
 
 /** What the routes are handed (`app.ts`): the cached read client, the offer's price cache, the key's mode. */
@@ -420,6 +430,14 @@ export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps,
   const opts = { ...rate, preHandler: [requireSession, requireConsole('billing.read')] };
   // The summary itself is kept 10 minutes too, so its `asOf` says when it was read.
   let summary: { at: number; value: Promise<BillingSummary> } | null = null;
+  // R-5 Phase 8 (D-269): Revenue › Summary, kept 10 minutes per period like the summary (an answer with Stripe unreadable
+  // is not kept); and the Failed list's count as the last summary or Revenue read found it, which the sidebar's "N
+  // failed" reads (PLAN.md § 8, D-253: from memory, never a Stripe call per page view; null while unknown).
+  const revenue = new Map<RevenuePeriod, { at: number; value: Promise<RevenueSummary> }>();
+  let failed: { failed: number; asOf: number } | null = null;
+  const remember = (n: number | null, asOf: number) => {
+    if (n !== null && (!failed || asOf >= failed.asOf)) failed = { failed: n, asOf };
+  };
   let scopes: { at: number; value: Promise<BillingScopes> } | null = null;
 
   const route = <T>(path: string, read: (stripe: ConsoleStripe, req: FastifyRequest, reply: FastifyReply) => Promise<T | FastifyReply>) =>
@@ -440,7 +458,10 @@ export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps,
     if (!summary || now - summary.at >= CONSOLE_STRIPE_TTL_MS) {
       const value = (async () => billingSummary(getDb(), stripe, await deps.prices.get(now), now))();
       summary = { at: now, value };
-      value.catch(() => summary?.value === value && (summary = null));
+      value.then(
+        (s) => remember(s.failedPayments, s.asOf),
+        () => summary?.value === value && (summary = null),
+      );
     }
     return summary.value;
   });
@@ -484,9 +505,33 @@ export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps,
     return scopes.value;
   });
 
+  // R-5 Phase 8 (D-269): Revenue › Summary. Answered with no Stripe key too: the seats are the database's.
+  scope.get(BILLING_PATHS.billingRevenue, opts, async (req, reply): Promise<FastifyReply> => {
+    const q = (req.query ?? {}) as Record<string, unknown>;
+    const period = q.period === undefined || q.period === '' ? 'all' : q.period;
+    if (!isRevenuePeriod(period)) return invalid(reply, 'period');
+    const now = clock.now();
+    let hit = revenue.get(period);
+    if (!hit || now - hit.at >= CONSOLE_STRIPE_TTL_MS) {
+      const value = revenueSummary(getDb(), deps.stripe, now, period);
+      const entry = { at: now, value };
+      hit = entry;
+      revenue.set(period, entry);
+      const drop = () => revenue.get(period) === entry && revenue.delete(period);
+      value.then((s) => (s.stripeError ? drop() : remember(s.failed, s.asOf)), drop);
+    }
+    return reply.send(await hit.value);
+  });
+
+  scope.get(BILLING_PATHS.billingFailedCount, opts, async (_req, reply): Promise<FastifyReply> =>
+    reply.send(failed ?? { failed: null, asOf: null }),
+  );
+
   return {
     forgetSummary: () => {
       summary = null;
+      revenue.clear();
+      failed = null;
     },
   };
 }

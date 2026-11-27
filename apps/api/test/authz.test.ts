@@ -723,6 +723,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/billing/failed', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/billing/refunds', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/billing/scopes', methods: 'GET, HEAD', guard: 'session' },
+  // R-5 Phase 8 (D-269): Revenue › Summary and the sidebar's "N failed", billing.read.
+  { path: '/api/console/billing/revenue', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/failed-count', methods: 'GET, HEAD', guard: 'session' },
   // Admin Console PR 5 (D-164): Billing's confirmed refund and void. Signed in, then billing.refund or
   // billing.void (`test/console-authz.test.ts`), then a confirm token (`test/console-billing-actions.test.ts`).
   { path: '/api/console/billing/refund/preview', methods: 'POST', guard: 'session' },
@@ -1334,7 +1337,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/console/masquerade/sessions': () => app.inject({ method: 'GET', url: '/api/console/masquerade/sessions' }),
           // Admin Console PR 4 (D-163).
           ...Object.fromEntries(
-            ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds', 'scopes'].map((x) => [
+            // R-5 Phase 8 (D-269): Revenue › Summary and the sidebar's "N failed".
+            ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds', 'scopes', 'revenue', 'failed-count'].map((x) => [
               `/api/console/billing/${x}`,
               () => app.inject({ method: 'GET', url: `/api/console/billing/${x}` }),
             ]),
@@ -1633,8 +1637,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge. 105 with the cohort welcome's
     // test send. 106 with the Week 0 Is Open email's test send. 107 with the Cohort page's facts (D-255). 109 with
     // Comp a team's two. 115 with R-5 Phase 7's six (D-268: People's counts, an access group's tab, its two writes and its
-    // export, and Cohort › Submissions' intake).
-    expect(EXECUTED.unauthenticated).toBe(115);
+    // export, and Cohort › Submissions' intake). 117 with R-5 Phase 8's two (D-269: Revenue › Summary, and the sidebar's
+    // "N failed").
+    expect(EXECUTED.unauthenticated).toBe(117);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes. And Resend's webhook (D-263).
@@ -1665,7 +1670,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Is Open email's test send, probed unauthenticated. And + 1 for the Cohort page's facts (D-255), probed unauthenticated.
     // And + 2 for Comp a team's cohorts list and comp, probed unauthenticated.
     // And + 1 for Resend's webhook (D-263), probed as exempt. And + 6 for R-5 Phase 7's (D-268: People's counts, an access
-    // group's tab, its two writes and its export, and Cohort › Submissions' intake), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1 + 6);
+    // group's tab, its two writes and its export, and Cohort › Submissions' intake), probed unauthenticated. And + 2 for
+    // R-5 Phase 8's (D-269: Revenue › Summary and the sidebar's "N failed"), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1 + 6 + 2);
   });
 });

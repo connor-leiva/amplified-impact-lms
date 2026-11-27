@@ -84,6 +84,14 @@ export interface BillingSubscription {
   created: number;
   metadata: Record<string, string>;
   items: BillingItem[];
+  /**
+   * R-5 Phase 8 (D-269): when Stripe charges it next, as Revenue's "Coming in" and its calendar read it. Optional: the
+   * summary and the lists never read them. The period's end (on its items, API 2025-10-29), a trial's end, and whether
+   * it ends at the period's end (a two-payment seat's after its second payment).
+   */
+  currentPeriodEnd?: number | null;
+  trialEnd?: number | null;
+  cancelAtPeriodEnd?: boolean;
 }
 
 const PER_MONTH: Record<PriceInterval, number> = { day: 365 / 12, week: 52 / 12, month: 1, year: 1 / 12 };

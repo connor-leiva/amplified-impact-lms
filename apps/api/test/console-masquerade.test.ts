@@ -527,6 +527,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: CONSOLE_PATHS.billingFailed },
       { method: 'GET', url: CONSOLE_PATHS.billingRefunds },
       { method: 'GET', url: CONSOLE_PATHS.billingScopes },
+      // R-5 Phase 8 (D-269): Revenue › Summary and the sidebar's "N failed".
+      { method: 'GET', url: CONSOLE_PATHS.billingRevenue },
+      { method: 'GET', url: CONSOLE_PATHS.billingFailedCount },
       // PR 5 (D-164): the confirmed refund and void, previews included, are writes the block refuses.
       { method: 'POST', url: CONSOLE_PATHS.billingRefundPreview },
       { method: 'POST', url: CONSOLE_PATHS.billingRefund },
