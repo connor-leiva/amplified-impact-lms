@@ -104,6 +104,8 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/health?console-state=empty'],
   ['admin', '/admin/health?console-sample=off'],
   ['admin', '/admin/build'],
+  // R-5 Phase 9 (D-270): Cohort › Settings, whose Clean-Up card holds Archive this cohort.
+  ['admin', '/admin/cohort/dec26/settings'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

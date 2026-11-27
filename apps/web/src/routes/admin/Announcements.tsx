@@ -9,7 +9,7 @@ import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { PageHead, Sel, TextArea, k, Stamp } from '../../components/r2/kit';
 import type { MenuEntry } from '../../components/r2/Menu';
-import { useAct, useDb, useMutate } from '../../data/hooks';
+import { useAct, useDb, useMutate, useNow } from '../../data/hooks';
 import {
   R2_AUDIENCES,
   R2_CHANNELS,
@@ -48,8 +48,8 @@ const ACTIONS = [
   ['sessions', 'Open Sessions'],
 ] as const;
 
-const fresh = (): AnnouncementForm => {
-  const f = blankAnnouncementForm();
+const fresh = (now: number): AnnouncementForm => {
+  const f = blankAnnouncementForm(now);
   return { ...f, at: defaultScheduleMst(f.at) };
 };
 
@@ -64,7 +64,8 @@ export function Component() {
   const [open, setOpen] = useState(false);
   /** The row Edit opened, or null for New announcement. */
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState<AnnouncementForm>(fresh);
+  const now = useNow(60_000);
+  const [form, setForm] = useState<AnnouncementForm>(() => fresh(now));
   const [err, setErr] = useState('');
 
   const set = useCallback((patch: Partial<AnnouncementForm>) => {
@@ -75,7 +76,7 @@ export function Component() {
   const close = useCallback(() => {
     setOpen(false);
     setEditing(null);
-    setForm(fresh());
+    setForm(fresh(now));
   }, []);
 
   /** Save draft (New or Edit), or an edited row's Send now / Schedule. Nothing here sends on save. */
@@ -125,7 +126,7 @@ export function Component() {
         title: canEdit ? undefined : 'Sent announcements can’t be edited.',
         onSelect: () => {
           if (!a) return;
-          setForm(announcementFormOf(a));
+          setForm(announcementFormOf(a, now));
           setEditing(a.id);
           setErr('');
           setOpen(true);
@@ -175,7 +176,7 @@ export function Component() {
             onClick={() => {
               setErr('');
               setEditing(null);
-              setForm(fresh());
+              setForm(fresh(now));
               setOpen(true);
             }}
           >

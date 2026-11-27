@@ -646,6 +646,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/admin/cohorts/:cohortId/facts', methods: 'GET, HEAD', guard: 'session' },
   // R-5 Phase 7 (D-268): every roster team's intake, for Cohort › Submissions.
   { path: '/api/admin/cohorts/:cohortId/intake', methods: 'GET, HEAD', guard: 'session' },
+  // R-5 Phase 9 (D-270): every cohort's facts, for the Overview, without Stripe. Signed in, then staff with `cohorts`.
+  { path: '/api/admin/overview', methods: 'GET, HEAD', guard: 'session' },
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   // D-229 (B-18): the intake as a PDF. Signed in, then the owner and the operator.
@@ -1217,6 +1219,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/course': () => app.inject({ method: 'GET', url: '/api/course' }),
           '/api/admin/cohorts/:cohortId/facts': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/facts' }),
           '/api/admin/cohorts/:cohortId/intake': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/intake' }),
+          '/api/admin/overview': () => app.inject({ method: 'GET', url: '/api/admin/overview' }),
           // D-132's account page.
           '/api/auth/password': () => app.inject({ method: 'GET', url: '/api/auth/password' }),
           '/api/auth/password/change': () =>
@@ -1638,8 +1641,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // test send. 106 with the Week 0 Is Open email's test send. 107 with the Cohort page's facts (D-255). 109 with
     // Comp a team's two. 115 with R-5 Phase 7's six (D-268: People's counts, an access group's tab, its two writes and its
     // export, and Cohort › Submissions' intake). 117 with R-5 Phase 8's two (D-269: Revenue › Summary, and the sidebar's
-    // "N failed").
-    expect(EXECUTED.unauthenticated).toBe(117);
+    // "N failed"). 118 with R-5 Phase 9's Overview read (D-270).
+    expect(EXECUTED.unauthenticated).toBe(118);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes. And Resend's webhook (D-263).
@@ -1671,7 +1674,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // And + 2 for Comp a team's cohorts list and comp, probed unauthenticated.
     // And + 1 for Resend's webhook (D-263), probed as exempt. And + 6 for R-5 Phase 7's (D-268: People's counts, an access
     // group's tab, its two writes and its export, and Cohort › Submissions' intake), probed unauthenticated. And + 2 for
-    // R-5 Phase 8's (D-269: Revenue › Summary and the sidebar's "N failed"), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1 + 6 + 2);
+    // R-5 Phase 8's (D-269: Revenue › Summary and the sidebar's "N failed"), probed unauthenticated. And + 1 for R-5
+    // Phase 9's Overview read (D-270), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1 + 6 + 2 + 1);
   });
 });

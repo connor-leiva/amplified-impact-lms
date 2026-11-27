@@ -644,8 +644,10 @@ a.plain {
   .set2 {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* D-270 (R-5 Phase 9): the words keep the 16px floor on a phone (`lms-mobile.spec.ts`), as the reference's `.ph .cfx` does. */
   .cfx {
     grid-template-columns: minmax(0, 1fr);
+    font-size: 16px;
   }
   .g2 {
     grid-template-columns: minmax(0, 1fr);

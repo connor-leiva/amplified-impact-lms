@@ -22,8 +22,10 @@ import type { AnnouncementForm, AnnouncementsUi, AnnouncementsVM } from './Annou
 // twice: against `seed('live')`, and against the same snapshot with `ZERO_BASE`, which is what the
 // API returns in http mode.
 
+/** R-5 Phase 9 (D-270): the composer's clock, the day before the reference's own default schedule (Dec 9, 9:00 AM CT). */
+const T0 = Date.parse('2026-12-08T12:00:00-06:00');
 const ui = (over: Partial<AnnouncementForm> = {}, err = ''): AnnouncementsUi => ({
-  form: { ...blankAnnouncementForm(), ...over },
+  form: { ...blankAnnouncementForm(T0), ...over },
   err,
 });
 
@@ -97,7 +99,7 @@ describe('announcementsVM @g6', () => {
     // -----------------------------------------------------------------------------------------
 
     it('starts from the reference`s own draft: All Learners, both channels, Info, None, Send Now', () => {
-      expect(blankAnnouncementForm()).toEqual({
+      expect(blankAnnouncementForm(T0)).toEqual({
         title: '',
         body: '',
         audience: 'all',
@@ -304,6 +306,6 @@ describe('announceR2Rows (D-160 R2-2b)', () => {
 
   it('schedules in MST and hands sendAnnouncement the same instant in Central Time', () => {
     expect(atForSend('2026-12-15T12:00')).toBe('2026-12-15T13:00');
-    expect(defaultScheduleMst(blankAnnouncementForm().at)).toBe('2026-12-09T08:00');
+    expect(defaultScheduleMst(blankAnnouncementForm(T0).at)).toBe('2026-12-09T08:00');
   });
 });

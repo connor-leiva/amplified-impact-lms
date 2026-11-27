@@ -240,6 +240,8 @@ export const AUDIT_ACTIONS = [
   'cohort.enrollment_save',
   'cohort.enrollment_open',
   'cohort.enrollment_close',
+  // R-5 Phase 9 (D-270): Settings › Clean-Up's archive (`archivedAt`, nothing else).
+  'cohort.archive',
   'cohort.team_moved',
   'copy.save',
   // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.

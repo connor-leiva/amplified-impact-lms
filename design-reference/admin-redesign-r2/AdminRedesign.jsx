@@ -338,6 +338,17 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .rnw{padding:8px;margin:-4px -8px;width:calc(100% + 16px);border-radius:8px}.rnw:hover{background:var(--sub)}.rnw>svg:last-child,.nyr>svg:last-child{color:var(--line2);flex:none}.rnw:hover>svg:last-child,.nyr:hover>svg:last-child{color:var(--for)}
 .nyr{padding:12px 16px 12px 20px;min-height:60px}.nyr:hover{background:var(--hov)}.nyr.rn{min-height:52px;padding-block:8px}
 .nyr.now{background:linear-gradient(90deg,var(--tint),transparent 60%)}.ph .nyr{padding:12px 16px}
+/* D-270 (R-5 Phase 9): the Overview's tiles, Needs You's group labels and the audience bar (the mockup's Home) */
+.thr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.lap .thr{grid-template-columns:repeat(2,minmax(0,1fr))}.ph .thr{grid-template-columns:minmax(0,1fr);gap:12px}
+.thl{display:flex;flex-direction:column;gap:4px;align-items:stretch;text-align:left;padding:14px 16px 16px;cursor:pointer;color:inherit;transition:border-color .12s,box-shadow .12s;min-width:0}
+.thl:hover{border-color:var(--line2);box-shadow:0 2px 8px rgba(21,33,29,.06)}
+.tlk{display:flex;align-items:center;gap:8px;font-size:var(--m);line-height:var(--ml);font-weight:500;color:var(--f2);margin-bottom:6px}.tlk .mt{width:24px;height:24px;border-radius:6px}.tlk .mt svg{width:14px;height:14px}
+.tlk>svg:last-child{margin-left:auto;color:var(--line2);transition:color .12s,transform .12s}.thl:hover .tlk>svg:last-child{color:var(--for);transform:translateX(2px)}
+.thl .fig{font-size:20px;line-height:28px}.thl .me{white-space:normal}
+.ngl{padding:8px 20px;font-size:var(--m);line-height:var(--ml);font-weight:500;color:var(--f3);background:var(--hov)}.ph .ngl{padding:8px 16px}
+.aub{display:flex;gap:2px;height:10px;border-radius:5px;overflow:hidden}.aub i{display:block;min-width:4px}
+.aul{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.lap .aul{grid-template-columns:repeat(3,minmax(0,1fr))}.ph .aul{grid-template-columns:repeat(2,minmax(0,1fr))}
+.auk{display:flex;align-items:flex-start;gap:8px;padding:8px;margin:0 -8px 0 0;border:0;background:none;border-radius:8px;text-align:left;cursor:pointer;color:inherit}.auk:hover{background:var(--sub)}.auk>i{width:8px;height:8px;border-radius:2px;flex:none;display:block;margin-top:8px}.auk .w5{font-size:17px;line-height:24px}
 .mt.bad{background:var(--badb);color:var(--bad)}.mt.warn{background:var(--warnb);color:var(--warn)}
 .rdy{padding:6px 8px;margin:-2px -8px;width:calc(100% + 16px);border-radius:8px;gap:10px}.rdy:hover{background:var(--sub)}
 /* D-269: a cohort card's Seats sold row opens Enrollment, so on a phone it is a 44px target, as the mockup's own .ph .lk */
@@ -365,7 +376,7 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .tdc{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
 .tdo.ok .tdc{background:#2E9A63;border-color:#2E9A63}.tdo.ok .w5{color:var(--f2);font-weight:400}
 .set2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}.lap .set2,.ph .set2{grid-template-columns:minmax(0,1fr)}
-.cfx{display:grid;grid-template-columns:116px minmax(0,1fr);gap:4px 16px;font-size:calc(var(--t) - 1px)}.ph .cfx{grid-template-columns:minmax(0,1fr)}
+.cfx{display:grid;grid-template-columns:116px minmax(0,1fr);gap:4px 16px;font-size:calc(var(--t) - 1px)}.ph .cfx{grid-template-columns:minmax(0,1fr);font-size:16px}
 .cfl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px;font-weight:400}
 .wpl{display:flex;flex-direction:column}.wpl>*+*{border-top:1px solid var(--line)}
 .wpk{display:flex;align-items:center;gap:12px;padding:10px 20px;min-height:56px;cursor:pointer;font-size:calc(var(--t) - 1px)}.wpk:hover{background:var(--hov)}.ph .wpk{padding:10px 16px;flex-wrap:wrap}
@@ -718,50 +729,67 @@ const brk = s => typeof s === 'string' && s.includes('@') ? s.split('@').map((p,
 const Two = ({ a, b, mo }) => <div className="col" style={{ gap: 0 }}><span className="w5 el">{a}</span><span className={'me el' + (mo ? ' mo' : '')}>{brk(b)}</span></div>;
 
 /* ---------- admin screens ---------- */
+/* ---------- D-270 (R-5 Phase 9): the Overview, the mockup's `Home` (handoff/admin-mockup/p3-areas.jsx) ----------
+   Ported on this reference's own data (its now, Thu, Dec 10): the program as its pages draw it (`P6_LIB`), December running
+   its weeks on `P6_DEC_RUN` with its sessions (`P6_DEC_SES`) and January created as a draft (`P3_COH.jan27`); People's
+   audiences (`P7_PEOPLE`); Revenue's figures (`RV_PER`, `RV_NEXT`, `RV_FAILED`); Plans & Upgrades' requests and the open
+   incident. Each figure is the app's rule: a cohort's run counts its published weeks (a draft week is no learner's yet);
+   its Teams and Learners are its roster's (D-267: December's one AI Accelerator team); a draft's group is Before It Opens'
+   lines not done, its Sessions line naming the Thursday its office hours meet at December's; failed payments say how many
+   Stripe is retrying; each audience segment opens People filtered. Every time is "12:00 PM MT / 1:00 PM CT". */
+const HOME_REQ = () => TIERS_REQ0.filter(r => r[4] === 'Pending');
+const homeDecSes = () => P6_DEC_SES.map(s => ({ ...s, mins: s.k === 'Live build' ? 90 : 60 }));
+const homeDecRun = () => P6_DEC_RUN.filter(w => P6_LIB[w.n].st !== 'Draft');
+const homeShort = c => c.n.replace(' Cohort', '');
+const homeWord = n => ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][n] || String(n);
+function homeBefore(c) {
+  const clash = c.ses.filter(s => homeDecSes().some(x => x.start === s.start)).length;
+  return p3Before(c).map(l => l[0] === 'Sessions' ? ['Sessions', c.ses.length + ' on the calendar' + (clash ? '. ' + clash + ' are at the same time as December’s office hours.' : ''), c.ses.length > 0 && !clash, 'cohorts'] : l);
+}
 function Overview() {
-  const { go, started, toast, guard, ph } = useC();
-  const pts = [22, 58, 96, 121, 150, 178, 190];
-  const line = pts.map((v, i) => (i * 100) + ',' + (200 - v * 0.95)).join(' ');
-  const funnel = [['Marketing', 98, 22, 148], ['Sales', 52, 31, 148], ['Week 1 · Know the Business', 33, 6, 44], ['Week 2 · Own the Day', 17, 12, 44], ['Database', 0, 0, 148]];
+  const { go } = useC();
+  const dec = P3_COH.dec26, jan = P3_COH.jan27, ses = homeDecSes(), run = homeDecRun(), build = run.filter(w => w.n > 0);
+  const wk = Math.max(1, ...build.filter(w => w.opens <= NOW_P3).map(w => w.n));
+  const dr = P6_LIB.filter(w => w.st === 'Draft').length, ul = P7_PEOPLE.filter(x => x.a === 'Utah Life').length, acc = P7_PEOPLE.filter(x => x.a === 'AI Accelerator').length;
+  const noZoom = ses.filter(s => !s.zoom && s.start > NOW_P3), retry = RV_NEXT.filter(r => r[4] === 'Retrying').length, req = HOME_REQ(), inc = INCIDENTS.filter(i => i.st === 'Open').length;
+  const at = (c, to) => () => { P3C = c; go(to); };
+  const groups = [
+    [dec.n, noZoom.length ? [['cohorts', noZoom.length + ' sessions have no Zoom link', 'The next one without a link is ' + mtDay(noZoom[0].start) + '.', at(dec, 'cohorts'), 'warn']] : []],
+    [jan.n + ' · Draft', homeBefore(jan).filter(l => !l[2]).map(l => ['cohorts', l[0], l[1], at(jan, l[3]), 'warn'])],
+    ['Payments and system', [['billing', RV_FAILED + ' payments failed', 'Stripe is retrying ' + homeWord(retry) + '. ' + homeWord(RV_FAILED - retry).replace(/^./, x => x.toUpperCase()) + ' need a new card.', () => go('payments', null, 'failed'), 'bad'],
+      ['tiers', req.length + ' teams asked to move up a plan', 'From ' + req.map(r => r[0]).join(' and ') + '.', () => go('tiers'), ''], ['incidents', inc + ' incident is open', 'Open it in Operations.', () => go('incidents'), 'bad']]]].filter(g => g[1].length);
+  const needN = groups.reduce((a, g) => a + g[1].length, 0);
+  const tiles = [
+    ['Program', 'curriculum', 'AI Accelerator', P6_LIB.length + ' weeks · ' + (P6_LIB.length - dr) + ' published, ' + dr + ' in draft', () => go('program')],
+    ['Cohort', 'cohorts', homeShort(dec), 'Week ' + wk + ' of ' + build.length + ' · ' + acc + ' of ' + dec.cap + ' seats', at(dec, 'cohort')],
+    ['People', 'learners', P7_PEOPLE.length + ' with a sign-in', acc + ' in the cohort · ' + ul + ' Utah Life, kept apart', () => go('users')],
+    ['Revenue', 'billing', RV_PER['All time'].c + ' collected', '$7,500 still to collect · $12,429 a month', () => go('billing')],
+  ];
+  const cohorts = [[dec, build.length + ' weeks · ' + p3Meets([1, 2]) + ' · opens ' + mtDay(run[0].opens), 'Active'], [jan, p3Shape(jan) + ' weeks · ' + p3Meets(jan.slots) + ' · opens ' + mtDay(jan.opens), 'Draft']];
+  const soon = [...ses.filter(s => s.start + s.mins * 6e4 > NOW_P3).slice(0, 2).map(s => ({ t: s.t, start: s.start, zoom: s.zoom, c: dec })), ...jan.ses.slice(0, 2).map(s => ({ t: s.title, start: s.start, zoom: false, c: jan }))].sort((a, b) => a.start - b.start).slice(0, 4);
+  const aud = P7_AUD.map(([a, col]) => [a, P7_PEOPLE.filter(x => x.a === a).length, col]).filter(a => a[1]);
   return <div className="pg">
-    <Head t="Overview" d={started ? 'December 2026 Cohort · Week 2 of 6 · Updated live from learner activity' : 'December 2026 Cohort · Opens Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · 148 learners enrolled'}
-      right={<><Btn ic="download" onClick={() => toast('Report export started')}>Export report</Btn><GBtn k="p" ic="plus" perm="build" label="New AI Employee" go={() => go('builder')}>New AI Employee</GBtn></>} />
-    <Gate n={8}>
-      <div className="g5">
-        <Stat l="Active learners" v="148" sub={ph ? '44 on Team Tier' : '104 Agent · 44 Team'} go={() => go('learners')} />
-        <Stat l={ph ? 'Deployed' : 'AI Employees deployed'} v={started ? '190' : '0'} sub={started ? (ph ? '+6 in 24 hours' : '+6 in the last 24 hours') : (ph ? 'Starts Dec 2' : 'Counting starts Dec 2')} tone={started ? 'ok' : null} go={() => go('curriculum')} />
-        <Stat l={ph ? 'Completion' : 'Build completion'} v={started ? '33%' : '—'} sub={ph ? 'Of open builds' : 'Of builds available'} go={() => go('curriculum')} />
-        <Stat l={ph ? 'Attendance' : 'Live attendance'} v={started ? '74%' : '—'} sub={started ? (ph ? 'Session 2' : 'Session 2 · 109 attended') : (ph ? 'Opens Dec 2' : 'Session 1 is Wed, Dec 2')} go={() => go('cohorts')} />
-        <Stat l="Upgrade pipeline" v="$8,000" sub="2 open requests" tone="warn" go={() => go('tiers')} />
+    <Head t="Overview" d="What you teach, who is going through it, who has a sign-in, and what has been paid. Each one opens its page." />
+    <div className="thr">{tiles.map(t => <button key={t[0]} className="cd thl" onClick={t[4]}><span className="tlk"><span className="mt"><I n={t[1]} /></span><span>{t[0]}</span><I n="chev" s={12} w={2.2} /></span><span className="fig el">{t[2]}</span><span className="me">{t[3]}</span></button>)}</div>
+    <div className="gms">
+      <div className="col">
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Needs You</h2><span className="me">Across the cohort, payments and the system</span></div><span className="pl warn">{needN}</span></div>
+          <div className="wkl">{groups.map(g => <Fragment key={g[0]}><div className="ngl">{g[0]}</div>{g[1].map(n => <button key={g[0] + n[1]} className="nyr" onClick={n[3]}><span className={'mt' + (n[4] ? ' ' + n[4] : '')}><I n={n[0]} /></span><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">{n[1]}</span><span className="me">{n[2]}</span></span><I n="chev" s={12} w={2.2} /></button>)}</Fragment>)}</div></section>
+        <section className="cd"><div className="cdh"><div className="col s" style={{ flex: 1, gap: 0 }}><h2>Who Has a Sign-In</h2><span className="me">{P7_PEOPLE.length} people, each counted once. Utah Life agents are kept out of the learner count and out of revenue.</span></div><Btn onClick={() => go('users')}>People</Btn></div>
+          <div className="cdb col m"><div className="aub" aria-hidden="true">{aud.map(a => <i key={a[0]} style={{ flex: a[1], background: a[2] }} />)}</div>
+            <div className="aul">{aud.map(a => <button key={a[0]} className="auk" onClick={() => go('users')}><i style={{ background: a[2] }} /><span className="col" style={{ gap: 0 }}><span className="w5 tn">{a[1]}</span><span className="me">{a[0]}</span></span></button>)}</div></div></section>
       </div>
-      <div className="gms">
-        <Card t="AI Employees deployed" sub="Cumulative, all learners" right={started && <span className="w5" style={{ color: 'var(--ok)' }}>190 total</span>}>
-          {started ? <div><svg viewBox="0 0 600 200" preserveAspectRatio="none" style={{ width: '100%', height: ph ? 160 : 220, display: 'block' }} role="img" aria-label="Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8.">
-            {[50, 100, 150].map(y => <line key={y} x1="0" x2="600" y1={y} y2={y} stroke="#E6E3DA" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
-            <polygon points={'0,200 ' + line + ' 600,200'} fill="#E7F1EB" /><polyline points={line} fill="none" stroke="#1F4D40" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-          </svg><div className="row nw me" style={{ justifyContent: 'space-between', paddingTop: 8 }}>{(ph ? ['Dec 2', 'Dec 4', 'Dec 6', 'Dec 8'] : ['Dec 2', 'Dec 3', 'Dec 4', 'Dec 5', 'Dec 6', 'Dec 7', 'Dec 8']).map(d => <span key={d} style={{ whiteSpace: 'nowrap' }}>{d}</span>)}</div></div>
-            : <Empty ic="usage" t="Not started" b="Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MT / 1:00 PM CT." />}
-        </Card>
-        <Card t="Live activity" pad={false}>
-          {started ? [['Sarah Collins', 'deployed Database AI Employee', '38 min ago', 'ok'], ['Rosa Delgado', 'deployed Sales AI Employee', '2 hours ago', 'ok'], ['Natasha Reed', 'deployed Marketing AI Employee', '2 hours ago', 'ok'], ['Devon Price', 'deployed Sales AI Employee', '14 hours ago', 'ok'], ['Kenji Watanabe', 'requested a Team tier upgrade', '18 hours ago', 'warn']].map((a, i) =>
-            <div key={i} className="li" style={{ alignItems: 'flex-start' }}><span className={'st ' + a[3]} style={{ paddingTop: 7 }}><i /></span><span style={{ flex: 1, minWidth: 0 }}><span className="w5">{a[0]}</span> <span className="s2">{a[1]}</span></span><span className="me" style={{ whiteSpace: 'nowrap', paddingTop: 2 }}>{a[2]}</span></div>)
-            : <Empty ic="health" t="No activity yet" b="Learner activity appears here once the cohort opens." />}
-        </Card>
+      <div className="col">
+        <Card t="Cohorts" right={<Btn ic="plus" onClick={() => go('newcohort')}>New cohort</Btn>}><div className="col m">{cohorts.map(([c, line, st]) => <button key={c.id} className="rnw" onClick={at(c, 'cohort')}><PTile /><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{c.n}</span><span className="me el">{line}</span></span><St v={st} /></button>)}</div></Card>
+        <Card t="Coming Up" right={<Btn onClick={at(dec, 'cohorts')}>Schedule</Btn>}><div className="col m">{soon.map(s => { const [dow, mon, dd] = mtDay(s.start).replace(',', '').split(' ');
+          return <button key={s.c.id + s.start} className="rnw" onClick={at(s.c, 'cohorts')}><span className="dt"><b>{dd}</b><span>{mon}</span></span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{s.t}</span><span className="me el">{dow + ' · ' + mtCt(s.start) + ' · ' + homeShort(s.c)}</span></span>{!s.zoom && <span className="pl warn">No link</span>}</button>; })}</div></Card>
       </div>
-      <div className="gms">
-        <Card t="Build funnel by AI Employee" right={!ph && <span className="row me" style={{ gap: 12 }}><span className="st ok"><i />Deployed</span><span className="st info"><i />In progress</span><span className="st"><i style={{ background: '#DAD6CB' }} />Not started</span></span>} pad={false}>
-          {funnel.map(f => { const nums = started ? <><span className="w5">{Math.round(f[1] / f[3] * 100)}%</span> <span className="mu">· {f[1]} of {f[3]}</span></> : <span className="mu">Not started</span>; const bar = <Bar v={started ? f[1] : 0} v2={started ? f[2] : 0} max={f[3]} />;
-            return ph ? <div key={f[0]} className="li" style={{ flexDirection: 'column', alignItems: 'stretch', flexWrap: 'nowrap', gap: 8 }}><div className="row nw" style={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}><span className="w5" style={{ minWidth: 0 }}>{f[0]}</span><span className="tn" style={{ flex: 'none', whiteSpace: 'nowrap' }}>{nums}</span></div><div style={{ display: 'flex' }}>{bar}</div></div>
-              : <div key={f[0]} className="li"><span className="w5 el" style={{ flex: '0 0 220px' }}>{f[0]}</span>{bar}<span className="tn" style={{ flex: '0 0 112px', textAlign: 'right', whiteSpace: 'nowrap' }}>{nums}</span></div>; })}
-        </Card>
-        <Card t="Live attendance" pad={false}>
-          {[['Session 1 · Dec 2', 82, '121 attended'], ['Session 2 · Dec 9', 74, '109 attended'], ['Session 3 · Dec 16', null, 'Upcoming']].map(s => <div key={s[0]} className="li"><span className={ph ? '' : 'el'} style={ph ? { flex: '0 0 124px', whiteSpace: 'nowrap' } : { flex: '0 0 124px' }}>{s[0]}</span>{started && s[1] ? <><Bar v={s[1]} /><span className="w5 tn">{s[1]}%</span></> : <span className="mu sp" style={{ textAlign: 'right' }}>{started ? s[2] : 'Upcoming'}</span>}</div>)}
-        </Card>
-      </div>
-    </Gate>
+    </div>
   </div>;
 }
 
+/* Plans & Upgrades' requests (`req`); D-270: the Overview's "2 teams asked to move up a plan" counts the pending ones. */
+const TIERS_REQ0 = [['Kenji Watanabe', 'Agent → Team · 16 seats', '$4,000', 'Dec 9, 3:02 PM MT / 4:02 PM CT', 'Pending'], ['Jordan Hale', 'Team · 16 seats → 41 seats', '$4,000', 'Dec 9, 6:12 PM MT / 7:12 PM CT', 'Pending'], ['Rosa Delgado', 'Agent → Team · 16 seats', '$4,000', 'Dec 4, 1:30 PM MT / 2:30 PM CT', 'Approved']];
 function TierPill({ m, set }) {
   const { guard, log } = useC();
   const ch = v => guard('build', 'Change tier access for ' + m.n, () => { set(v); log('tier.access_change', m.n, v === 'both' ? 'Team only to Agent + Team.' : 'Agent + Team to Team only.'); });
@@ -909,7 +937,7 @@ function Learners() {
 function Tiers() {
   const { mods, setMods, guard, log, toast, setDlg, ph } = useC();
   const [price, setPrice] = useState({ a: '995', t16: '4995', t41: '9995' });
-  const [req, setReq] = useState([['Kenji Watanabe', 'Agent → Team · 16 seats', '$4,000', 'Dec 9, 3:02 PM MT / 4:02 PM CT', 'Pending'], ['Jordan Hale', 'Team · 16 seats → 41 seats', '$4,000', 'Dec 9, 6:12 PM MT / 7:12 PM CT', 'Pending'], ['Rosa Delgado', 'Agent → Team · 16 seats', '$4,000', 'Dec 4, 1:30 PM MT / 2:30 PM CT', 'Approved']]);
+  const [req, setReq] = useState(TIERS_REQ0);
   const T = [['a', 'Agent Tier', '1 seat', 'per agent, per cohort', '104 licenses', '$103,480', 'For individual agents building their own AI Employees.', ['Marketing, Sales and Database AI Employees', 'System prompts, skill files and checklists', 'Resource Vault']],
     ['t16', 'Team Tier', '16 seats', 'per team, per cohort', '5 teams', '$24,975', 'For teams that want every seat building, plus the leadership modules.', ['All 15 AI Employees and weekly live builds', '16 seats', 'Team progress tracking']],
     ['t41', 'Team Tier', '41 seats', 'per team, per cohort', '2 teams', '$19,990', 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']]];
@@ -1717,7 +1745,12 @@ function CohortSettings() {
           <div className="cfx"><span className="me">Holiday note</span><span>{c.words.holiday || 'None. Every week has its sessions.'}</span></div>
           <div className="row"><Btn onClick={() => setD('words')}>Edit words</Btn><button className="lk me" onClick={() => go('course')}>What every cohort shares is in Course Settings</button></div>
         </div></Card>
-        <Card t="Clean-Up"><div className="row nw" style={{ gap: 12 }}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">Delete turned-in files</span><span className="me">Removes every file teams turned in. The record that they turned it in stays.</span></span><Btn onClick={() => toast('Counting the files…')}>Delete…</Btn></div></Card>
+        {/* D-270 (R-5 Phase 9): the mockup's second row. Archive is allowed after the cohort's last session; before it, the
+            mockup's toast says when. Confirmed in a dialog, one audit row; it sets when it was archived and nothing else. */}
+        <Card t="Clean-Up"><div className="col m">
+          <div className="row nw" style={{ gap: 12 }}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">Delete turned-in files</span><span className="me">Removes every file teams turned in. The record that they turned it in stays.</span></span><Btn onClick={() => toast('Counting the files…')}>Delete…</Btn></div>
+          <div className="row nw" style={{ gap: 12 }}><span className="col" style={{ gap: 0, flex: 1 }}><span className="w5">Archive this cohort</span><span className="me">Hides it from the switcher when it is over. Its people, files and payments are kept.</span></span><Btn onClick={() => { const last = c.ses.length ? c.ses[c.ses.length - 1] : null; toast('A cohort can be archived after its last session' + (last ? ', ' + mtDay(last.start) : '') + '.'); }}>Archive…</Btn></div>
+        </div></Card>
       </div>
     </div>
     {dlg === 'shape' && <Modal title={'Shape of the ' + c.n} w={640} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save shape</Btn></>}>

@@ -271,28 +271,15 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
       }
     });
 
-  test('Overview: the mockup’s figures, from the snapshot; each tile goes where the mockup’s does', async ({
-    browser,
-  }) => {
+  // R-5 Phase 9 (D-270): the Overview is the mockup's `Home` (`admin-overview.spec.ts` drives it); today's five stats,
+  // chart, feed, funnel and attendance are gone with "Active learners".
+  test('Overview: the mockup’s Home, from the snapshot; each tile goes where the mockup’s does', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin');
     const main = page.locator('main');
-    await expect(
-      main.getByText('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity'),
-    ).toBeVisible();
-    await expect(main.getByRole('link', { name: /Active learners\s*148\s*104 Agent · 44 Team/ })).toHaveAttribute(
-      'href',
-      '/admin/cohort/dec26/people',
-    );
-    await expect(main.getByRole('link', { name: /Upgrade pipeline\s*\$8,000\s*2 open requests/ })).toHaveAttribute(
-      'href',
-      '/admin/revenue/plans',
-    );
-    await expect(main.getByText('Build completion')).toBeVisible();
-    await expect(
-      main.getByRole('img', { name: 'Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8.' }),
-    ).toBeVisible();
-    await expect(main.getByText('Session 3 · Dec 16')).toBeVisible();
-    await expect(main.getByText('Upcoming')).toBeVisible();
+    await expect(main.getByRole('link', { name: /^Revenue\s*\$82,694 collected/ })).toHaveAttribute('href', '/admin/revenue');
+    await expect(main.getByRole('link', { name: /^2 teams asked to move up a plan/ })).toHaveAttribute('href', '/admin/revenue/plans');
+    await expect(main.getByText('Active learners')).toHaveCount(0);
+    await expect(main.getByText('Build completion')).toHaveCount(0);
     await close();
   });
 

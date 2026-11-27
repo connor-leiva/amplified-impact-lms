@@ -1,92 +1,145 @@
-/* Admin Overview on R2 (D-160 R2-3): what the mockup's `Overview` writes inline, on the R2 kit. Tokens
-   only. */
-.chart {
-  width: 100%;
-  height: 220px;
-  display: block;
+/* R-5 Phase 9 (D-270): the Overview, the mockup's `Home` (p3-areas.jsx): its four tiles (`.thr`, `.thl`, `.tlk`), the
+   Needs You groups' label (`.ngl`) and the audience bar (`.aub`, `.aul`, `.auk`), on the R2 tokens. The lists' rows,
+   icon tiles and date tiles are the Cohort page's (`Cohort.module.css`). */
+
+/* ---- the four tiles ---- */
+.thr {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
 }
-.grid {
-  stroke: var(--r2-line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-.area {
-  fill: var(--r2-tint);
-}
-.line {
-  fill: none;
-  stroke: var(--r2-for);
-  stroke-width: 2;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-.days {
-  justify-content: space-between;
-  padding-top: 8px;
-}
-/* Live activity: the dot on the first line, the time on the right. */
-.top {
-  align-items: flex-start;
-}
-.feedDot {
-  padding-top: 7px;
-}
-.feedText {
-  flex: 1;
-  min-width: 0;
-}
-.ago {
-  white-space: nowrap;
-  padding-top: 2px;
-}
-/* The funnel: name, bar, figures in one row; on a phone the bar under them. */
-.legend {
-  gap: 12px;
-}
-.legend > span {
-  color: var(--r2-ink);
-}
-.notStarted > i {
-  background: var(--r2-not-started);
-}
-.name {
-  flex: 0 0 220px;
-}
-.nums {
-  flex: 0 0 112px;
-  text-align: right;
-  white-space: nowrap;
-}
-.stack {
-  flex-direction: column;
-  align-items: stretch;
-  flex-wrap: nowrap;
-  gap: 8px;
-}
-.stackTop {
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-.shrink {
-  min-width: 0;
-}
-.numsPhone {
-  flex: none;
-  white-space: nowrap;
-}
-.flex {
+.thl {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  text-align: left;
+  padding: 14px 16px 16px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+  min-width: 0;
 }
-/* Live attendance: the session label in a fixed 124px column, so every bar starts at the same x. */
-.session {
-  flex: 0 0 124px;
+.thl:hover {
+  border-color: var(--r2-line2);
+  box-shadow: var(--r2-sh-lift);
 }
-.upcoming {
-  text-align: right;
+.tlk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  font-weight: 500;
+  color: var(--r2-f2);
+  margin-bottom: 6px;
 }
+.tlk .tmt {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+.tlk > svg:last-child {
+  margin-left: auto;
+  color: var(--r2-line2);
+  transition:
+    color 0.12s,
+    transform 0.12s;
+}
+.thl:hover .tlk > svg:last-child {
+  color: var(--r2-for);
+  transform: translateX(2px);
+}
+.thl .fig {
+  font-size: 20px;
+  line-height: 28px;
+}
+.thl .line {
+  white-space: normal;
+}
+
+/* ---- Needs You: a group's label ---- */
+.ngl {
+  padding: 8px 20px;
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  font-weight: 500;
+  color: var(--r2-f3);
+  background: var(--r2-hov);
+}
+
+/* ---- Who Has a Sign-In: the bar and its keys ---- */
+.aub {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.aub > i {
+  display: block;
+  min-width: 4px;
+}
+.aul {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+.auk {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  margin: 0 -8px 0 0;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+}
+.auk:hover {
+  background: var(--r2-sub);
+}
+.auk > i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+  display: block;
+  margin-top: 8px;
+}
+.auk .n {
+  font-size: 17px;
+  line-height: 24px;
+}
+
+/* Laptop: two tiles a row, three keys a row. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .thr {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Phone: one tile a row, two keys a row. */
 @media (max-width: 767px) {
-  .chart {
-    height: 160px;
+  .thr {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .ngl {
+    padding: 8px 16px;
+  }
+  .aul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

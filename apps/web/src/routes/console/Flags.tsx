@@ -110,8 +110,9 @@ function TestSend({ title, failed, send }: { title: string; failed: string; send
   const { toast, cohort } = useAdminChrome();
   const [to, setTo] = useState('accelerator-test@amplifiedimpact.io');
   // D-255 (PLAN.md § 10.3): the cohort is picked from the cohorts not archived (the pickers' list), the one the admin
-  // is on first. "Before it opens" counts a test send for the cohort it was sent for.
-  const [cohortId, setCohortId] = useState(cohort.id ?? cohort.choices[0]?.id ?? 'dec26');
+  // is on first. "Before it opens" counts a test send for the cohort it was sent for. R-5 Phase 9 (D-270, PLAN § 10.10):
+  // with no cohort to pick there is nothing to send for, so the button waits; no cohort is named in code.
+  const [cohortId, setCohortId] = useState(cohort.id ?? cohort.choices[0]?.id ?? '');
   const [busy, setBusy] = useState(false);
   return (
     <Card title={title} sub="Only accelerator-test@amplifiedimpact.io, unless an allowlist adds another address. This does not email a learner.">
@@ -123,7 +124,7 @@ function TestSend({ title, failed, send }: { title: string; failed: string; send
         <label className={k.col}>
           <span className={k.me}>Cohort</span>
           <Sel className={k.full} value={cohortId} onChange={(e) => setCohortId(e.target.value)}>
-            {(cohort.choices.length ? cohort.choices : [{ id: cohortId, label: cohortId }]).map((c) => (
+            {cohort.choices.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
               </option>
@@ -132,7 +133,7 @@ function TestSend({ title, failed, send }: { title: string; failed: string; send
         </label>
         <Button
           kind="primary"
-          disabled={busy}
+          disabled={busy || !cohortId}
           onClick={() => {
             setBusy(true);
             send(to, cohortId)

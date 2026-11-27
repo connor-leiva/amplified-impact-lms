@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { canAccess, statusOf } from '@ai/core';
 import { parityDb } from './parity-r2-db';
-import { BUILDER_STEPS, MODS0, OVERVIEW_PTS, USERS } from './parity-r2';
+import { BUILDER_STEPS, MODS0, USERS } from './parity-r2';
 
 // D-160 R2-2 and R2-3: the parity snapshot is the mockup's data in the app's own shapes.
 
@@ -69,12 +69,14 @@ describe('the R2 parity snapshot (D-160 R2-2)', () => {
     ]);
   });
 
-  it('gives the Overview its own figures: the funnel’s, the chart’s and the "+6"', () => {
+  it('gives the Overview its own world: the program as its pages have it, January as a draft, and a roster', () => {
     const o = parityDb('/admin');
-    expect(o.users.every((u) => Object.keys(u.progress).length === 0)).toBe(true);
-    expect(o.base.daily).toEqual([...OVERVIEW_PTS]);
-    expect(o.base.recent).toBe(6);
-    expect(o.modules.find((m) => m.id === 'm6')!.status).toBe('published');
+    expect(o.cohorts.map((c) => [c.id, c.status])).toEqual([
+      ['dec26', 'enrolling'],
+      ['jan27', 'draft'],
+    ]);
+    expect(o.roster).toEqual({ dec26: { teams: ['ws_copperbasin'], learners: ['u_1090'] }, jan27: { teams: [], learners: [] } });
+    expect(o.modules.filter((m) => m.kind === 'week')).toHaveLength(9);
     // Everywhere else, the shared snapshot.
     expect(parityDb('/admin/learners')).toEqual(db);
   });

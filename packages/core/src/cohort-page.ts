@@ -306,6 +306,14 @@ export interface CohortFacts {
   teamRows?: Record<string, CohortTeamFacts>;
 }
 
+/**
+ * R-5 Phase 9 (D-270): the Overview's read (`GET /api/admin/overview`): every cohort not archived, by id, with its facts as
+ * the facts route answers them but without Stripe (`stripe` absent) and without Cohort › People's rows.
+ */
+export interface AdminOverviewFacts {
+  cohorts: Record<string, CohortFacts>;
+}
+
 /** R-5 Phase 7 (D-268): one roster team's Week 0 intake, for Cohort › Submissions (`GET /api/admin/cohorts/:id/intake`). */
 export interface CohortIntakeRow {
   teamId: string;

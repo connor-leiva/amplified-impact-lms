@@ -31,6 +31,7 @@ import { deleteSession, saveCohortCourse, saveCohortPlan, saveCopyString, savePr
 import { saveCohortEnrollment, saveCohortPrice } from './cohort-selling';
 import {
   addCohortSessions,
+  archiveCohort,
   closeCohortEnrollment,
   createCohortFromShape,
   keepCohortOverlap,
@@ -810,6 +811,8 @@ export const ADMIN_ACTIONS = {
   saveCohortEnrollment,
   openCohortEnrollment,
   closeCohortEnrollment,
+  // R-5 Phase 9 (D-270): Settings › Clean-Up's archive, the `cohorts` permission.
+  archiveCohort,
 };
 
 export type AdminActionName = keyof typeof ADMIN_ACTIONS;

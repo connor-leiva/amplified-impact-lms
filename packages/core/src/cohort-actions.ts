@@ -24,6 +24,7 @@ import type { CohortFacts } from './cohort-page';
 import { ghlMonthValue } from './cohort-learner';
 import { programIdOf } from './program';
 import { cohortSelling, enrollmentOpen } from './cohort-selling';
+import { fmt } from './time';
 import type { Cohort, CohortShape, CohortSlot, CohortWeek, CohortWords, Db, Session } from './types';
 
 /** What a cohort write hands back beside its toast: the cohort, the layout's warnings, and what was left alone. */
@@ -744,6 +745,62 @@ export function closeCohortEnrollment(db: Db, a: Actor, args: { cohortId: string
       target: { type: 'cohort', id: co.id, label: co.name },
       before: { enrollmentClosedAt: null },
       after: { enrollmentClosedAt: c.now },
+    },
+  };
+}
+
+// ================================================================================================
+// R-5 Phase 9 (D-270): Archive a cohort (Cohort › Settings › Clean-Up). Who: the `cohorts` permission (spec § 4 rule 5).
+// ================================================================================================
+
+/** Why a cohort can't be archived yet: the mockup's words, with its last session's day. */
+export const ARCHIVE_COPY = {
+  after: (day: string | null) => `A cohort can be archived after its last session${day ? `, ${day}` : ''}.`,
+  selling: 'Close enrollment first. An archived cohort sells no seats.',
+  archived: 'This cohort is archived.',
+} as const;
+
+/**
+ * Why archiving this cohort is refused now, or null when it may be archived. Only after its last session has ended (the
+ * spec's Phase 9); a cohort with no session has no last session, so it is refused too. A cohort still selling is refused:
+ * an archived cohort sells nothing (`enrollmentOpen`), so archiving it would close its enrollment, and archive changes
+ * nothing but `archivedAt`.
+ */
+export function archiveRefusal(db: Pick<Db, 'cohorts' | 'sessions'>, cohortId: string, now: number): string | null {
+  const co = db.cohorts.find((x) => x.id === cohortId);
+  if (!co) return 'No such cohort.';
+  if (co.archivedAt !== undefined) return ARCHIVE_COPY.archived;
+  const ends = db.sessions.filter((s) => s.cohortId === cohortId).map((s) => s.start + s.mins * 60_000);
+  const last = ends.length ? Math.max(...ends) : null;
+  if (last === null || now < last) {
+    const start = last === null ? null : Math.max(...db.sessions.filter((s) => s.cohortId === cohortId).map((s) => s.start));
+    return ARCHIVE_COPY.after(start === null ? null : fmt.mtDay(start));
+  }
+  if (enrollmentOpen(co)) return ARCHIVE_COPY.selling;
+  return null;
+}
+
+/**
+ * Archive a cohort: sets `archivedAt`, and nothing else. It never writes `status` (PLAN.md § 2.5), touches no Stripe
+ * object, enrollment, seat, plan or person; its people, files and payments are kept. The pickers stop listing it
+ * (`cohortChoices`, the comp form, the Overview, the palette). One audit row, in the same transaction as the write.
+ */
+export function archiveCohort(db: Db, a: Actor, args: { cohortId: string }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const co = cohortOf(db, args.cohortId);
+  const refusal = archiveRefusal(db, co.id, c.now);
+  if (refusal) return { db, error: refusal };
+  const next = produce(db, (d) => {
+    d.cohorts.find((y) => y.id === co.id)!.archivedAt = c.now;
+  });
+  return {
+    db: next,
+    toast: { msg: 'The cohort is archived', tone: 'success' },
+    audit: {
+      action: 'cohort.archive',
+      target: { type: 'cohort', id: co.id, label: co.name },
+      before: { archivedAt: null },
+      after: { archivedAt: c.now },
     },
   };
 }

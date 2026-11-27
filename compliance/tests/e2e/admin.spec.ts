@@ -100,7 +100,13 @@ test('gating an AI Employee to Team only locks it for agents @g6', async ({ brow
 
 test('learner progress shows up in admin @g6', async ({ browser }) => {
   const { admin, learner, close } = await pair(browser);
-  await open(admin, '/admin?as=admin');
+  // R-5 Phase 9 (D-270): the Overview is the mockup's `Home`, which has no live feed; a learner's builds show in their
+  // details on Cohort › People (D-268: the drawer stays), and it follows the learner without a reload.
+  await open(admin, '/admin/cohort/dec26/people?tab=learners&as=admin');
+  await admin.locator('main section[aria-label="Learners"]').getByRole('row', { name: /Jamie Ortiz/ }).getByRole('button', { name: 'More actions' }).click();
+  await admin.getByRole('menuitem', { name: 'Open learner details' }).click();
+  const drawer = admin.locator('[data-drawer="open"]');
+  await expect(drawer.getByText('Build Progress')).toBeVisible();
   await open(learner, '/employees/sales?as=agent');
 
   // One step at a time, and each click must land before the next count. Counting straight after a
@@ -112,7 +118,7 @@ test('learner progress shows up in admin @g6', async ({ browser }) => {
     await expect(verify).toHaveCount(left - 1);
   }
 
-  await expect(admin.getByText(/Jamie Ortiz\s*built Sales AI Employee/)).toBeVisible();
+  await expect(drawer.locator('li, tr, div').filter({ hasText: /^Sales AI Employee/ }).filter({ hasText: 'Built' }).first()).toBeVisible();
   await close();
 });
 
