@@ -303,6 +303,11 @@ describe('December’s selling values, copied once by a data step', () => {
     // A moved first live build is named for the PM.
     const moved = { ...db, sessions: db.sessions.map((s) => (s.id === 'dec26-s1' ? { ...s, start: s.start + 3_600_000 } : s)) };
     expect(planDecemberSellingV1(moved, ENV).skipped.map((s) => s.id)).toContain('dec26.opensAt');
+    // A December whose enrollment is not open is named too: the offer would sell no cohort.
+    const live = { ...db, cohorts: db.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, status: 'live' as const } : c)) };
+    expect(planDecemberSellingV1(live, ENV).skipped).toEqual([
+      { id: 'dec26.status', reason: 'left as it is: its status is live, not enrolling, so the offer sells no cohort until its enrollment is opened' },
+    ]);
   });
 
   it('runs once, and the rollback clears what it wrote so every read is today’s again', () => {

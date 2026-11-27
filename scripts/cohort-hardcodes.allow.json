@@ -12,7 +12,7 @@
       "match": "cohortId !== DEFAULT_COHORT_ID ? at : COURSE_OPENS_AT",
       "count": 1,
       "reason": "courseOpensAt: D-153's instant stands in for December's first live build only where none of its sessions is in the rows read (a test database, a learner's snapshot before the preview).",
-      "phase": "learner design session: the course payload carries the opening"
+      "phase": "6 (proposed): once the course payload carries each cohort’s opening"
     },
     {
       "file": "packages/core/src/cohort-selling.ts",
@@ -236,7 +236,7 @@
       "match": "firstBuildAt: Date.parse('2026-12-02T13:00:00-06:00')",
       "count": 1,
       "reason": "D-153's instant (COURSE_OPENS_AT): December's first live build, read only where its sessions are not at hand; the data step checks they agree.",
-      "phase": "learner design session: the course payload carries the opening"
+      "phase": "6 (proposed): once the course payload carries each cohort’s opening"
     },
     {
       "file": "packages/core/src/offer.ts",
