@@ -3,7 +3,8 @@
 Written before any code, as the spec asks of each phase. The spec is `ADMIN-RESTRUCTURE-SPEC.md`, "Phase 8. Revenue ›
 Summary", with § 1 (December does not move), § 4 (rules for every screen) and § 6 (tests, references, done). PLAN.md
 § 10 governs: where it already decides something, this cites it and does not decide it again. The decision entry is
-D-269. Built on R-5 Phase 7 (D-268, `66ef1da1`), on Phase 6 (D-265), on the audit fix-up (D-267) and the hotfix (D-266).
+D-269. Built on R-5 Phase 7 (D-268, `66ef1da1`; rebased onto `main` @ `00f57261` once #288 merged), on Phase 6 (D-265), on
+the audit fix-up (D-267) and the hotfix (D-266).
 
 ## What PLAN.md § 10 already decides for this phase
 
@@ -12,7 +13,8 @@ D-269. Built on R-5 Phase 7 (D-268, `66ef1da1`), on Phase 6 (D-265), on the audi
   what Billing already holds in memory (`BillingMemo`) through a new API route, never a Stripe call per page view, and
   nothing is drawn while it is unknown.
 - **Stripe is read, never written** (PLAN § 10.5, and its table of every Stripe write the code makes today). This phase
-  adds no write and no Stripe object. Every figure comes from what Billing already reads: Stripe's subscriptions,
+  adds no write and no Stripe object. It reads through the Console's cached client (`cachedConsoleStripe`), a fixed
+  handful of list reads per load, never a call per row, order, refund or cohort (the overnight driver's rule). Every figure comes from what Billing already reads: Stripe's subscriptions,
   invoices, charges and refunds through the Console's read client (`console/stripe-read.ts`, the five Read scopes of
   `STRIPE_READ_SCOPES`), and the database's `orders`, `plans`, `skill_purchases` and `cohorts`. **No new Stripe scope is
   asked for.** The read client gains fields of objects it already reads (an invoice's `billing_reason` and the time it
