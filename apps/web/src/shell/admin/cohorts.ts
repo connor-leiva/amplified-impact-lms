@@ -5,16 +5,21 @@
 // start, else the newest. Remembering it for a staff member across visits (`users.prefs`) waits for Phase 3: the prefs
 // route accepts only `tz`, `theme` and `sidebar` today (`apps/api/src/routes/auth.ts`).
 //
-// The pickers (the switcher and the Cohort page's title) list every cohort that exists, a draft marked "· Draft". No
-// cohort is archived yet (`archivedAt` arrives in Phase 2). "New cohort…" arrives with its page in Phase 3.
+// The pickers (the switcher and the Cohort page's title) list every cohort that is not archived, a draft marked "· Draft",
+// then "New cohort…" (Phase 3). R-5 Phase 9 (D-270): an archived cohort is never the default, nor the one remembered;
+// its address still opens it.
 
 import type { Cohort } from '@ai/core';
 import { cohortLabel } from '../../data/admin-shell';
 
 type CohortLike = Pick<Cohort, 'id' | 'name' | 'start' | 'end' | 'status' | 'archivedAt'>;
 
-/** The cohort `/admin/cohort` opens: running (started, not ended, not a draft), else the next to start, else the newest. */
-export function defaultCohortId(cohorts: readonly CohortLike[], now: number): string | null {
+/**
+ * The cohort `/admin/cohort` opens: running (started, not ended, not a draft), else the next to start, else the newest.
+ * Archived cohorts are not candidates (D-270).
+ */
+export function defaultCohortId(all: readonly CohortLike[], now: number): string | null {
+  const cohorts = all.filter((c) => c.archivedAt === undefined);
   if (!cohorts.length) return null;
   const live = cohorts.filter((c) => c.status !== 'draft' && c.start <= now && now < c.end).sort((a, b) => b.start - a.start);
   if (live[0]) return live[0].id;

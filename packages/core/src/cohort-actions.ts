@@ -795,7 +795,7 @@ export function archiveCohort(db: Db, a: Actor, args: { cohortId: string }, c: C
   });
   return {
     db: next,
-    toast: { msg: `${co.name} is archived`, tone: 'success' },
+    toast: { msg: 'The cohort is archived', tone: 'success' },
     audit: {
       action: 'cohort.archive',
       target: { type: 'cohort', id: co.id, label: co.name },

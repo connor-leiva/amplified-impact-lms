@@ -24,6 +24,14 @@ describe('the cohort the admin is on', () => {
     expect(defaultCohortId([], D('2026-10-01T12:00:00Z'))).toBeNull();
   });
 
+  it('is never an archived cohort (R-5 Phase 9, D-270)', () => {
+    const archived = { ...jan, archivedAt: D('2027-02-13T00:00:00Z') };
+    // Feb 20: the newest would be January; archived, December is.
+    expect(defaultCohortId([old, dec, archived], D('2027-02-20T12:00:00Z'))).toBe('dec26');
+    expect(defaultCohortId([{ ...dec, archivedAt: 1 }], D('2027-02-20T12:00:00Z'))).toBeNull();
+    expect(cohortChoices([archived, dec], 'dec26').map((c) => c.id)).toEqual(['dec26']);
+  });
+
   it('lists every cohort that exists in start order, a draft marked, the current one checked', () => {
     expect(cohortChoices([jan, dec], 'dec26')).toEqual([
       { id: 'dec26', label: 'December 2026 Cohort', current: true },

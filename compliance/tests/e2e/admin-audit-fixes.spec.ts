@@ -8,7 +8,7 @@ import { APP_BASE, PARITY_NOW, PARITY_QUERY, PARITY_TZ } from '../../lib/admin-r
  *   - People › Utah Life: the access group's own tab, named by the group, read-only: each agent's line over their address
  *     and when they were last active or "Invite pending"; a row opens the person. axe at 1280 and 390.
  *   - January's Cohort head and its Opens fact: Week 0's and Week 1's openings before Week 1 opens.
- *   - The Overview's header and its tiles for the selected cohort; Build completion opens the builds.
+ *   - The Overview's Cohort tile is the selected cohort's (D-270: the mockup's Home replaced the header and its stats).
  *   - Cohort › Announcements and Community are each cohort's own: an announcement made on January's tab stays on
  *     January's list, and January's Community holds none of December's threads.
  *   - The admin prints no "MST", and every time is MT with CT after it, "Dec 9, 9:14 PM MT / 10:14 PM CT" (Connor's rule,
@@ -104,17 +104,16 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
     await close();
   });
 
-  test('the Overview reports on the selected cohort, and Build completion opens the builds', async ({ browser }) => {
+  test('the Overview’s Cohort tile is the selected cohort’s (D-270)', async ({ browser }) => {
     const { page, close } = await parity(browser, '/admin', 1440);
-    await expect(page.locator('main')).toContainText(
-      'December 2026 Cohort · Week 2 of 6 · Updated live from learner activity',
-    );
-    await expect(page.locator('main a').filter({ hasText: 'Active learners' })).toHaveAttribute(
-      'href',
-      '/admin/cohort/dec26/people',
-    );
-    await page.locator('main a').filter({ hasText: 'Build completion' }).click();
-    await expect(page).toHaveURL(/\/admin\/program(\?|$)/);
+    const cohortTile = page.locator('main a').filter({ hasText: /^Cohort/ }).first();
+    await expect(cohortTile).toHaveAttribute('href', '/admin/cohort/dec26');
+    await expect(cohortTile).toContainText('Week 2 of 2 · 1 of 200 seats');
+    // Picking January in the sidebar's switcher stays on the Overview, and the tile follows it.
+    await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: /^Switch cohort/ }).click();
+    await page.getByRole('menu', { name: 'Cohorts' }).getByRole('menuitem', { name: /January 2027 Cohort/ }).click();
+    await expect(cohortTile).toHaveAttribute('href', '/admin/cohort/jan27');
+    await expect(cohortTile).toContainText('Draft · 8 left before it opens');
     await close();
   });
 

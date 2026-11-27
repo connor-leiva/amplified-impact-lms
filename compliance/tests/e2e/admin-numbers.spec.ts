@@ -10,7 +10,7 @@ import { APP_BASE, PARITY_NOW, PARITY_QUERY, PARITY_TZ } from '../../lib/admin-r
  * digit that is not a date or a time) must sit inside a link or a button, so it opens the list it counts. A date
  * ("Sun, Nov 29 · 12:00 PM MT / 1:00 PM CT") opens nothing by this rule.
  *
- * It walks every screen of R-5 (the Overview, Program and its pages (D-265), every Cohort tab for December and for January as a draft, People's
+ * It walks every screen of R-5 (the Overview (the mockup's Home since D-270), Program and its pages (D-265), every Cohort tab for December and for January as a draft, People's
  * tabs and Utah Life, Revenue's Summary (D-269), Payments and Plans & Upgrades) on the mockup's data (the parity fixture), at 1440. The planted check at the end
  * proves it fails on a number that is not a link.
  */
@@ -37,6 +37,8 @@ const SCREENS = [
   '/admin/cohort/jan27',
   '/admin/cohort/jan27/schedule',
   '/admin/cohort/jan27/settings',
+  // D-270 (R-5 Phase 9): People filtered, as the Overview's audience bar opens it.
+  '/admin/people?gotIn=plan%3Acohort',
   '/admin/people',
   '/admin/people/teams',
   '/admin/people/groups/utah-life',
@@ -88,10 +90,19 @@ test.describe('every admin number opens the list it counts (D-267, spec § 4 rul
     });
   }
 
-  test('Build completion opens the builds it counts (Connor, Nov 26)', async ({ page }) => {
+  // R-5 Phase 9 (D-270): the Overview is the mockup's `Home`; "Build completion" went with today's five stats. Each tile,
+  // Needs You row and audience segment opens the list it counts.
+  test('the Overview’s numbers open what they count (D-270)', async ({ page }) => {
     await open(page, '/admin');
-    const tile = page.locator('main a').filter({ hasText: 'Build completion' });
-    await expect(tile).toHaveAttribute('href', '/admin/program');
+    const main = page.locator('main');
+    const href = (re: RegExp) => main.getByRole('link', { name: re }).first().getAttribute('href');
+    expect(await href(/^Program/)).toBe('/admin/program');
+    expect(await href(/^Cohort\b.*of 200 seats/)).toBe('/admin/cohort/dec26');
+    expect(await href(/^People\b.*with a sign-in/)).toBe('/admin/people');
+    expect(await href(/^Revenue\b.*collected/)).toBe('/admin/revenue');
+    expect(await href(/^5 sessions have no Zoom link/)).toBe('/admin/cohort/dec26/schedule');
+    expect(await href(/^3 payments failed/)).toBe('/admin/revenue/payments/failed');
+    expect(await href(/^8\s*Utah Life/)).toBe('/admin/people?gotIn=group%3Autah-life');
   });
 
   test('the walk fails on a number that is not a link (a planted one)', async ({ page }) => {

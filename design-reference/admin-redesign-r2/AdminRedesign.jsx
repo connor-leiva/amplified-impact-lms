@@ -376,7 +376,7 @@ button.stat{cursor:pointer;transition:border-color .12s,box-shadow .12s}button.s
 .tdc{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
 .tdo.ok .tdc{background:#2E9A63;border-color:#2E9A63}.tdo.ok .w5{color:var(--f2);font-weight:400}
 .set2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}.lap .set2,.ph .set2{grid-template-columns:minmax(0,1fr)}
-.cfx{display:grid;grid-template-columns:116px minmax(0,1fr);gap:4px 16px;font-size:calc(var(--t) - 1px)}.ph .cfx{grid-template-columns:minmax(0,1fr)}
+.cfx{display:grid;grid-template-columns:116px minmax(0,1fr);gap:4px 16px;font-size:calc(var(--t) - 1px)}.ph .cfx{grid-template-columns:minmax(0,1fr);font-size:16px}
 .cfl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px;font-weight:400}
 .wpl{display:flex;flex-direction:column}.wpl>*+*{border-top:1px solid var(--line)}
 .wpk{display:flex;align-items:center;gap:12px;padding:10px 20px;min-height:56px;cursor:pointer;font-size:calc(var(--t) - 1px)}.wpk:hover{background:var(--hov)}.ph .wpk{padding:10px 16px;flex-wrap:wrap}

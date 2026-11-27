@@ -129,7 +129,8 @@ export function AdminShell() {
     remembered.current = addressCohort;
     void repo.savePrefs({ cohort: addressCohort }).catch(() => undefined);
   }, [addressCohort, parity]);
-  const known = (id: string | null) => (id && db.cohorts.some((c) => c.id === id) ? id : null);
+  // R-5 Phase 9 (D-270): a cohort archived since it was looked at is not remembered; its address still opens it.
+  const known = (id: string | null) => (id && db.cohorts.some((c) => c.id === id && c.archivedAt === undefined) ? id : null);
   const cohortId = addressCohort ?? known(lastCohort) ?? defaultCohortId(db.cohorts, now);
   const current = db.cohorts.find((c) => c.id === cohortId) ?? null;
 
