@@ -277,5 +277,12 @@ export function announcementInCohort(
  * before (`/calendar/schedule.ics`); another cohort's names it (`?cohort=`), and the API hands it only to that cohort's
  * learners.
  */
-export const scheduleIcsPath = (cohortId: string | null | undefined): string =>
-  !cohortId || cohortId === DEFAULT_COHORT_ID ? SCHEDULE_ICS_PATH : `${SCHEDULE_ICS_PATH}?cohort=${encodeURIComponent(cohortId)}`;
+export const scheduleIcsPath = (cohortId: string | null | undefined): string => cohortIcsPath(SCHEDULE_ICS_PATH, cohortId);
+
+/**
+ * R-5 Phase 5 (D-262): a calendar file's address for a cohort: December's is the bare address, its subscribed feeds'
+ * (a changed address or UID duplicates every event in a calendar that holds them, PLAN § 5.3); another cohort's names
+ * it (`?cohort=`). The welcome page's two buttons (builds, office hours) and the learner Schedule's file alike.
+ */
+export const cohortIcsPath = (path: string, cohortId: string | null | undefined): string =>
+  !cohortId || cohortId === DEFAULT_COHORT_ID ? path : `${path}?cohort=${encodeURIComponent(cohortId)}`;

@@ -40,6 +40,7 @@ import {
   cohortScheduleIcs,
 } from './offer-calendar';
 import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { cohortIcsPath } from '@ai/core/cohort-learner';
 import { requireSession } from '../auth';
 import { viewerCohortId } from '../lib/course-access';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -237,8 +238,9 @@ export interface WelcomeFill {
    */
   purchase?: { cart: CartId | null; amountTotal: number | null; currency: string | null };
   /**
-   * R-5 Phase 5 (D-262): the cohort whose calendar the buttons download, when it is not December: the order's
-   * (`ai_cohort`), else the cohort on sale while the order is still confirming. Absent: December's files, as before.
+   * R-5 Phase 5 (D-262): the cohort whose calendar the buttons download: the order's (`ai_cohort`), else the cohort on
+   * sale while the order is still confirming. December's are the bare files, as before (`cohortIcsPath`); absent or
+   * December's, `CALENDAR_URL_*` still names another file when it is set.
    */
   calendarCohort?: string | null;
 }
@@ -268,10 +270,8 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'login-day': dayOfYear(w.config.invitesFrom),
     // The served files (offer-calendar.ts) unless a CALENDAR_URL_* variable names another, so the
     // welcome page's add-to-calendar buttons always download something.
-    'calendar-builds': w.calendarCohort ? `${BUILDS_ICS_URL}?cohort=${encodeURIComponent(w.calendarCohort)}` : (builds ?? BUILDS_ICS_URL),
-    'calendar-office-hours': w.calendarCohort
-      ? `${OFFICE_HOURS_ICS_URL}?cohort=${encodeURIComponent(w.calendarCohort)}`
-      : (officeHours ?? OFFICE_HOURS_ICS_URL),
+    'calendar-builds': w.calendarCohort ? cohortIcsPath(BUILDS_ICS_URL, w.calendarCohort) : (builds ?? BUILDS_ICS_URL),
+    'calendar-office-hours': w.calendarCohort ? cohortIcsPath(OFFICE_HOURS_ICS_URL, w.calendarCohort) : (officeHours ?? OFFICE_HOURS_ICS_URL),
     'calendar-state': 'links',
     'plan-name': w.plan ? PLAN_NAMES[w.plan] : '',
     login: held
@@ -463,7 +463,8 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     if (!options.database) return null;
     try {
       const id = known === undefined ? ((await onSaleOf(getDb(), sellingEnvOf(config)))?.id ?? null) : known;
-      return id && id !== DEFAULT_COHORT_ID ? id : null;
+      // December's files are the bare addresses, so its buttons keep `CALENDAR_URL_*` when it is set.
+      return id && cohortIcsPath(BUILDS_ICS_URL, id) !== BUILDS_ICS_URL ? id : null;
     } catch {
       return null;
     }
