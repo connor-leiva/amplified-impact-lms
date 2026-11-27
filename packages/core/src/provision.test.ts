@@ -51,6 +51,26 @@ describe('provisionOwner (D-078)', () => {
     expect(provisionOwner(db, { ...ARGS, email: member.email }, ctx())).toEqual({ ok: false, reason: 'member-of-another-team' });
   });
 
+  it('raises a team of one to two seats, renames it, and fills in a placeholder name', () => {
+    const created = provisionOwner(seed('live'), { ...ARGS, name: '', teamName: '', seats: 1, tier: 'agent' }, ctx());
+    if (!created.ok) throw new Error(created.reason);
+    const again = provisionOwner(
+      created.db,
+      { ...ARGS, name: 'Dana DOO', teamName: 'Utah Life', seats: 2, tier: 'team', applyTeamName: true, applyOwnerName: true, placeInCohort: true },
+      ctx(),
+    );
+    if (!again.ok) throw new Error(again.reason);
+    expect(again.userId).toBe(created.userId);
+    expect(again.teamId).toBe(created.teamId);
+    expect(again.db.teams.find((t) => t.id === created.teamId)).toMatchObject({ name: 'Utah Life', seats: 2 });
+    expect(again.db.users.find((u) => u.id === created.userId)).toMatchObject({ name: 'Dana DOO', tier: 'team', cohortId: 'dec26', role: 'Team Owner' });
+    // A real name is kept. The same arguments a second time change nothing.
+    const kept = provisionOwner(again.db, { ...ARGS, name: 'Someone Else', teamName: 'Utah Life', seats: 2, applyTeamName: true, applyOwnerName: true, placeInCohort: true }, ctx());
+    if (!kept.ok) throw new Error(kept.reason);
+    expect(kept.db).toBe(again.db);
+    expect(kept.db.users.find((u) => u.id === created.userId)?.name).toBe('Dana DOO');
+  });
+
   it('makes an existing learner with no team the owner of a new one', () => {
     const db = seed('live');
     const solo = db.users.find((u) => u.teamId === null);

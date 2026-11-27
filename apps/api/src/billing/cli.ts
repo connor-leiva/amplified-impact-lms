@@ -1,6 +1,8 @@
 // Staff commands for the offer (D-078, D-079). Run against the database `DATABASE_URL` names.
 //
 //   pnpm --filter @ai/api provision --order <id> [--invite-now]
+//   pnpm --filter @ai/api comp --email <owner email> --name <owner name> --team <team name> [--cohort <id>] [--invite-now]
+//       Comps a 2-seat Accelerator team into a cohort (default December 2026). No Stripe charge.
 //       Re-runs provisioning for one paid order: finds or creates the account, the plan and the owner,
 //       and sends the owner's invite (held until INVITES_FROM unless --invite-now). Run it twice and it
 //       changes nothing the second time. Prints ids, never the buyer's details.
@@ -17,7 +19,9 @@ import { getDb, close } from '../db/client';
 import { clock } from '../lib/clock';
 import { putObject } from '../storage';
 import { readOfferConfig } from './config';
+import { compAcceleratorTeam } from './comp';
 import { provisionOrder } from './provision';
+import { audit } from '../console/audit';
 import { LIBRARY_ROWS } from './library-rows';
 import { syncSkillRows, uploadSkillFiles } from './library-sync';
 
@@ -50,6 +54,33 @@ async function provision(): Promise<number> {
   return out.ok ? 0 : 1;
 }
 
+async function comp(): Promise<number> {
+  const email = arg('--email');
+  const name = arg('--name');
+  const team = arg('--team');
+  const cohort = arg('--cohort');
+  if (!email || !name || !team) {
+    console.error('Usage: pnpm --filter @ai/api comp --email <owner email> --name <owner name> --team <team name> [--cohort <id>]');
+    return 2;
+  }
+  const config = readOfferConfig();
+  const out = await compAcceleratorTeam(
+    { email, name, teamName: team, cohortId: cohort },
+    { log, now: clock.now(), invitesFrom: config.invitesFrom, invitesEnabled: config.invitesEnabled, inviteNow: process.argv.includes('--invite-now') },
+  );
+  if (out.ok) {
+    await audit(null, {
+      action: 'billing.comp',
+      outcome: 'ok',
+      actor: { source: 'system' },
+      target: { type: 'order', id: out.orderId, label: team },
+      after: { cohortId: out.cohortId, teamId: out.teamId, invite: out.invite, already: out.already, seats: 2, origin: 'comp', via: 'cli' },
+    });
+  }
+  console.log(JSON.stringify(out.ok ? { ok: true, already: out.already, orderId: out.orderId, teamId: out.teamId, cohortId: out.cohortId, invite: out.invite } : { ok: false, reason: out.reason }, null, 2));
+  return out.ok ? 0 : 1;
+}
+
 async function loadSkills(): Promise<number> {
   // Files first, so no row names a ZIP the bucket does not have; all checked before any goes up.
   if (process.argv.includes('--upload')) {
@@ -71,8 +102,9 @@ const command = process.argv[2];
 let code = 2;
 try {
   if (command === 'provision') code = await provision();
+  else if (command === 'comp') code = await comp();
   else if (command === 'skills') code = await loadSkills();
-  else console.error('Commands: provision --order <id> [--invite-now] | skills [--upload]');
+  else console.error('Commands: provision --order <id> [--invite-now] | comp --email <email> --name <name> --team <team> [--cohort <id>] | skills [--upload]');
 } finally {
   await close();
 }

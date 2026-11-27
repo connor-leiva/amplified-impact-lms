@@ -54,6 +54,7 @@ export const APP_TAGS: readonly string[] = [
     BUYER_TAGS.refunded,
     BUYER_TAGS.refundedAlias,
     BUYER_TAGS.forum,
+    BUYER_TAGS.comp,
     LMS_LOGGED_IN_TAG,
   ]),
 ];

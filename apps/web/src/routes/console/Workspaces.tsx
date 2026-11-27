@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router';
-import { Button } from '../../components/r2/Button';
+import { Button, ButtonLink } from '../../components/r2/Button';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
-import { Bar, Find, PageHead, Sel, Two, k } from '../../components/r2/kit';
+import { Bar, Find, PageHead, Pill, Sel, Two, k } from '../../components/r2/kit';
+import { isFixture } from '../../data/boot';
 import { Denied } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
@@ -48,9 +49,16 @@ export function Component() {
       label: C.columns.name,
       width: 'minmax(170px,1.3fr)',
       value: (w) => w.name,
-      cell: (w, f) => (
-        <Two a={w.name} b={f.drop ? `${w.owner} · ${w.id}` : w.id} mono={!f.drop} to={f.phone ? undefined : w.href} />
-      ),
+      cell: (w, f) => {
+        const name = <Two a={w.name} b={f.drop ? `${w.owner} · ${w.id}` : w.id} mono={!f.drop} to={f.phone ? undefined : w.href} />;
+        if (!w.comped) return name;
+        return (
+          <span className={clsx(k.row, k.nw)} style={{ gap: 8 }}>
+            {name}
+            <Pill tone="info">Comped</Pill>
+          </span>
+        );
+      },
     },
     { key: 'owner', label: C.columns.owner, width: 'minmax(116px,.9fr)', hideLap: true, value: (w) => w.owner },
     { key: 'plan', label: C.columns.plan, width: 'minmax(140px,1.1fr)', value: (w) => w.plan },
@@ -82,7 +90,17 @@ export function Component() {
 
   return (
     <Page>
-      <PageHead title={C.title} description={C.description} />
+      <PageHead
+        title={C.title}
+        description={C.description}
+        right={
+          !isFixture && gate.kind === 'ready' && gate.me.caps.includes('billing.comp') ? (
+            <ButtonLink kind="primary" to="/admin/people/comp">
+              Comp a Team
+            </ButtonLink>
+          ) : undefined
+        }
+      />
       <div className={k.row}>
         <Find value={filters.q} onChange={(v) => set({ q: v })} placeholder={C.filter} />
         <Sel aria-label={C.plan} value={filters.plan} onChange={(e) => set({ plan: e.target.value })}>

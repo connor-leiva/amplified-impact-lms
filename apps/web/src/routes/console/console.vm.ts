@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags' | 'health' | 'community';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade' | 'billing' | 'api' | 'jobs' | 'email' | 'usage' | 'incidents' | 'integrations' | 'deploys' | 'db' | 'flags' | 'health' | 'community' | 'comp';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -42,6 +42,7 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   // D-238 (B-45): every Console role reads it; writing is the 'account' row's (`COMMUNITY_WRITE_CAP`).
   // D-253: Cohort › Community, at the cohort's own address (`/admin/cohort/:cohortId/community`).
   community: { title: 'Community', cap: 'console.view', path: '/admin/cohort' },
+  comp: { title: 'Comp a Team', cap: 'billing.comp', path: '/admin/people/comp' },
 };
 
 /** The way out of Denied and the 404. */

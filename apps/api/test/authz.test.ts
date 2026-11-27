@@ -719,6 +719,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/billing/refund', methods: 'POST', guard: 'session' },
   { path: '/api/console/billing/void/preview', methods: 'POST', guard: 'session' },
   { path: '/api/console/billing/void', methods: 'POST', guard: 'session' },
+  // Comp an Accelerator team. Signed in, then billing.comp (Owner, Admin).
+  { path: '/api/console/comp/cohorts', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/comp', methods: 'POST', guard: 'session' },
   // Admin Console PR 6 (D-165): API & Webhooks and Scheduled Jobs. Signed in, then by capability
   // (`test/console-authz.test.ts`, `test/console-ops.test.ts`).
   { path: '/api/console/api/endpoints', methods: 'GET, HEAD', guard: 'session' },

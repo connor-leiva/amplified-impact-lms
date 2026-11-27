@@ -123,6 +123,7 @@ export const REFUSALS = [
   'staff_owner_grant',
   'staff_stale',
   'staff_invalid',
+  'comp_refused',
 ] as const;
 
 /** A status and a code as a failure kind. The code wins where there is one. */
@@ -189,6 +190,18 @@ export interface ConsoleApi {
   billingPreview(action: BillingAction, params: { invoiceId: string }): Promise<BillingActionPreview>;
   /** The action itself: the preview's token, a reason of 10 to 500 characters, and what staff typed. */
   billingExecute(action: BillingAction, body: { confirmToken: string; reason: string; typed: string }): Promise<BillingActionResult>;
+  /** Cohorts a comp can land in, and which one the form selects first. */
+  compCohorts(): Promise<{ cohorts: { id: string; name: string }[]; defaultCohortId: string }>;
+  /** Comp an Accelerator team into a cohort. Owner and Admin (`billing.comp`). */
+  compTeam(body: { email: string; name: string; teamName: string; cohortId?: string }): Promise<{
+    ok: true;
+    already: boolean;
+    orderId: string;
+    teamId: string;
+    userId: string;
+    cohortId: string;
+    invite: 'sent' | 'held' | 'already';
+  }>;
   // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
   apiEndpoints(): Promise<ApiEndpoints>;
   webhooks(): Promise<ConsoleWebhooks>;
@@ -426,6 +439,8 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     billingPreview: async (action, params) =>
       json<BillingActionPreview>(await request(fetchImpl, `/api/console/billing/${action}/preview`, JSON_POST({ invoiceId: params.invoiceId }))),
     billingExecute: async (action, body) => json<BillingActionResult>(await request(fetchImpl, `/api/console/billing/${action}`, JSON_POST(body))),
+    compCohorts: async () => json(await request(fetchImpl, '/api/console/comp/cohorts')),
+    compTeam: async (body) => json(await request(fetchImpl, '/api/console/comp', JSON_POST(body))),
     apiEndpoints: async () => json<ApiEndpoints>(await request(fetchImpl, OPS_PATHS.apiEndpoints)),
     webhooks: async () => json<ConsoleWebhooks>(await request(fetchImpl, OPS_PATHS.webhooks)),
     retryWebhook: async (kind, id) => {

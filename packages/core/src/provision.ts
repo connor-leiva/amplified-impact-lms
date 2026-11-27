@@ -27,6 +27,12 @@ export interface ProvisionOwnerArgs {
   seats: number;
   tier: Tier;
   cohortId: string;
+  /** When true, an existing team's name becomes `teamName`. A new team already takes it. */
+  applyTeamName?: boolean;
+  /** When the stored name is blank or the email address, use `name`. */
+  applyOwnerName?: boolean;
+  /** An existing owner is placed in `cohortId`. A new owner already is. */
+  placeInCohort?: boolean;
 }
 
 export type ProvisionOwnerResult =
@@ -83,6 +89,14 @@ export function provisionOwner(db: Db, args: ProvisionOwnerArgs, ctx: { now: num
       user.role = 'Team Owner';
       // A second plan can raise the tier (library, then the cohort); it never lowers it.
       if (TIER_RANK[args.tier] > TIER_RANK[user.tier]) user.tier = args.tier;
+      if (args.placeInCohort && user.cohortId !== args.cohortId) user.cohortId = args.cohortId;
+      if (args.applyOwnerName) {
+        const given = args.name.trim();
+        const current = user.name.trim();
+        // An access-group sign-in stores the address until there is a name (createGroupMember).
+        const placeholder = current === '' || current.toLowerCase() === email;
+        if (placeholder && given !== '' && given.toLowerCase() !== email && current !== given) user.name = given;
+      }
     }
 
     let t = d.teams.find((x) => x.id === teamId);
@@ -90,8 +104,12 @@ export function provisionOwner(db: Db, args: ProvisionOwnerArgs, ctx: { now: num
       const created: Team = { id: teamId, name: args.teamName.trim() || user.name, ownerId: userId, seats: args.seats };
       d.teams.push(created);
       t = d.teams[d.teams.length - 1]!;
-    } else if (t.seats < args.seats) {
-      t.seats = args.seats;
+    } else {
+      if (t.seats < args.seats) t.seats = args.seats;
+      if (args.applyTeamName) {
+        const name = args.teamName.trim();
+        if (name !== '' && t.name !== name) t.name = name;
+      }
     }
   });
 

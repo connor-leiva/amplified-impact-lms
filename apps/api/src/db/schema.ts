@@ -365,9 +365,10 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
 // the migrations, the last definition of each constraint winning).
 
 // One row per purchase attempt: from the offer page (`origin` = 'offer', created before Stripe is
-// called) or from a fallback Payment Link (`origin` = 'payment_link', created by the webhook). Only
-// the webhook moves `status` past 'pending' (D-075). The buyer's details, the consent proof and the
-// attribution are the order's own; the account it became is `account_id`.
+// called), from a fallback Payment Link (`origin` = 'payment_link', created by the webhook), or a
+// staff comp (`origin` = 'comp': $0, no Stripe ids). Only the webhook moves a checkout's `status`
+// past 'pending' (D-075); a comp is inserted already paid. The buyer's details, the consent proof and
+// the attribution are the order's own; the account it became is `account_id`.
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),
   plan: text('plan').notNull(), option: text('option').notNull(), origin: text('origin').notNull(),
@@ -393,7 +394,7 @@ export const orders = pgTable('orders', {
   uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),
   check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent')`),
   check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly', 'yearly')`),
-  check('orders_origin', sql`${t.origin} in ('offer', 'payment_link')`),
+  check('orders_origin', sql`${t.origin} in ('offer', 'payment_link', 'comp')`),
   check('orders_status', sql`${t.status} in ('pending', 'paid', 'trialing', 'expired', 'failed', 'refunded')`),
   check('orders_crm', sql`${t.crm} is null or ${t.crm} in ('follow_up_boss', 'other')`),
   // The waitlist's rule (D-034): a "yes" to texts needs the number, the time and the words.

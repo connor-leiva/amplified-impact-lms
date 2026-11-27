@@ -20,6 +20,7 @@
     "db:owner:ensure": "tsx src/db/seed.ts --owner-ensure",
     "db:smoke-buyer": "tsx src/db/smoke-buyer.ts",
     "provision": "tsx src/billing/cli.ts provision",
+    "comp": "tsx src/billing/cli.ts comp",
     "skills": "tsx src/billing/cli.ts skills",
     "two-pay:check": "tsx src/billing/two-pay-check.ts",
     "activate:invited": "tsx src/db/activate-invited.ts",

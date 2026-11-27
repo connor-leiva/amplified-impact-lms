@@ -41,6 +41,7 @@ interface OrderFacts {
   refunded_at: string | number | null;
   created_at: string | number;
   plan_status: string | null;
+  origin?: string | null;
   /** R-5 Phase 4 (D-261): the plan's cohort, its start and zone, for GoHighLevel's Cohort field (`ghlCohortValue`). */
   cohort_id?: string | null;
   cohort_start?: string | number | null;
@@ -50,7 +51,9 @@ interface OrderFacts {
 const num = (v: string | number | null): number | null => (v === null ? null : Number(v));
 
 /** One order's stage, or null for an order that says nothing about the pipeline. */
-export function orderStage(o: Pick<OrderFacts, 'status' | 'paid_at' | 'payment_failed_at' | 'membership_ended_at' | 'refunded_at' | 'plan_status'>): StageKey | null {
+export function orderStage(o: Pick<OrderFacts, 'status' | 'paid_at' | 'payment_failed_at' | 'membership_ended_at' | 'refunded_at' | 'plan_status' | 'origin'>): StageKey | null {
+  // A comp says nothing about the sales pipeline, so it cannot move an opportunity to Purchased.
+  if (o.origin === 'comp') return null;
   if (o.refunded_at !== null) return 'refunded';
   if (o.membership_ended_at !== null) return 'canceled';
   // "Not yet recovered": the plan is still past due (an invoice that pays clears it), or the checkout's
@@ -80,7 +83,7 @@ export interface ContactState {
 /** Where the contact with this email belongs, and what its fields should say, from everything we hold for it. */
 export async function contactState(db: Database, email: string): Promise<ContactState> {
   const rows = (await db.execute(sql`
-    select o.id, o.plan, o.status, o.amount_total, o.paid_at, o.payment_failed_at, o.membership_ended_at,
+    select o.id, o.plan, o.status, o.origin, o.amount_total, o.paid_at, o.payment_failed_at, o.membership_ended_at,
            o.refunded_at, o.created_at, p.status as plan_status,
            c.id as cohort_id, c.start as cohort_start, c.timezone as cohort_timezone
       from ${orders} o left join ${plans} p on p.order_id = o.id

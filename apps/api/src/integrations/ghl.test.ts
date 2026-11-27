@@ -346,6 +346,9 @@ describe('D-134: the marketing aliases @g9', () => {
   it('adds each plan’s alias beside its existing tags, which stay exactly as they were', () => {
     const base = { option: 'full', status: 'paid', paidAt: 1, paymentFailedAt: null, membershipEndedAt: null, refundedAt: null, campaign: null, smsConsent: false, phone: null };
     expect(buyerTags({ ...base, plan: 'cohort' })).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator']);
+    // A comp carries ai-comp and none of the tags that start a paid-sale workflow.
+    expect(buyerTags({ ...base, plan: 'cohort', origin: 'comp' })).toEqual(['ai-comp']);
+    for (const tag of ['offer-buyer', 'ai-buyer-accelerator', 'pay-full', 'plan-cohort']) expect(buyerTags({ ...base, plan: 'cohort', origin: 'comp' })).not.toContain(tag);
     expect(buyerTags({ ...base, plan: 'membership', option: 'year_upfront' })).toEqual(['offer-buyer', 'plan-membership', 'pay-year', 'ai-buyer-insiders']);
     expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly' })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-monthly', 'ai-buyer-agent-plan']);
     expect(buyerTags({ ...base, plan: 'agents', option: 'upto15' })).toEqual(['offer-buyer', 'plan-agents', 'ai-buyer-team-plan']);

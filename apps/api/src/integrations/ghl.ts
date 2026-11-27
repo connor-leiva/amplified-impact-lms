@@ -349,6 +349,8 @@ export const BUYER_TAGS = {
   membershipEnded: 'membership-ended',
   refunded: 'refunded',
   forum: 'event-forum-nov-2026',
+  /** A staff comp. Not a paid buyer: no offer-buyer, pay-full, or ai-buyer-accelerator. */
+  comp: 'ai-comp',
   /** A $37 skill. Tags only. No workflow is started from these. */
   skillBuyer: 'bought-skill-37',
   skill: (id: string) => `skill-${id}`,
@@ -366,12 +368,16 @@ export interface BuyerFacts {
   campaign: string | null;
   smsConsent: boolean;
   phone: string | null;
+  /** `'comp'` is a staff comp: one tag, and none of the paid-buyer tags. */
+  origin?: string | null;
 }
 
 const OFFER_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan', 'insiders_agent'];
 
 /** The tags one order should carry now. Tags are never removed, so a later event only adds. */
 export function buyerTags(o: BuyerFacts): string[] {
+  // A comp is not a purchase. The paid-buyer tags start the sale alert and the Purchased workflows.
+  if (o.origin === 'comp') return [BUYER_TAGS.comp];
   if (!OFFER_PLANS.includes(o.plan)) return [];
   const tags: string[] = [];
   const bought = o.paidAt !== null || o.status === 'paid' || o.status === 'trialing' || o.refundedAt !== null;

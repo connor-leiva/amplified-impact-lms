@@ -171,7 +171,12 @@ export function Component() {
       <PageHead
         back={{ to: '/admin/people/teams', label: C.back }}
         title={vm.title}
-        meta={<Pill status={vm.status} />}
+        meta={
+          <>
+            <Pill status={vm.status} />
+            {vm.comped ? <Pill tone="info">Comped</Pill> : null}
+          </>
+        }
         right={
           owner.show && team?.ownerId ? (
             <Button
@@ -233,6 +238,7 @@ export function Component() {
           { label: C.facts.mrr, value: vm.facts.mrr },
           { label: C.facts.last, value: vm.facts.last },
           ...(vm.facts.welcome ? [{ label: C.facts.welcome, value: vm.facts.welcome }] : []),
+          ...(vm.comped ? [{ label: C.facts.comp, value: 'Comped' }] : []),
         ]}
       />
       <div className={k.gms}>

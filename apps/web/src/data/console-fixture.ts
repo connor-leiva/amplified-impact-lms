@@ -555,6 +555,16 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         need(action === 'refund' ? 'billing.refund' : 'billing.void');
         return fixtureBillingPreview(billing, action, params.invoiceId, now());
       }),
+    compCohorts: () =>
+      settle(() => {
+        need('billing.comp');
+        return { cohorts: [{ id: 'dec26', name: 'December 2026' }], defaultCohortId: 'dec26' };
+      }),
+    compTeam: () =>
+      settle(() => {
+        need('billing.comp');
+        throw new ConsoleError('refused', 409, 'comp_refused', 'Comp a team runs against the live database.');
+      }),
     billingExecute: (action, body) =>
       settle(() => {
         need(action === 'refund' ? 'billing.refund' : 'billing.void');

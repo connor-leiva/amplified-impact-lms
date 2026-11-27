@@ -104,7 +104,7 @@ export const USER_COPY = {
     UserTab,
     string
   >,
-  facts: { id: 'User ID', email: 'Email', workspace: 'Workspace', role: 'Role', tier: 'Tier', last: 'Last sign-in', welcome: 'Welcome' },
+  facts: { id: 'User ID', email: 'Email', workspace: 'Workspace', role: 'Role', tier: 'Tier', last: 'Last sign-in', welcome: 'Welcome', comp: 'Comped' },
   orders: {
     label: 'Orders',
     invoice: 'Invoice',
@@ -166,6 +166,7 @@ export const canReset = (role: string | null, target: ConsoleUserDetail['user'])
 
 export interface UserVM {
   title: string;
+  comped: boolean;
   status: AdminStatus;
   facts: {
     id: string;
@@ -183,6 +184,7 @@ export interface UserVM {
     amount: string;
     cents: number;
     status: AdminStatus;
+    comped: boolean;
     date: string;
     at: number;
     href: string | null;
@@ -209,12 +211,17 @@ export function userVM(d: ConsoleUserDetail): UserVM {
     else if (p.builtAt !== null) activity.push({ at: p.builtAt, text: `Started ${p.moduleName}` });
   }
   for (const o of d.orders) {
+    if (o.origin === 'comp') {
+      activity.push({ at: o.paidAt ?? o.createdAt, text: `${o.planLabel} comped` });
+      continue;
+    }
     activity.push({ at: o.createdAt, text: `${o.planLabel} order started` });
     if (o.paidAt !== null) activity.push({ at: o.paidAt, text: `${o.planLabel} order paid` });
   }
   if (u.joined !== null) activity.push({ at: u.joined, text: 'Account created' });
   return {
     title: u.name,
+    comped: d.orders.some((o) => o.origin === 'comp'),
     status: userStatusOf(u.status),
     facts: {
       id: u.id,
@@ -232,6 +239,7 @@ export function userVM(d: ConsoleUserDetail): UserVM {
       amount: o.amountTotal === null ? NONE : usdCents(o.amountTotal),
       cents: o.amountTotal ?? 0,
       status: orderStatusOf(o.status),
+      comped: o.origin === 'comp',
       date: adminDate(o.createdAt),
       at: o.createdAt,
       href: o.accountId && u.teamId ? teamPath(u.teamId) : null,

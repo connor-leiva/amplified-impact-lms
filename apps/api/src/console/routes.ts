@@ -64,6 +64,7 @@ import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants }
 import { commitStaffChange, previewStaffChange } from './staff';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { BILLING_PATHS, registerBillingRoutes } from './billing';
+import { COMP_PATHS, registerCompRoutes } from './comp';
 import type { BillingDeps } from './billing';
 import { BILLING_ACTION_ROUTES, registerBillingActionRoutes, staleAfter } from './billing-actions';
 import { forgetConsoleStripe } from './stripe-read';
@@ -103,6 +104,7 @@ export const CONSOLE_PATHS = {
   ...BILLING_PATHS,
   // PR 5 (D-164): Billing's confirmed refund and void.
   ...BILLING_ACTION_ROUTES,
+  ...COMP_PATHS,
   // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
   ...OPS_PATHS,
   // PR 7 (D-166): the email log and usage.
@@ -385,6 +387,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     scope.post(CONSOLE_PATHS.staff, write, (req, reply) => commitStaffChange(req, reply, deps.broadcast));
 
     registerSupportRoutes(scope);
+    registerCompRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
     const billing = deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' as const };
     const memo = registerBillingRoutes(scope, billing, { config: limit(CONSOLE_RATE.read) });

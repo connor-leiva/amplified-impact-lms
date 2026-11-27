@@ -156,6 +156,7 @@ const routes: RouteObject[] = [
         ],
       },
       { path: 'admin/people/teams/:teamId', lazy: () => import('./routes/console/Workspace') },
+      { path: 'admin/people/comp', lazy: () => import('./routes/console/CompTeam') },
       { path: 'admin/people/:userId', lazy: () => import('./routes/console/User') },
       // The mockup's learner view (its `as`) keeps its address (spec § 3).
       { path: 'admin/masquerade/learner-view', lazy: () => import('./routes/console/LearnerView') },

@@ -123,6 +123,8 @@ export interface WorkspaceRow {
   nearCap: boolean;
   /** The latest `users.last` among its members: daily (D-145). Epoch ms. */
   lastActivity: number | null;
+  /** A live plan on this team came from a comp order. Absent on rows built before that. */
+  comped?: boolean;
 }
 
 export interface WorkspaceFilters {
@@ -206,6 +208,7 @@ export interface ConsoleEntitlements {
 export type WorkspaceActivityKind =
   | 'order_created'
   | 'order_paid'
+  | 'order_comped'
   | 'payment_failed'
   | 'order_refunded'
   | 'membership_ended'

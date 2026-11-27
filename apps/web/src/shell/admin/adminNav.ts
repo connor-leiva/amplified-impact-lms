@@ -254,6 +254,7 @@ export function placeOf(pathname: string): Place | null {
     const at = (tab: string, record?: true): Place => ({ row: 'people', group: 'People', area: 'people', tab, ...(record ? { record } : {}) });
     if (b === undefined) return at('everyone');
     if (c === undefined && b === 'teams') return at('teams');
+    if (c === undefined && b === 'comp') return at('teams', true);
     if (c === undefined && b === 'masquerade') return at('masquerade');
     if (b === 'teams' && one(c) && d === undefined) return at('teams', true);
     if (c === undefined) return at('everyone', true);
