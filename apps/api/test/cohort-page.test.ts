@@ -142,6 +142,7 @@ describe('the cohort facts route and Open enrollment', () => {
     expect((await get('st_owner', url)).json()).toEqual({
       testSends: { welcome: false, week0: false },
       plans: 0,
+      teamRows: {},
       teams: 0,
       learners: 0,
       intakeNotStarted: 0,

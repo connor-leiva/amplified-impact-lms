@@ -644,6 +644,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
   // D-255 (R-5 Phase 3): what the Cohort page reads beyond the snapshot. Signed in, then staff with `cohorts`.
   { path: '/api/admin/cohorts/:cohortId/facts', methods: 'GET, HEAD', guard: 'session' },
+  // R-5 Phase 7 (D-268): every roster team's intake, for Cohort › Submissions.
+  { path: '/api/admin/cohorts/:cohortId/intake', methods: 'GET, HEAD', guard: 'session' },
   // D-196: the team's intake. Signed in, then the owner and the operator.
   { path: '/api/intake', methods: 'GET, HEAD, PUT', guard: 'session' },
   // D-229 (B-18): the intake as a PDF. Signed in, then the owner and the operator.
@@ -696,6 +698,12 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/users/:userId', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/users/:userId/password-reset', methods: 'POST', guard: 'session' },
   { path: '/api/console/users/export', methods: 'POST', guard: 'session' },
+  // R-5 Phase 7 (D-268): People's counts, and an access group's tab, its two writes and its export.
+  { path: '/api/console/users/audiences', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/groups/:groupId', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/groups/:groupId/addresses', methods: 'POST', guard: 'session' },
+  { path: '/api/console/groups/:groupId/end', methods: 'POST', guard: 'session' },
+  { path: '/api/console/groups/:groupId/export', methods: 'POST', guard: 'session' },
   { path: '/api/console/notes', methods: 'GET, HEAD, POST', guard: 'session' },
   { path: '/api/console/notes/:id/delete', methods: 'POST', guard: 'session' },
   { path: '/api/console/search', methods: 'GET, HEAD', guard: 'session' },
@@ -1205,6 +1213,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/billing/portal': () => app.inject({ method: 'GET', url: '/api/billing/portal' }),
           '/api/course': () => app.inject({ method: 'GET', url: '/api/course' }),
           '/api/admin/cohorts/:cohortId/facts': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/facts' }),
+          '/api/admin/cohorts/:cohortId/intake': () => app.inject({ method: 'GET', url: '/api/admin/cohorts/dec26/intake' }),
           // D-132's account page.
           '/api/auth/password': () => app.inject({ method: 'GET', url: '/api/auth/password' }),
           '/api/auth/password/change': () =>
@@ -1265,6 +1274,14 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/seat-card/pdf': () => app.inject({ method: 'GET', url: '/api/seat-card/pdf?moduleId=accelerator-week-1' }),
           '/api/admin/seat-cards': () => app.inject({ method: 'GET', url: '/api/admin/seat-cards?moduleId=accelerator-week-1' }),
           '/api/console/users': () => app.inject({ method: 'GET', url: '/api/console/users' }),
+          '/api/console/users/audiences': () => app.inject({ method: 'GET', url: '/api/console/users/audiences' }),
+          '/api/console/groups/:groupId': () => app.inject({ method: 'GET', url: '/api/console/groups/utah-life' }),
+          '/api/console/groups/:groupId/addresses': () =>
+            app.inject({ method: 'POST', url: '/api/console/groups/utah-life/addresses', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/groups/:groupId/end': () =>
+            app.inject({ method: 'POST', url: '/api/console/groups/utah-life/end', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/groups/:groupId/export': () =>
+            app.inject({ method: 'POST', url: '/api/console/groups/utah-life/export', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
           '/api/console/users/:userId': () => app.inject({ method: 'GET', url: '/api/console/users/u_jamie' }),
           '/api/console/users/:userId/password-reset': () =>
             app.inject({
@@ -1615,8 +1632,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // five (D-230), 99 with the seat card form's three (D-236), 101 with D-237's turned-in files, counted and deleted.
     // 102 with a single skill's checkout. 104 with D-247's Resend Invite and Send Nudge. 105 with the cohort welcome's
     // test send. 106 with the Week 0 Is Open email's test send. 107 with the Cohort page's facts (D-255). 109 with
-    // Comp a team's two.
-    expect(EXECUTED.unauthenticated).toBe(109);
+    // Comp a team's two. 115 with R-5 Phase 7's six (D-268: People's counts, an access group's tab, its two writes and its
+    // export, and Cohort › Submissions' intake).
+    expect(EXECUTED.unauthenticated).toBe(115);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes. And Resend's webhook (D-263).
@@ -1646,7 +1664,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the cohort welcome's test send, probed unauthenticated. And + 1 for the Week 0
     // Is Open email's test send, probed unauthenticated. And + 1 for the Cohort page's facts (D-255), probed unauthenticated.
     // And + 2 for Comp a team's cohorts list and comp, probed unauthenticated.
-    // And + 1 for Resend's webhook (D-263), probed as exempt.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1);
+    // And + 1 for Resend's webhook (D-263), probed as exempt. And + 6 for R-5 Phase 7's (D-268: People's counts, an access
+    // group's tab, its two writes and its export, and Cohort › Submissions' intake), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2 + 1 + 2 + 1 + 4 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 5 + 5 + 3 + 2 + 1 + 2 + 1 + 1 + 1 + 2 + 1 + 6);
   });
 });

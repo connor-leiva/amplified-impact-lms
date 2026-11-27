@@ -64,6 +64,7 @@ import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants }
 import { commitStaffChange, previewStaffChange } from './staff';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { registerAccessGroupRoutes } from './access-groups';
+import { ACCESS_GROUP_PATHS } from '@ai/core';
 import { BILLING_PATHS, registerBillingRoutes } from './billing';
 import { COMP_PATHS, registerCompRoutes } from './comp';
 import type { BillingDeps } from './billing';
@@ -126,6 +127,11 @@ export const CONSOLE_PATHS = {
   dbHealth: INFRA_PATHS.db,
   // PR 10 (D-169): System Health and the Build hub's Skills list.
   ...HEALTH_PATHS,
+  // R-5 Phase 7 (D-268): People › an access group's tab, its two writes and its export.
+  groupDetail: ACCESS_GROUP_PATHS.detail,
+  groupAddAddress: ACCESS_GROUP_PATHS.addAddress,
+  groupEnd: ACCESS_GROUP_PATHS.end,
+  groupExport: ACCESS_GROUP_PATHS.export,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */

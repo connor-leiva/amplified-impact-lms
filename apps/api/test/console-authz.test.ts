@@ -78,7 +78,12 @@ type RouteName =
   | 'health'
   | 'skills'
   | 'compCohorts'
-  | 'compTeam';
+  | 'compTeam'
+  | 'peopleAudiences'
+  | 'groupDetail'
+  | 'groupAdd'
+  | 'groupEnd'
+  | 'groupExport';
 
 // PR 4 (D-163): Billing, read-only, every route `billing.read`.
 const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes'] as const;
@@ -259,6 +264,13 @@ const ROUTES: Record<RouteName, Route> = {
   skills: { path: CONSOLE_PATHS.skills, url: CONSOLE_PATHS.skills, method: 'GET', route: `GET ${CONSOLE_PATHS.skills}` },
   compCohorts: { path: CONSOLE_PATHS.compCohorts, url: CONSOLE_PATHS.compCohorts, method: 'GET', route: `GET ${CONSOLE_PATHS.compCohorts}` },
   compTeam: { path: CONSOLE_PATHS.compTeam, url: CONSOLE_PATHS.compTeam, method: 'POST', route: `POST ${CONSOLE_PATHS.compTeam}`, body: {} },
+  // R-5 Phase 7 (D-268): People's counts and an access group's tab (users.read), its two writes (access_group.write: Owner
+  // and Admin; an empty body is refused once the capability passes) and its export (export). No group is seeded here.
+  peopleAudiences: { path: '/api/console/users/audiences', url: '/api/console/users/audiences', method: 'GET', route: 'GET /api/console/users/audiences' },
+  groupDetail: { path: '/api/console/groups/:groupId', url: '/api/console/groups/utah-life', method: 'GET', route: 'GET /api/console/groups/:groupId' },
+  groupAdd: { path: '/api/console/groups/:groupId/addresses', url: '/api/console/groups/utah-life/addresses', method: 'POST', route: 'POST /api/console/groups/:groupId/addresses', body: {} },
+  groupEnd: { path: '/api/console/groups/:groupId/end', url: '/api/console/groups/utah-life/end', method: 'POST', route: 'POST /api/console/groups/:groupId/end', body: {} },
+  groupExport: { path: '/api/console/groups/:groupId/export', url: '/api/console/groups/utah-life/export', method: 'POST', route: 'POST /api/console/groups/:groupId/export', body: {} },
   // D-172: Invite staff and Change role…, the Owner's alone too (`console-staff.test.ts` makes real ones).
   staffPreview: {
     path: CONSOLE_PATHS.staffPreview,
@@ -369,6 +381,8 @@ const EU = (read: number, exp: number) => ({ emailLog: read, emailLogOne: read, 
 // flags.write_sensitive: the Owner alone (D8). An Admin's flip is refused, and audited, at that second step.
 /** Comp a team is billing.comp: Owner and Admin. An empty body is invalid (400) once the capability passes. */
 const COMP = (read: number, write: number) => ({ compCohorts: read, compTeam: write });
+/** R-5 Phase 7 (D-268): People's counts, the group's tab, its two writes and its export. */
+const PPL = (counts: number, detail: number, add: number, end: number, exp: number) => ({ peopleAudiences: counts, groupDetail: detail, groupAdd: add, groupEnd: end, groupExport: exp });
 const INFRA = (read: number, flip: number, check: number, test: number = read) => ({
   opsEnv: read,
   flagFlip: flip,
@@ -382,15 +396,15 @@ const INFRA = (read: number, flip: number, check: number, test: number = read) =
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, preview: 401, change: 401, ...ACT(401), ...OPS(401), ...EU(401, 401), ...INC(401, 401, 401), ...INFRA(401, 401, 401), ...COMP(401, 401), staffPreview: 401, staffChange: 401,
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, preview: 401, change: 401, ...ACT(401), ...OPS(401), ...EU(401, 401), ...INC(401, 401, 401), ...INFRA(401, 401, 401), ...COMP(401, 401), ...PPL(401, 401, 401, 401, 401), staffPreview: 401, staffChange: 401,
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), staffPreview: 403, staffChange: 403 },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), staffPreview: 403, staffChange: 403 },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), staffPreview: 403, staffChange: 403 },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), staffPreview: 403, staffChange: 403 },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(200, 403), ...INC(200, 201, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), staffPreview: 403, staffChange: 403 },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), preview: 403, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200), ...INFRA(200, 403, 200), ...COMP(200, 400), staffPreview: 403, staffChange: 403 },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), preview: 200, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200), ...INFRA(200, 200, 200), ...COMP(200, 400), staffPreview: 200, staffChange: 403 },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), ...PPL(403, 403, 403, 403, 403), staffPreview: 403, staffChange: 403 },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), ...PPL(403, 403, 403, 403, 403), staffPreview: 403, staffChange: 403 },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), ...PPL(403, 403, 403, 403, 403), staffPreview: 403, staffChange: 403 },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(403, 403), ...INC(403, 403, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), ...PPL(403, 403, 403, 403, 403), staffPreview: 403, staffChange: 403 },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), preview: 403, change: 403, ...ACT(403), ...OPS(403), ...EU(200, 403), ...INC(200, 201, 403), ...INFRA(403, 403, 403), ...COMP(403, 403), ...PPL(200, 404, 403, 403, 403), staffPreview: 403, staffChange: 403 },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), preview: 403, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200), ...INFRA(200, 403, 200), ...COMP(200, 400), ...PPL(200, 404, 400, 422, 404), staffPreview: 403, staffChange: 403 },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), preview: 200, change: 403, ...ACT(200), ...OPS(200), ...EU(200, 200), ...INC(200, 201, 200), ...INFRA(200, 200, 200), ...COMP(200, 400), ...PPL(200, 404, 400, 422, 404), staffPreview: 200, staffChange: 403 },
 };
 
 /** A 403 that is not the capability's: the Owner's change with no real token. */

@@ -194,7 +194,7 @@ export function Component() {
             <>
               <LinkFacts
                 items={[
-                  { label: C.facts.form, value: C.form(vm.questions) },
+                  { label: C.facts.form, value: C.form(vm.questions), to: form.to },
                   { label: C.facts.submitted, value: C.ofTeams(vm.submitted, vm.teams), onClick: () => go('teams', { status: 'submitted' }) },
                   { label: C.facts.draft, value: String(vm.draft), onClick: () => go('teams', { status: 'draft' }) },
                   { label: C.facts.notStarted, value: String(vm.notStarted), onClick: () => go('teams', { status: 'not_started' }) },

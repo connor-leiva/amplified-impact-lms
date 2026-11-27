@@ -66,7 +66,8 @@ test.describe('the R-5 audit fixes (D-267) @console', () => {
         const tab = main.getByRole('tab', { name: /^Utah Life/ });
         await expect(tab).toHaveAttribute('aria-selected', 'true');
         await expect(tab).toContainText('8');
-        await expect(main.getByRole('tab')).toHaveText(['Everyone', 'Teams', 'Utah Life8', 'Masquerade']);
+        // D-268 (R-5 Phase 7): Everyone and Teams carry their counts too.
+        await expect(main.getByRole('tab')).toHaveText(['Everyone16', 'Teams7', 'Utah Life8', 'Masquerade']);
       }
       await expect(main.getByText('k••••@liveutah.com')).toBeVisible();
       await expect(main.getByText('Invite pending')).toBeVisible();

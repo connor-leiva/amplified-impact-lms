@@ -47,7 +47,8 @@ export function Component() {
   const api = gate.kind === 'ready' ? gate.api : null;
   const rec = useConsoleRecord(api, (a) => a.group(groupId), groupId);
   const vm = useMemo(() => (rec.data ? groupVM(rec.data, now, q) : null), [rec.data, now, q]);
-  const locked = db.copy?.find((c) => c.key === LOCKED_GROUP_KEY)?.value ?? 'Not included with Utah Life access';
+  // The line a locked skill shows the group's members is a copy string (Words); without it, no line.
+  const locked = db.copy?.find((c) => c.key === LOCKED_GROUP_KEY)?.value ?? null;
 
   if (gate.kind === 'hidden') return null;
   if (gate.kind === 'denied') return <Denied what="Users" role={gate.role} />;
@@ -186,7 +187,7 @@ export function Component() {
                 </span>
                 <span className={p.canText}>
                   <span className={k.w5}>{vm.open.not}</span>
-                  <span className={k.me}>{C.lockedSays(locked)}</span>
+                  {locked ? <span className={k.me}>{C.lockedSays(locked)}</span> : null}
                 </span>
               </div>
               <Link className={clsx(k.lk, p.left, p.lka)} to="/admin/program/course?section=words">

@@ -60,11 +60,17 @@ export interface SubRow {
 
 export interface IntakeFormVM {
   questions: (IntakeQuestion & { section: string })[];
+  /** Where the form is edited: its week's Forms section (D-265), or the program's weeks when no week holds one. */
+  to: string;
 }
 
 export function formOf(db: Pick<Db, 'modules'>): IntakeFormVM {
-  const form: CourseIntake | undefined = db.modules.find((m) => m.course?.intake)?.course?.intake;
-  return { questions: (form?.sections ?? []).flatMap((s) => s.questions.map((q) => ({ ...q, section: s.title }))) };
+  const mod = db.modules.find((m) => m.course?.intake);
+  const form: CourseIntake | undefined = mod?.course?.intake;
+  return {
+    questions: (form?.sections ?? []).flatMap((s) => s.questions.map((q) => ({ ...q, section: s.title }))),
+    to: mod ? `/admin/program/weeks/${encodeURIComponent(mod.id)}?section=forms` : '/admin/program',
+  };
 }
 
 const answered = (v: string | string[] | undefined): boolean => (Array.isArray(v) ? v.length > 0 : v !== undefined && v.trim() !== '');
