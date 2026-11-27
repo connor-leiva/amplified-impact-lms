@@ -15,6 +15,7 @@ import {
   cohortSelling,
   createCohortFromShape,
   defaultSourceId,
+  enrollmentOpen,
   foundingOpenFor,
   includedEndAt,
   laterWords,
@@ -285,18 +286,62 @@ describe('the four Enrollment actions: the billing permission, one audit row eac
     expect(saveCohortEnrollment(db, OWNER, { ...args, capacity: 2 }, mkCtx(undefined, { [id]: facts })).error).toBe('3 seats are sold, so the cap can’t be lower.');
   });
 
-  it('Open is refused with Before It Opens’ first line; Close moves enrolling to live and nothing else', () => {
+  it('Open is refused with Before It Opens’ first line; Close marks when it closed and never writes status (PLAN § 2.5)', () => {
     const { db, id } = withJanuary();
     const refused = openCohortEnrollment(db, OWNER, { cohortId: id }, mkCtx());
     expect(refused.error).toBe(beforeItOpens(db, id).refusal);
     expect(refused.db).toBe(db);
-    // December is open: Close, then Open again once its Stripe lines are done.
-    const closed = closeCohortEnrollment(db, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx());
-    expect(closed.db.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)!.status).toBe('live');
-    expect(closed.audit).toMatchObject({ action: 'cohort.enrollment_close', before: { status: 'enrolling' }, after: { status: 'live' } });
+    // December is open. Close (Connor, Nov 27): it marks when it closed, and its status stays `enrolling`.
+    const at = MT('2026-11-28T09:00:00');
+    const closed = closeCohortEnrollment(db, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx(at));
+    const dec = closed.db.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)!;
+    expect(dec.status).toBe('enrolling');
+    expect(dec.enrollmentClosedAt).toBe(at);
+    expect(enrollmentOpen(dec)).toBe(false);
+    expect(cohortOnSale(closed.db, at)).toBeNull();
+    expect(closed.audit).toMatchObject({ action: 'cohort.enrollment_close', before: { enrollmentClosedAt: null }, after: { enrollmentClosedAt: at } });
     expect(closed.db.users).toBe(db.users);
     expect(closed.db.sessions).toBe(db.sessions);
     expect(closeCohortEnrollment(closed.db, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBe('Enrollment is already closed.');
+  });
+
+  it('Open on a closed cohort clears the close once its Stripe lines are done, and writes no status; a live one is not opened', () => {
+    const { db, id } = withJanuary();
+    let next = saveCohortPrice(db, OWNER, { cohortId: id, full: 'jan_full', rollover: 'jan_ins', twoPay: 'jan_two', offerTwoPay: true }, mkCtx()).db;
+    next = saveCohortEnrollment(
+      next,
+      OWNER,
+      { cohortId: id, founding: true, foundingCloses: { date: '2026-12-31', time: '23:59' }, linkFull: 'https://buy.stripe.com/jan_full', linkTwoPay: 'https://buy.stripe.com/jan_two', capacity: 15, ghlValue: 'jan27' },
+      mkCtx(),
+    ).db;
+    // January opened once, then closed: `enrolling`, with the mark.
+    const closedAt = MT('2026-12-01T09:00:00');
+    next = { ...next, cohorts: next.cohorts.map((c) => (c.id === id ? { ...c, status: 'enrolling' as const, enrollmentClosedAt: closedAt } : c)) };
+    const link = { active: true, aiCohort: id };
+    const stripe: CohortStripeFacts = {
+      prices: 'ok',
+      price: {
+        jan_full: { unitAmount: 750000, currency: 'usd', interval: null },
+        jan_ins: { unitAmount: 16900, currency: 'usd', interval: 'month', intervalCount: 1 },
+        jan_two: { unitAmount: 375000, currency: 'usd', interval: 'month', intervalCount: 1 },
+      },
+      links: 'ok',
+      link: { 'https://buy.stripe.com/jan_full': link, 'https://buy.stripe.com/jan_two': link },
+    };
+    const facts = (s: CohortStripeFacts | null): Ctx['cohortFacts'] => ({ [id]: { testSends: { welcome: true, week0: true }, plans: 0, stripe: s } });
+    // Its Stripe lines not done: refused, as before it first opened.
+    expect(openCohortEnrollment(next, OWNER, { cohortId: id }, mkCtx(closedAt + 60_000, facts(null))).error).toMatch(/^Stripe price found for each lookup key: /);
+    const reopened = openCohortEnrollment(next, OWNER, { cohortId: id }, mkCtx(closedAt + 60_000, facts(stripe)));
+    expect(reopened.error).toBeUndefined();
+    const jan = reopened.db.cohorts.find((c) => c.id === id)!;
+    expect(jan.status).toBe('enrolling');
+    expect('enrollmentClosedAt' in jan).toBe(false);
+    expect(enrollmentOpen(jan)).toBe(true);
+    expect(reopened.audit).toMatchObject({ action: 'cohort.enrollment_open', before: { enrollmentClosedAt: closedAt }, after: { enrollmentClosedAt: null } });
+    // A cohort the demo seed holds as `live` is not opened: R-5 writes neither `live` nor `completed`.
+    const live = { ...db, cohorts: db.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, status: 'live' as const } : c)) };
+    expect(openCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBe('Only a draft cohort can open for enrollment.');
+    expect(closeCohortEnrollment(live, OWNER, { cohortId: DEFAULT_COHORT_ID }, mkCtx()).error).toBe('Enrollment is already closed.');
   });
 
   it('a new cohort starts from any cohort not archived, and copies founding and two payments, never keys or links', () => {
@@ -358,5 +403,8 @@ describe('December’s selling values, copied once by a data step', () => {
     expect(snap).toEqual(scopeSnapshot(db, { kind: 'learner', userId: 'u1' }, access));
     expect(snap.cohorts[0]).not.toHaveProperty('includedUntil');
     expect(snap.cohorts[0]).not.toHaveProperty('lookupKeyFull');
+    // Nor does a closed enrollment's mark reach a learner (Close never writes status, PLAN § 2.5).
+    const closed = { ...stored, cohorts: stored.cohorts.map((c) => (c.id === DEFAULT_COHORT_ID ? { ...c, enrollmentClosedAt: MT('2026-11-28T09:00:00') } : c)) };
+    expect(scopeSnapshot(closed, { kind: 'learner', userId: 'u1' }, access)).toEqual(snap);
   });
 });

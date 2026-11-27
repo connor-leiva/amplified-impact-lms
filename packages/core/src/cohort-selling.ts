@@ -173,23 +173,26 @@ export const soldOutMessage = (s: Pick<CohortSelling, 'capacity' | 'founding'>):
 
 /**
  * The cohort the offer page, its welcome page and the calendar files sell (§ 10.10): the cohort whose enrollment is
- * open (`enrolling`, not archived). With two or more open, the next cohort to start (Connor, Nov 26, 2026): of those
+ * open (`enrollmentOpen`: `enrolling`, not archived, not closed). With two or more open, the next cohort to start (Connor, Nov 26, 2026): of those
  * whose `start` is still ahead at `now`, the soonest. When every open cohort has already started, there is no next one,
  * so the one that started last sells (D-262). With none open, null: the Accelerator's carts read "closed". A database
  * that holds no cohort at all (a test database, a fresh one) sells December, as before R-5.
  */
 export function cohortOnSale(db: Pick<Db, 'cohorts'>, now: number): string | null {
   if (!db.cohorts.length) return DEFAULT_COHORT_ID;
-  const open = db.cohorts.filter((c) => c.status === 'enrolling' && c.archivedAt === undefined);
+  const open = db.cohorts.filter(enrollmentOpen);
   if (open.length <= 1) return open[0]?.id ?? null;
   const ahead = open.filter((c) => c.start > now).sort((a, b) => a.start - b.start || a.id.localeCompare(b.id));
   if (ahead.length) return ahead[0]!.id;
   return [...open].sort((a, b) => b.start - a.start || a.id.localeCompare(b.id))[0]!.id;
 }
 
-/** Whether a cohort is taking sales: its enrollment is open and it is not archived. */
-export const enrollmentOpen = (co: Pick<Cohort, 'status' | 'archivedAt'> | undefined): boolean =>
-  !!co && co.status === 'enrolling' && co.archivedAt === undefined;
+/**
+ * Whether a cohort is taking sales: `enrolling`, not archived, and Close enrollment not pressed (`enrollmentClosedAt`).
+ * Close writes that marker and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`).
+ */
+export const enrollmentOpen = (co: Pick<Cohort, 'status' | 'archivedAt' | 'enrollmentClosedAt'> | undefined): boolean =>
+  !!co && co.status === 'enrolling' && co.archivedAt === undefined && co.enrollmentClosedAt === undefined;
 
 // ================================================================================================
 // A seat's plan: the cohort it is sold in

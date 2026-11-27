@@ -146,6 +146,11 @@ export interface Cohort {
    */
   founding?: boolean; foundingClosesAt?: number; lookupKeyFull?: string; lookupKeyRollover?: string; lookupKeyTwoPay?: string;
   twoPay?: boolean; linkFull?: string; linkTwoPay?: string; ghlValue?: string;
+  /**
+   * R-5 Phase 5 (D-262): when Close enrollment was pressed (epoch ms); absent while enrollment is open. Close writes this
+   * and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`); Open on a closed cohort clears it.
+   */
+  enrollmentClosedAt?: number;
 }
 /** R-5 Phase 3 (D-255): the words a cohort's learners read that are only theirs: the promise, how it works, the holiday note. */
 export interface CohortWords { promise: string; how: string[]; holiday: string }

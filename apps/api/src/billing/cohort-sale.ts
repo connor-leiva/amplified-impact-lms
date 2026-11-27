@@ -46,6 +46,7 @@ export function sellingCohortOf(r: CohortRow): Cohort {
     linkFull: r.linkFull ?? undefined,
     linkTwoPay: r.linkTwoPay ?? undefined,
     ghlValue: r.ghlValue ?? undefined,
+    enrollmentClosedAt: r.enrollmentClosedAt ?? undefined,
   };
   for (const [k, v] of Object.entries(optional)) if (v !== undefined) (out as unknown as Record<string, unknown>)[k] = v;
   return out;

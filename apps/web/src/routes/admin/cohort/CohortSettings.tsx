@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Link, useLocation, useParams } from 'react-router';
-import { enrollmentRefusal } from '@ai/core';
+import { CLOSE_LINKS_WARNING, enrollmentRefusal } from '@ai/core';
 import { Button } from '../../../components/r2/Button';
 import { Card } from '../../../components/r2/Card';
 import { Confirm } from '../../../components/r2/Modal';
@@ -219,6 +219,7 @@ export function Component() {
         <Confirm
           title={`Close Enrollment for the ${cohortLabel(co)}?`}
           body={`No new team can buy a seat in this cohort. The ${facts?.teams ?? 0} already in it are not affected.`}
+          warn={CLOSE_LINKS_WARNING}
           cta="Close enrollment"
           keepOpen
           busy={busy}

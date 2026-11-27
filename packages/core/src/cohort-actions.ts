@@ -22,7 +22,7 @@ import type { AdminOutcome } from './admin-actions';
 import { NO_FACTS, beforeItOpens, draftWords, includedDefault } from './cohort-page';
 import type { CohortFacts } from './cohort-page';
 import { ghlMonthValue } from './cohort-learner';
-import { cohortSelling } from './cohort-selling';
+import { cohortSelling, enrollmentOpen } from './cohort-selling';
 import type { Cohort, CohortShape, CohortSlot, CohortWeek, CohortWords, Db, Session } from './types';
 
 /** What a cohort write hands back beside its toast: the cohort, the layout's warnings, and what was left alone. */
@@ -666,8 +666,14 @@ export function keepCohortOverlap(db: Db, a: Actor, args: { cohortId: string }, 
 export const ALREADY_OPEN = 'Enrollment is already open.';
 
 /**
+ * Close enrollment's warning (Connor, Nov 27): Close writes nothing to Stripe, so its dialog tells staff to turn the
+ * cohort's Payment Links off there by hand. A link left on still sells, and that seat is placed in the closed cohort.
+ */
+export const CLOSE_LINKS_WARNING = 'This doesn’t turn off its Payment Links. Turn them off in Stripe by hand: a link left on still sells seats in this cohort.';
+
+/**
  * Why Open enrollment would be refused now, or null: for a draft, Before It Opens' first line not done (PLAN § 10.3);
- * for a cohort closed after it opened, its two Stripe lines. The Cohort page's dialog shows the same words.
+ * for a cohort closed after it opened (`enrollmentClosedAt`), its two Stripe lines. The Cohort page's dialog shows the same words.
  */
 export function enrollmentRefusal(db: Db, cohortId: string, facts: CohortFacts = NO_FACTS): string | null {
   const co = db.cohorts.find((x) => x.id === cohortId);
@@ -679,20 +685,27 @@ export function enrollmentRefusal(db: Db, cohortId: string, facts: CohortFacts =
 }
 
 /**
- * Open enrollment: `draft` to `enrolling`, refused, with its reason, until Before It Opens is done (`beforeItOpens`:
- * the checklist and the refusal are one function, PLAN § 10.3). A cohort closed after it opened (`live`) opens again
- * once its two Stripe lines are done (its prices found and its links naming it): the rest of its checklist was done
- * when it first opened. What the record holds beyond the snapshot (test sends, Stripe) is the API's `cohortFacts`.
+ * Open enrollment: `draft` to `enrolling`, the one status write R-5 makes (PLAN.md § 2.5, as the reference's
+ * `openEnrollment`), refused, with its reason, until Before It Opens is done (`beforeItOpens`: the checklist and the
+ * refusal are one function, PLAN § 10.3). A cohort closed after it opened (`enrollmentClosedAt` set) opens again once
+ * its two Stripe lines are done (its prices found and its links naming it), the rest of its checklist having been done
+ * when it first opened: that clears the close and writes no status. A cohort the demo seed holds as `live` or
+ * `completed` is not opened, as R-5 writes neither (§ 2.5). What the record holds beyond the snapshot (test sends,
+ * Stripe) is the API's `cohortFacts`.
  */
 export function openCohortEnrollment(db: Db, a: Actor, args: { cohortId: string }, c: Ctx): AdminOutcome {
   requirePerm(db, a, 'billing');
   const co = cohortOf(db, args.cohortId);
-  if (co.status === 'enrolling') return { db, error: ALREADY_OPEN };
-  if (co.status === 'completed') return { db, error: 'This cohort is over.' };
+  if (enrollmentOpen(co)) return { db, error: ALREADY_OPEN };
+  if (co.status === 'completed' || co.archivedAt !== undefined) return { db, error: 'This cohort is over.' };
+  if (co.status === 'live') return { db, error: 'Only a draft cohort can open for enrollment.' };
   const refusal = enrollmentRefusal(db, co.id, c.cohortFacts?.[co.id] ?? NO_FACTS);
   if (refusal) return { db, error: refusal };
+  const reopen = co.status === 'enrolling';
   const next = produce(db, (d) => {
-    d.cohorts.find((y) => y.id === co.id)!.status = 'enrolling';
+    const x = d.cohorts.find((y) => y.id === co.id)!;
+    if (reopen) delete x.enrollmentClosedAt;
+    else x.status = 'enrolling';
   });
   return {
     db: next,
@@ -700,23 +713,24 @@ export function openCohortEnrollment(db: Db, a: Actor, args: { cohortId: string 
     audit: {
       action: 'cohort.enrollment_open',
       target: { type: 'cohort', id: co.id, label: co.name },
-      before: { status: co.status },
-      after: { status: 'enrolling' },
+      before: reopen ? { enrollmentClosedAt: co.enrollmentClosedAt ?? null } : { status: co.status },
+      after: reopen ? { enrollmentClosedAt: null } : { status: 'enrolling' },
     },
   };
 }
 
 /**
  * Close enrollment: no new team can buy a seat in this cohort (the offer stops selling it, and the seat cap no longer
- * turns its links back on), and no one already in is touched. `enrolling` to `live`: both are "under way" for the
- * reminders (`jobs/due.ts`), and the status words are derived (D-255), so no learner sees a change.
+ * turns its links back on), and no one already in is touched. Connor's call (Nov 27): it writes when it was closed
+ * (`enrollmentClosedAt`) and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`), and it writes
+ * nothing to Stripe. Its dialog tells staff to turn the cohort's Payment Links off in Stripe by hand.
  */
-export function closeCohortEnrollment(db: Db, a: Actor, args: { cohortId: string }, _c: Ctx): AdminOutcome {
+export function closeCohortEnrollment(db: Db, a: Actor, args: { cohortId: string }, c: Ctx): AdminOutcome {
   requirePerm(db, a, 'billing');
   const co = cohortOf(db, args.cohortId);
-  if (co.status !== 'enrolling') return { db, error: 'Enrollment is already closed.' };
+  if (!enrollmentOpen(co)) return { db, error: 'Enrollment is already closed.' };
   const next = produce(db, (d) => {
-    d.cohorts.find((y) => y.id === co.id)!.status = 'live';
+    d.cohorts.find((y) => y.id === co.id)!.enrollmentClosedAt = c.now;
   });
   return {
     db: next,
@@ -724,8 +738,8 @@ export function closeCohortEnrollment(db: Db, a: Actor, args: { cohortId: string
     audit: {
       action: 'cohort.enrollment_close',
       target: { type: 'cohort', id: co.id, label: co.name },
-      before: { status: co.status },
-      after: { status: 'live' },
+      before: { enrollmentClosedAt: null },
+      after: { enrollmentClosedAt: c.now },
     },
   };
 }

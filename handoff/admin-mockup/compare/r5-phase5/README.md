@@ -30,7 +30,7 @@ read only.
 | `january-before-it-opens-{1280,390}.png` | January › Overview: Before It Opens 10 of 11, its two Stripe lines done with what Stripe holds ("$7,500, or two payments · 15 seats", "Both entered. Each names this cohort in Stripe.") |
 | `january-open-ready-{1280,390}.png` | Open enrollment, ready: no refusal; "From now on, a team that buys a seat is placed in this cohort, up to 15 seats …" |
 | `january-settings-open-{1280,390}.png` | After Open enrollment: Open, and Close enrollment |
-| `january-close-{1280,390}.png` | Close enrollment: "No new team can buy a seat in this cohort. The 0 already in it are not affected." |
+| `january-close-{1280,390}.png` | Close enrollment: "No new team can buy a seat in this cohort. The 0 already in it are not affected." and its warning, "This doesn’t turn off its Payment Links. Turn them off in Stripe by hand: a link left on still sells seats in this cohort." |
 | `january-settings-closed-{1280,390}.png` | After Close enrollment: Closed again |
 
 `shoot.spec.ts` takes them: `pnpm --filter @ai/web preview:fixture`, then

@@ -182,7 +182,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'seq',
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
-  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt', 'includedUntil', 'wordsCheckedAt', 'overlapOkAt', 'words', 'hosts', 'founding', 'foundingClosesAt', 'lookupKeyFull', 'lookupKeyRollover', 'lookupKeyTwoPay', 'twoPay', 'linkFull', 'linkTwoPay', 'ghlValue'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence', 'previewOpensAt', 'timezone', 'defaultOpenTime', 'course', 'welcomeSendsAt', 'run', 'shape', 'programId', 'archivedAt', 'includedUntil', 'wordsCheckedAt', 'overlapOkAt', 'words', 'hosts', 'founding', 'foundingClosesAt', 'lookupKeyFull', 'lookupKeyRollover', 'lookupKeyTwoPay', 'twoPay', 'linkFull', 'linkTwoPay', 'ghlValue', 'enrollmentClosedAt'],
   sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl', 'kind', 'moduleId', 'replayVisibility', 'slot'],
   modules: [
     'id',
@@ -356,6 +356,7 @@ const cohortRow = (c: Cohort): Row => ({
   linkFull: col(c.linkFull),
   linkTwoPay: col(c.linkTwoPay),
   ghlValue: col(c.ghlValue),
+  enrollmentClosedAt: col(c.enrollmentClosedAt),
 });
 
 const sessionRow = (s: Session): Row => ({
@@ -695,6 +696,7 @@ export function fromRows(rows: Rows): Db {
           linkFull: r.linkFull,
           linkTwoPay: r.linkTwoPay,
           ghlValue: r.ghlValue,
+          enrollmentClosedAt: r.enrollmentClosedAt,
         },
       ),
     ),

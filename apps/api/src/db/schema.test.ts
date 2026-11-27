@@ -60,7 +60,7 @@ const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 | 9 }> = {
   users: { table: 'users', columns: ['cohort_id', 'early_access', 'email', 'id', 'is_test', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats', 'seq'] },
-  cohorts: { table: 'cohorts', columns: ['archived_at', 'cadence', 'capacity', 'course', 'default_open_time', 'end', 'founding', 'founding_closes_at', 'ghl_value', 'hosts', 'id', 'included_until', 'link_full', 'link_two_pay', 'lookup_key_full', 'lookup_key_rollover', 'lookup_key_two_pay', 'name', 'overlap_ok_at', 'preview_opens_at', 'program_id', 'run', 'shape', 'start', 'status', 'timezone', 'two_pay', 'weeks', 'welcome_sends_at', 'words', 'words_checked_at'] },
+  cohorts: { table: 'cohorts', columns: ['archived_at', 'cadence', 'capacity', 'course', 'default_open_time', 'end', 'enrollment_closed_at', 'founding', 'founding_closes_at', 'ghl_value', 'hosts', 'id', 'included_until', 'link_full', 'link_two_pay', 'lookup_key_full', 'lookup_key_rollover', 'lookup_key_two_pay', 'name', 'overlap_ok_at', 'preview_opens_at', 'program_id', 'run', 'shape', 'start', 'status', 'timezone', 'two_pay', 'weeks', 'welcome_sends_at', 'words', 'words_checked_at'] },
   sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'kind', 'live', 'mins', 'module_id', 'moved_from', 'n', 'replay', 'replay_url', 'replay_visibility', 'slot', 'start', 'title', 'views', 'zoom'] },
   modules: { table: 'modules', columns: ['build', 'checklist', 'course', 'due_at', 'dur', 'files', 'for_who', 'headline', 'icon', 'id', 'instructor', 'kind', 'name', 'notes', 'opens', 'order', 'outcome', 'outputs', 'platform', 'prompt', 'resources', 'run_demo', 'run_label', 'session', 'short', 'status', 'tier', 'tone', 'transcript'] },
   progress: { table: 'progress', columns: ['built_at', 'deployed_at', 'issue', 'last_run', 'module_id', 'runtime', 'steps', 'user_id'] },
@@ -366,6 +366,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['cohorts', 'overlapOkAt'],
   // R-5 Phase 5 (D-262): when a cohort's founding prices stop selling.
   ['cohorts', 'foundingClosesAt'],
+  // R-5 Phase 5 (D-262): when Close enrollment was pressed (it never writes `status`, PLAN.md § 2.5).
+  ['cohorts', 'enrollmentClosedAt'],
   ['progress', 'builtAt'], ['progress', 'deployedAt'],
   ['checklistState', 'checkedAt'],
   ['learnerPrefs', 'updatedAt'],

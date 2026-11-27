@@ -338,24 +338,38 @@ describe('Done when: a checkout names its cohort', () => {
     ]);
   });
 
-  it('closing enrollment stops new sales and touches no one already in; a link that names no cohort is never January’s', async () => {
+  it('closing enrollment stops new sales, writes no status and touches no one already in; Open again sells it again', async () => {
     await readyJanuary();
     expect((await act('st_owner', 'openCohortEnrollment', { cohortId: jan })).statusCode).toBe(200);
     await deliver('checkout.session.completed', session('janin', 'full', jan));
     const before = await planOf('janin@buyers.example.test');
     const closed = await act('st_owner', 'closeCohortEnrollment', { cohortId: jan });
     expect(closed.statusCode, closed.body).toBe(200);
-    expect((await handle.select({ status: cohorts.status }).from(cohorts).where(eq(cohorts.id, jan)))[0]!.status).toBe('live');
+    // Connor's call (Nov 27): Close marks when it closed and never writes status (PLAN § 2.5).
+    const stateOf = async () =>
+      (await handle.select({ status: cohorts.status, enrollmentClosedAt: cohorts.enrollmentClosedAt }).from(cohorts).where(eq(cohorts.id, jan)))[0];
+    expect(await stateOf()).toEqual({ status: 'enrolling', enrollmentClosedAt: NOV27 });
     expect(await planOf('janin@buyers.example.test')).toEqual(before);
-    // The offer sells December again (the only cohort open).
-    const offer = (await (await appAt(NOV27)).inject({ method: 'GET', url: '/api/offer' })).json() as { seats: { total: number }; carts: { id: string; paymentLink: string | null }[] };
-    expect(offer.seats.total).toBe(15);
-    expect(offer.carts.find((c) => c.id === 'cohort-full')!.paymentLink).toBe(DEC_LINKS.full);
+    // Once December has started, an open January would be the next to start. Closed, it is not sold: the offer is
+    // December's, whose founding has closed.
+    type Offer = { carts: { id: string; state: string; paymentLink: string | null }[] };
+    const decStart = await decemberStart();
+    const offerAt = async (t: number) => (await (await appAt(t)).inject({ method: 'GET', url: '/api/offer' })).json() as Offer;
+    const shut = await offerAt(decStart);
+    expect(JSON.stringify(shut)).not.toContain(JAN_LINKS.full);
+    expect(shut.carts.find((c) => c.id === 'cohort-full')!.state).toBe('closed');
     // A checkout through January's link, still live in Stripe after Close: paid, placed in January, and reported.
     logs.length = 0;
     expect(await handleStripeEvent(event('checkout.session.completed', session('janlate', 'full', jan)), deps())).toBe('paid');
     expect((await planOf('janlate@buyers.example.test'))!.plan.cohortId).toBe(jan);
     expect(logs).toContain('a seat was sold in a cohort whose enrollment is closed: placed in it. Connor follows up');
+    // Open again: its Stripe lines are done, so the close is cleared, no status is written, and January sells again.
+    const reopened = await act('st_owner', 'openCohortEnrollment', { cohortId: jan });
+    expect(reopened.statusCode, reopened.body).toBe(200);
+    expect(await stateOf()).toEqual({ status: 'enrolling', enrollmentClosedAt: null });
+    expect((await offerAt(decStart)).carts.find((c) => c.id === 'cohort-full')!.paymentLink).toBe(JAN_LINKS.full);
+    const rows = await handle.select({ action: auditLog.action, before: auditLog.before, after: auditLog.after }).from(auditLog).where(eq(auditLog.targetId, jan));
+    expect(rows.filter((r) => r.action === 'cohort.enrollment_close')).toEqual([{ action: 'cohort.enrollment_close', before: { enrollmentClosedAt: null }, after: { enrollmentClosedAt: NOV27 } }]);
   });
 
   it('Close enrollment writes nothing to Stripe: a live link stays on, and a link the cap turned off is not turned back on', async () => {
@@ -370,10 +384,11 @@ describe('Done when: a checkout names its cohort', () => {
     const linkWrites = () => fake.writes.filter((w) => w.call === 'paymentLinks.update').length;
     const before = { all: fake.writes.length, links: linkWrites() };
 
-    // Close: a status change on the cohort, and not one call to Stripe.
+    // Close: a mark on the cohort (never its status), and not one call to Stripe.
     const closed = await act('st_owner', 'closeCohortEnrollment', { cohortId: jan });
     expect(closed.statusCode, closed.body).toBe(200);
     expect(fake.writes.length).toBe(before.all);
+    expect((await handle.select({ status: cohorts.status }).from(cohorts).where(eq(cohorts.id, jan)))[0]!.status).toBe('enrolling');
 
     // A refund frees the seat after Close: the cap holds January's links off, as Close left them.
     const [seat] = await handle.select({ id: plans.id }).from(plans).where(eq(plans.cohortId, jan));

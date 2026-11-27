@@ -3,6 +3,7 @@ import { expectAccessible } from '../../lib/a11y';
 import { launchDb } from '../../lib/launch-db';
 import { JAN_KEYS, JAN_LINKS, januaryFacts, openAt, withJanuary } from '../../lib/selling-world';
 import { DEFAULT_COHORT_ID } from '../../../packages/core/src/accelerator';
+import { CLOSE_LINKS_WARNING } from '../../../packages/core/src/cohort-actions';
 
 /**
  * D-262 (R-5 Phase 5, PLAN.md § 10, "Done when"): Cohort › Settings › Enrollment, what a cohort sells through. On the
@@ -139,10 +140,12 @@ test.describe('selling a seat in a cohort (D-262) @g9 @console', () => {
     await expect(card(page).getByText('Open', { exact: true })).toBeVisible();
     await expect(card(page).getByRole('button')).toHaveText(['Close enrollment', 'Change the price', 'Edit enrollment']);
 
-    // Close enrollment: no new sales; the teams already in are not affected.
+    // Close enrollment: no new sales; the teams already in are not affected. It writes nothing to Stripe, so the dialog
+    // says to turn the cohort's Payment Links off there by hand (Connor, Nov 27).
     await card(page).getByRole('button', { name: 'Close enrollment' }).click();
     const closing = page.getByRole('dialog', { name: 'Close Enrollment for the January 2027 Cohort?' });
     await expect(closing.getByText('No new team can buy a seat in this cohort. The 0 already in it are not affected.')).toBeVisible();
+    await expect(closing.getByText(CLOSE_LINKS_WARNING, { exact: true })).toBeVisible();
     await expectAccessible(page);
     await closing.getByRole('button', { name: 'Close enrollment' }).click();
     await expect(closing).toHaveCount(0);

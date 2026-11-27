@@ -11,6 +11,8 @@
 --   cohorts.link_full            paid in full's Payment Link address (https)
 --   cohorts.link_two_pay         two payments' Payment Link address (https)
 --   cohorts.ghl_value            GoHighLevel's Cohort field value (Q-33)
+--   cohorts.enrollment_closed_at when Close enrollment was pressed (epoch ms); null while enrollment is open. Close
+--                                writes this and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`)
 --   orders.cohort_id             the checkout's `ai_cohort`; null for none, which is December, forever
 --
 -- The seat cap is `cohorts.capacity` and the included-time end `cohorts.included_until`, both already here. No price
@@ -32,6 +34,8 @@ ALTER TABLE "cohorts" ADD COLUMN "link_full" text;
 ALTER TABLE "cohorts" ADD COLUMN "link_two_pay" text;
 --> statement-breakpoint
 ALTER TABLE "cohorts" ADD COLUMN "ghl_value" text;
+--> statement-breakpoint
+ALTER TABLE "cohorts" ADD COLUMN "enrollment_closed_at" bigint;
 --> statement-breakpoint
 ALTER TABLE "cohorts" ADD CONSTRAINT "cohorts_link_full" CHECK ("cohorts"."link_full" is null or "cohorts"."link_full" ~ '^https://');
 --> statement-breakpoint

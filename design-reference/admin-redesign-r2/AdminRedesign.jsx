@@ -1472,7 +1472,7 @@ function CohortSettings() {
         <Card t="Enrollment" right={<St v={c.enroll ? 'Open' : 'Closed'} tone={c.enroll ? 'ok' : 'off'} />}>
           <div className="kvs"><KV rows={[['Seats', <button className="lk" onClick={() => go('learners')}>0 of {c.cap} taken</button>], ['A seat is', 'A team: an owner and an AI Implementer'], ['Price', c.price ? c.price : <span className="pl warn">Not set</span>], ['Two payments', c.two], ['Founding', c.founding], ['Payment Links', c.links ? c.links : <span className="pl warn">Not set</span>], ['GoHighLevel', c.ghl], ['Who lands here', 'A team that buys a seat while enrollment is open']]} /></div>
           <div className="row" style={{ marginTop: 12 }}>{c.enroll
-            ? <Btn onClick={() => setDlg({ title: 'Close Enrollment for the ' + c.n + '?', body: 'No new team can buy a seat in this cohort. The 0 already in it are not affected.', cta: 'Close enrollment', yes: () => toast('Enrollment is closed') })}>Close enrollment</Btn>
+            ? <Btn onClick={() => setDlg({ title: 'Close Enrollment for the ' + c.n + '?', body: 'No new team can buy a seat in this cohort. The 0 already in it are not affected.', warn: 'This doesn’t turn off its Payment Links. Turn them off in Stripe by hand: a link left on still sells seats in this cohort.', cta: 'Close enrollment', yes: () => toast('Enrollment is closed') })}>Close enrollment</Btn>
             : <Btn k="p" onClick={() => setDlg({ title: 'Open Enrollment for the ' + c.n + '?', body: 'From now on, a team that buys a seat is placed in this cohort, up to ' + c.cap + ' seats. They get the welcome email and can start the setup week on ' + mtDay(c.opens) + '.', cta: 'Open enrollment', error: p3Refusal(c), yes: () => toast('Enrollment is open') })}>Open enrollment</Btn>}
             <Btn onClick={() => setD('price')}>{c.price ? 'Change the price' : 'Set the price'}</Btn><Btn onClick={() => setD('enroll')}>Edit enrollment</Btn></div></Card>
         <Card t="Words From This Cohort" sub="Learners see them on Home and the Schedule."><div className="col m">
@@ -1643,6 +1643,7 @@ function Confirm({ d, onClose }) {
   const ok = (!d.needReason || r.trim()) && !d.error;
   return <Modal title={d.title} onClose={onClose} foot={<><Btn onClick={onClose}>Cancel</Btn><Btn k={'p' + (d.danger ? ' d' : '')} disabled={!ok} onClick={() => { onClose(); d.yes(r.trim()); }}>{d.cta}</Btn></>}>
     <p className="s2">{d.body}</p>
+    {d.warn && <p className="s2">{d.warn}</p>}
     {d.needReason && <label className="lab">Reason<input className="in" autoFocus value={r} onChange={e => setR(e.target.value)} placeholder="Required" /></label>}
     {d.error && <p className="er" role="alert">{d.error}</p>}
     <p className="me">This action is audit-logged.</p>

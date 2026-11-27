@@ -73,6 +73,8 @@ export const cohorts = pgTable('cohorts', {
   founding: boolean('founding'), foundingClosesAt: ts('founding_closes_at'),
   lookupKeyFull: text('lookup_key_full'), lookupKeyRollover: text('lookup_key_rollover'), lookupKeyTwoPay: text('lookup_key_two_pay'),
   twoPay: boolean('two_pay'), linkFull: text('link_full'), linkTwoPay: text('link_two_pay'), ghlValue: text('ghl_value'),
+  // When Close enrollment was pressed; null while open. Close never writes `status` (PLAN.md § 2.5).
+  enrollmentClosedAt: ts('enrollment_closed_at'),
 }, (t) => [
   check('cohorts_default_open_time', sql`${t.defaultOpenTime} is null or ${t.defaultOpenTime} ~ '^[0-2][0-9]:[0-5][0-9]$'`),
   // D-255: a calendar date, not an instant (§ 7.2), so text in its one shape.

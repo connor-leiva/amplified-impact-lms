@@ -45,8 +45,8 @@ no new capability, as the brief asks ("pick the existing permission that fits").
 |---|---|---|
 | `saveCohortPrice` | `cohort.price_save` | The three lookup keys and whether two payments are offered (the mockup's price dialog). No amount: the dialog shows Stripe's (Q-30) |
 | `saveCohortEnrollment` | `cohort.enrollment_save` | Founding, its close (date and time in MT), the two Payment Link addresses, the seat cap, the GoHighLevel value |
-| `openCohortEnrollment` | `cohort.enrollment_open` | `draft` (or a closed `live`) to `enrolling`, refused with "Before It Opens"'s first line not done |
-| `closeCohortEnrollment` | `cohort.enrollment_close` | `enrolling` to `live`: no new sale; no one already in is touched |
+| `openCohortEnrollment` | `cohort.enrollment_open` | `draft` to `enrolling`, refused with "Before It Opens"'s first line not done; on a closed cohort, clears `enrollment_closed_at` (no status write) |
+| `closeCohortEnrollment` | `cohort.enrollment_close` | Writes `enrollment_closed_at`, never `status`: no new sale; no one already in is touched; nothing written to Stripe |
 
 - **Open is refused until Before It Opens is done** (§ 10.3: one function answers the checklist and the refusal). The
   two Stripe lines become doable: "Stripe price found for each lookup key" is done when Stripe has an active price
@@ -56,8 +56,12 @@ no new capability, as the brief asks ("pick the existing permission that fits").
   so and is not done.
 - **December keeps its answer.** `/api/mutate/openEnrollment` stays the reference's mutation, word for word
   ("Only a draft cohort can open for enrollment." for December), as Phase 3 left it.
-- **Close** moves `enrolling` to `live` and nothing else. `live` and `enrolling` are both "under way" for the reminders
-  (`jobs/due.ts`), and the status words are derived (D-255), so no learner sees a change.
+- **Close (Connor, Nov 27)** writes when it was closed (`cohorts.enrollment_closed_at`, a new nullable column in
+  migration 0046) and never `status`: PLAN § 2.5 says R-5 never writes `live` or `completed`. The status stays
+  `enrolling`, so the reminders (`jobs/due.ts`) and the derived status words (D-255) do not move. Open enrollment is
+  one rule, `enrollmentOpen`: `enrolling`, not archived, not closed. Close writes nothing to Stripe: its dialog warns
+  staff to turn the cohort's Payment Links off in Stripe by hand ("This doesn’t turn off its Payment Links. Turn them
+  off in Stripe by hand: a link left on still sells seats in this cohort."). Open on a closed cohort clears the mark.
 - **Seat cap edits** refuse a number below the seats already sold. Included time stays Phase 3's field and freeze.
 - **New cohort** prefills the GoHighLevel value with Phase 4's month and two-digit year (`ghlCohortValue`, "jan27"), and
   its "Start from" lists every cohort that is not archived, not December by id. A new cohort copies the source's seat

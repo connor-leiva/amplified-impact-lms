@@ -236,8 +236,12 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
       // A checkout that names a cohort whose enrollment is closed (its link still live in Stripe after Close): placed, as
       // a paid checkout always is (D-154), and reported. A checkout with no `ai_cohort` (December's) is never checked here.
       if (order.cohortId !== null) {
-        const [row] = await tx.select({ status: cohorts.status, archivedAt: cohorts.archivedAt }).from(cohorts).where(eq(cohorts.id, cohortId)).limit(1);
-        if (row && !enrollmentOpen({ status: row.status as 'enrolling', archivedAt: row.archivedAt ?? undefined }))
+        const [row] = await tx
+          .select({ status: cohorts.status, archivedAt: cohorts.archivedAt, enrollmentClosedAt: cohorts.enrollmentClosedAt })
+          .from(cohorts)
+          .where(eq(cohorts.id, cohortId))
+          .limit(1);
+        if (row && !enrollmentOpen({ status: row.status as 'enrolling', archivedAt: row.archivedAt ?? undefined, enrollmentClosedAt: row.enrollmentClosedAt ?? undefined }))
           log.error({ order: order.id, cohort: cohortId, status: row.status }, 'a seat was sold in a cohort whose enrollment is closed: placed in it. Connor follows up');
       }
       await placeTeam(tx, acct.teamId, order.id, now, log);
