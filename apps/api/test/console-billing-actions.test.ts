@@ -19,7 +19,7 @@ import { cohortSeatsSold } from '../src/billing/provision';
 import type { BillingStripe, SubscriptionInfo } from '../src/billing/stripe';
 import { handleStripeEvent } from '../src/billing/webhook';
 import { BILLING_PATHS } from '../src/console/billing';
-import { accounts, auditLog, orders, plans, teams, users } from '../src/db/schema';
+import { accounts, auditLog, cohorts, orders, plans, teams, users } from '../src/db/schema';
 import type { ReadInvoice } from '../src/console/stripe-read';
 import { fakeConsoleStripe, fakeConsoleStripeWrite } from './fake-console-stripe';
 import type { FakeStripeData } from './fake-console-stripe';
@@ -523,9 +523,11 @@ describe('the consequences are what billing/webhook.ts does (spec § 7.6) @conso
 
   it('an AI Accelerator seat: D-154 frees it (sold goes down by one), with its roll-on subscription cancelled', async () => {
     const sold = await cohortSeatsSold(await db());
+    // R-5 Phase 5 (D-262): the plan's cohort's cap (`capacity`): December's 15 in production, this demo database's 200.
+    const cap = (await (await db()).select({ capacity: cohorts.capacity }).from(cohorts).where(eq(cohorts.id, 'dec26')))[0]!.capacity;
     const p = await preview('refund', { invoiceId: 'in_Acc' });
     expect(p.consequences).toContain(
-      `The AI Accelerator seat is freed (D-154): seats sold go from ${sold} to ${sold - 1} of 15. The Payment Links check that runs after the refund turns both links back on if the cap had turned them off and founding seats still sell.`,
+      `The AI Accelerator seat is freed (D-154): seats sold go from ${sold} to ${sold - 1} of ${cap}. The Payment Links check that runs after the refund turns both links back on if the cap had turned them off and founding seats still sell.`,
     );
     expect(p.consequences).toContain('Subscription sub_AccIns is cancelled in Stripe (unless already cancelled), so nothing more is charged.');
     expect(p.consequences).toContain('The AI Accelerator plan ends and its access ends now.');

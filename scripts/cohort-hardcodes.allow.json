@@ -1,0 +1,422 @@
+{
+  "allow": [
+    {
+      "file": "packages/core/src/accelerator.ts",
+      "match": "export const DEFAULT_COHORT_ID = 'dec26'",
+      "count": 1,
+      "reason": "December's id, named once: a checkout with no ai_cohort is December's, forever (spec Phase 5), and so is a viewer with no cohort plan.",
+      "phase": "never"
+    },
+    {
+      "file": "packages/core/src/accelerator.ts",
+      "match": "cohortId !== DEFAULT_COHORT_ID ? at : COURSE_OPENS_AT",
+      "count": 1,
+      "reason": "courseOpensAt: D-153's instant stands in for December's first live build only where none of its sessions is in the rows read (a test database, a learner's snapshot before the preview).",
+      "phase": "6 (proposed): once the course payload carries each cohort’s opening"
+    },
+    {
+      "file": "packages/core/src/cohort-selling.ts",
+      "match": "cohortId === DEFAULT_COHORT_ID ? decemberBuiltIn(env) : null",
+      "count": 1,
+      "reason": "December reads what the code held before Phase 5 for a field its record does not hold (until its data step has run, and in every test database).",
+      "phase": "9: once Connor confirms the data step ran in production, the constants and the fallback go"
+    },
+    {
+      "file": "packages/core/src/cohort-learner.ts",
+      "match": "db.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)?.course ?? null",
+      "count": 1,
+      "reason": "The program's shared words live on December's row until the program record exists (D-261).",
+      "phase": "6"
+    },
+    {
+      "file": "packages/core/src/cohort-learner.ts",
+      "match": "cohortId === DEFAULT_COHORT_ID ? path",
+      "count": 1,
+      "reason": "December's calendar files are the bare addresses its buyers subscribed to; a changed address or UID duplicates every event (PLAN § 5.3).",
+      "phase": "never"
+    },
+    {
+      "file": "packages/core/src/cohort-actions.ts",
+      "match": "if (co.id === DEFAULT_COHORT_ID)",
+      "count": 1,
+      "reason": "Saving December's run mirrors its dates onto its modules for the admin readers not yet on the run (D-255, D-261 item 2).",
+      "phase": "6"
+    },
+    {
+      "file": "packages/core/src/sessions.ts",
+      "match": "s.cohortId !== DEFAULT_COHORT_ID",
+      "count": 1,
+      "reason": "December's sessions take their kind from their id (sessionKind, D-254): Connor's Nov 25 call that December must not move.",
+      "phase": "none yet: until Connor says otherwise"
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "id: 'dec26',",
+      "count": 1,
+      "reason": "COHORT_ONE: December's built-in values (its id, first and last build), read only while its record or its sessions hold none (COHORT_SALE_ONE, COURSE_OPENS_AT).",
+      "phase": "9: with the data step confirmed"
+    },
+    {
+      "file": "apps/api/src/billing/payment-links.ts",
+      "match": "c.id !== DEFAULT_COHORT_ID && (c.linkFull || c.linkTwoPay)",
+      "count": 1,
+      "reason": "December's seat cap acts on D-154's two link ids (PAYMENT_LINK_ID_*, else the live ids), reconciled first; its stored addresses are not read a second time.",
+      "phase": "never: D-154 names December's links by id"
+    },
+    {
+      "file": "apps/api/src/routes/offer-calendar.ts",
+      "match": ".filter((s) => s.cohortId === DEFAULT_COHORT_ID && typeOf(s) === ",
+      "count": 1,
+      "reason": "December's builds file: its UIDs end -dec26, and a changed UID duplicates every event in a subscribed calendar (PLAN § 5.3).",
+      "phase": "never"
+    },
+    {
+      "file": "apps/api/src/routes/offer-calendar.ts",
+      "match": "const thursdays = sessions.filter((s) => s.cohortId === DEFAULT_COHORT_ID",
+      "count": 1,
+      "reason": "December's office-hours file, for the same reason.",
+      "phase": "never"
+    },
+    {
+      "file": "apps/api/src/routes/offer-calendar.ts",
+      "match": "if (cohortId === DEFAULT_COHORT_ID) return calendarFiles();",
+      "count": 1,
+      "reason": "December's three files are calendarFiles, unchanged (their UIDs).",
+      "phase": "never"
+    },
+    {
+      "file": "apps/api/src/routes/offer.ts",
+      "match": "named && named !== DEFAULT_COHORT_ID ? named : undefined",
+      "count": 1,
+      "reason": "The bare calendar addresses are December's (cohortIcsPath's other half): ?cohort=dec26 reads its bare file.",
+      "phase": "never"
+    },
+    {
+      "file": "apps/api/src/db/seed-test-member.ts",
+      "match": "cohortId !== '' && cohortId !== DEFAULT_COHORT_ID ? { cohortId } : {}",
+      "count": 1,
+      "reason": "The deploy's test member names December by leaving SEED_TEST_MEMBER_COHORT unset (D-261).",
+      "phase": "9"
+    },
+    {
+      "file": "apps/api/src/db/seed-test-member.ts",
+      "match": "if (cohortId !== DEFAULT_COHORT_ID) {",
+      "count": 1,
+      "reason": "Only another cohort is checked to exist: a test database may hold no December row (D-261).",
+      "phase": "9"
+    },
+    {
+      "file": "apps/api/src/db/seed-test-member.ts",
+      "match": "...(cohortId !== DEFAULT_COHORT_ID ? { cohortId } : {})",
+      "count": 1,
+      "reason": "The step's audit row names a cohort only when it is not December, as D-261 wrote it.",
+      "phase": "9"
+    },
+    {
+      "file": "apps/api/src/routes/curriculum-status.ts",
+      "match": "eq(cohorts.id, ACCELERATOR_COHORT_ID)",
+      "count": 1,
+      "reason": "Curriculum's status reads December's weeks; each cohort that runs the week is Phase 6's (PLAN § 5.1).",
+      "phase": "6"
+    },
+    {
+      "file": "apps/api/src/routes/curriculum-status.ts",
+      "match": "eq(sessions.cohortId, ACCELERATOR_COHORT_ID)",
+      "count": 1,
+      "reason": "Its sessions, likewise.",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/ModuleBuilder.tsx",
+      "match": "c.id === ACCELERATOR_COHORT_ID",
+      "count": 1,
+      "reason": "The week builder's glossary comes from December's row until the program's copy (PLAN § 5.1).",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
+      "match": "sessionFor(db, 'dec26', d.session)",
+      "count": 2,
+      "reason": "The week builder previews against December (PLAN § 5.4).",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
+      "match": "cohortId: 'dec26' }",
+      "count": 1,
+      "reason": "Its preview card, likewise.",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
+      "match": ".filter((s) => s.cohortId === 'dec26')",
+      "count": 1,
+      "reason": "Its sessions list, likewise.",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/ModuleBuilder.vm.ts",
+      "match": "DEFAULT_OPENS = Date.parse('2026-12-21T09:00:00-06:00')",
+      "count": 1,
+      "reason": "The week builder's default opening for a new week (D-174), December's calendar.",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/WeekBuilder.vm.ts",
+      "match": "c.id === 'dec26')?.previewOpensAt",
+      "count": 1,
+      "reason": "The week builder's preview date is December's (PLAN § 5.4).",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/CourseSettings.vm.ts",
+      "match": "id = 'dec26'",
+      "count": 1,
+      "reason": "Course Settings edits the course words on December's row until the program record (PLAN § 5.4).",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/Curriculum.vm.ts",
+      "match": "const COHORT_ID = 'dec26'",
+      "count": 1,
+      "reason": "Curriculum reads December's dates; each cohort that runs the week is Phase 6's (PLAN § 5.4).",
+      "phase": "6"
+    },
+    {
+      "file": "apps/web/src/routes/admin/Overview.vm.ts",
+      "match": "const COHORT_ID = 'dec26'",
+      "count": 1,
+      "reason": "The admin Overview is December's until Overview by cohort (PLAN § 5.4).",
+      "phase": "9"
+    },
+    {
+      "file": "apps/web/src/routes/admin/Overview.vm.ts",
+      "match": "DAY0 = Date.parse('2026-12-01T00:00:00-06:00')",
+      "count": 1,
+      "reason": "The Overview's activity chart starts at December's first week.",
+      "phase": "9"
+    },
+    {
+      "file": "apps/web/src/routes/admin/Tiers.vm.ts",
+      "match": "c.id === 'dec26') ?? db.cohorts[0]",
+      "count": 1,
+      "reason": "Plans & Upgrades names December in its revenue line until Revenue › Summary (PLAN § 5.4).",
+      "phase": "8"
+    },
+    {
+      "file": "apps/web/src/routes/console/Flags.tsx",
+      "match": "?? 'dec26')",
+      "count": 1,
+      "reason": "The test sends' cohort picker falls back to December when the list is empty (D-255).",
+      "phase": "9"
+    },
+    {
+      "file": "apps/web/src/routes/admin/cohort/NewCohort.tsx",
+      "match": "start: '2027-01-03'",
+      "count": 1,
+      "reason": "New cohort's form opens on the mockup's example, Connor's January (D-255 item 9); the R2 ref draws it.",
+      "phase": "none yet: until Connor names another default"
+    },
+    {
+      "file": "apps/web/src/routes/admin/Announcements.vm.ts",
+      "match": "at: '2026-12-09T09:00'",
+      "count": 1,
+      "reason": "The announcement composer's default schedule, the R2 reference's (D-160), which its parity cell draws.",
+      "phase": "9"
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "INSIDERS_FIRST_CHARGE_AT = Date.parse('2027-05-04T00:00:00-05:00')",
+      "count": 1,
+      "reason": "December's included-time end as the code held it: read only while its record holds none (DECEMBER_INCLUDED_UNTIL), and the data step's check.",
+      "phase": "9: with the data step confirmed"
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "firstBuildAt: Date.parse('2026-12-02T13:00:00-06:00')",
+      "count": 1,
+      "reason": "D-153's instant (COURSE_OPENS_AT): December's first live build, read only where its sessions are not at hand; the data step checks they agree.",
+      "phase": "6 (proposed): once the course payload carries each cohort’s opening"
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "lastBuildAt: Date.parse('2027-02-03T13:00:00-06:00')",
+      "count": 1,
+      "reason": "COHORT_ONE's last build, kept beside its first (unread since Phase 5).",
+      "phase": "9"
+    },
+    {
+      "file": "apps/web/src/routes/portal/TeamHub.vm.ts",
+      "match": "const COHORT = 'dec26'",
+      "count": 1,
+      "reason": "The prototype portal's team hub (fixture mode only); stays (PLAN § 5.4).",
+      "phase": "never"
+    },
+    {
+      "file": "apps/api/src/billing/comp.ts",
+      "match": "if (!cohortId || cohortId === DEFAULT_COHORT_ID) {",
+      "count": 1,
+      "reason": "#282's comp, merged after this check: December's comp takes the sale's plan dates by id, and another cohort's takes the cohort's start and end, not its first live build and included-time end as a sale now does (planCohortOf). Left as #282 built it.",
+      "phase": "none yet: until Connor decides whether a comp's dates follow the cohort's record like a sale"
+    },
+    {
+      "file": "apps/api/src/billing/comp.ts",
+      "match": "list.some((c) => c.id === DEFAULT_COHORT_ID) ? DEFAULT_COHORT_ID",
+      "count": 1,
+      "reason": "#282's comp form opens on December when it is listed. Left as #282 built it.",
+      "phase": "none yet: until Connor decides which cohort the comp form opens on"
+    }
+  ],
+  "notCohort": [
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "DEFAULT_FOUNDING_CLOSES_AT = '2026-11-30T23:59:00-07:00'",
+      "count": 1,
+      "reason": "FOUNDING_CLOSES_AT's default: the Team Plan's founding close (§ 10.10). A cohort's founding close is its own; December reads this only as its built-in value."
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "DEFAULT_INVITES_FROM = '2026-11-13T00:00:00-07:00'",
+      "count": 1,
+      "reason": "The invite hold for every plan, not a cohort (D-153)."
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "AGENTS_FIRST_CHARGE_AT = Date.parse('2027-04-04T00:00:00-05:00')",
+      "count": 1,
+      "reason": "The Team Plan's first monthly charge (§ 10.10)."
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "AGENTS_SKILLS_FROM = Date.parse('2026-12-14T00:00:00-06:00')",
+      "count": 1,
+      "reason": "The Team Plan's agent skills open (§ 10.10)."
+    },
+    {
+      "file": "packages/core/src/offer.ts",
+      "match": "AGENT_PLAN_FIRST_CHARGE_AT = Date.parse('2027-01-04T00:00:00-06:00')",
+      "count": 1,
+      "reason": "The Agent Plan's first charge (§ 10.10)."
+    },
+    {
+      "file": "packages/core/src/skills.ts",
+      "match": "LAUNCH_RELEASE = Date.parse('2026-11-01T00:00:00-05:00')",
+      "count": 1,
+      "reason": "The Library's launch: a skill's release date, not a cohort's."
+    },
+    {
+      "file": "packages/core/src/constants.ts",
+      "match": "DEMO_NOW = Date.parse('2026-12-07T10:42:00-06:00')",
+      "count": 1,
+      "reason": "The prototype's demo clock (fixture mode), not a cohort's."
+    },
+    {
+      "file": "packages/core/src/constants.ts",
+      "match": "now: T('20",
+      "count": 3,
+      "reason": "The prototype's demo timeline phases (fixture mode)."
+    },
+    {
+      "file": "packages/core/src/cohort-page.ts",
+      "match": "on = '2027-01-05'",
+      "count": 1,
+      "reason": "A fixed winter weekday on which a slot's time of day is printed in MT and CT; no cohort reads it as its date."
+    },
+    {
+      "file": "apps/web/src/routes/admin/cohort/cohort.vm.ts",
+      "match": "Date.parse(`2027-01-05T${times[0]}:00-07:00`)",
+      "count": 1,
+      "reason": "The same: a time of day printed on a fixed winter day."
+    },
+    {
+      "file": "apps/api/src/billing/agreement.ts",
+      "match": "AGREEMENT_VERSION = '2026-11-23'",
+      "count": 1,
+      "reason": "The agreement's version."
+    },
+    {
+      "file": "apps/api/src/billing/agreement.ts",
+      "match": "AGREEMENT_EFFECTIVE = { iso: '2026-11-23'",
+      "count": 1,
+      "reason": "The agreement's effective date."
+    },
+    {
+      "file": "apps/web/src/legal/agreement.ts",
+      "match": "AGREEMENT_VERSION = '2026-11-23'",
+      "count": 1,
+      "reason": "The agreement's version."
+    },
+    {
+      "file": "apps/web/src/legal/agreement.ts",
+      "match": "AGREEMENT_EFFECTIVE = { iso: '2026-11-23'",
+      "count": 1,
+      "reason": "The agreement's effective date."
+    },
+    {
+      "file": "apps/web/src/legal/content.ts",
+      "match": "LEGAL_VERSION = '2026-10-18'",
+      "count": 1,
+      "reason": "The legal pages' version."
+    },
+    {
+      "file": "apps/web/src/legal/content.ts",
+      "match": "EFFECTIVE = { iso: '2026-10-18'",
+      "count": 1,
+      "reason": "The legal pages' effective date."
+    },
+    {
+      "file": "apps/api/src/routes/ai101.ts",
+      "match": "TERMS_VERSION = '2026-10-18'",
+      "count": 1,
+      "reason": "The sprint waitlist's terms version."
+    },
+    {
+      "file": "apps/api/src/integrations/ghl.ts",
+      "match": "GHL_API_VERSION = '2021-07-28'",
+      "count": 1,
+      "reason": "GoHighLevel's API version header."
+    },
+    {
+      "file": "apps/api/src/console/infra-deploys.ts",
+      "match": "'x-github-api-version': '2022-11-28'",
+      "count": 1,
+      "reason": "GitHub's API version header."
+    },
+    {
+      "file": "apps/web/src/build/learner-parity-guard.ts",
+      "match": "'x-github-api-version': '2022-11-28'",
+      "count": 1,
+      "reason": "GitHub's API version header."
+    }
+  ],
+  "ignore": [
+    {
+      "file": "packages/core/src/seed.ts",
+      "reason": "The prototype's demo seed (fixture mode and the demo database), history like packages/core/seed/."
+    },
+    {
+      "file": "apps/web/src/data/parity-r2-db.ts",
+      "reason": "The R2 parity fixture: the mockup's data (fixture mode only)."
+    },
+    {
+      "file": "apps/web/src/data/console-fixture-community.ts",
+      "reason": "The Console's Community fixture (fixture mode only)."
+    },
+    {
+      "file": "apps/web/src/data/console-fixture-records.ts",
+      "reason": "The Console's records fixture (fixture mode only)."
+    },
+    {
+      "file": "apps/web/src/data/console-fixture-email-usage.ts",
+      "reason": "The Console's email usage fixture (fixture mode only)."
+    },
+    {
+      "file": "apps/web/src/library/content.ts",
+      "reason": "The Library pages' own added dates (each skill's), not a cohort's."
+    },
+    {
+      "file": "apps/web/src/data/console-fixture.ts",
+      "reason": "The console's fixture data (fixture mode only), like the other fixture files: #282's comp form list."
+    }
+  ]
+}

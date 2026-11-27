@@ -14,7 +14,7 @@ import { sendHeldInvites } from '../billing/provision';
 import { sendDueWelcomes } from './welcome';
 import { sendWeek0Open } from './week0-open';
 import type { BillingLog } from '../billing/provision';
-import { reconcileAcceleratorSeats } from '../billing/payment-links';
+import { reconcileCohortSeats } from '../billing/payment-links';
 import type { OfferConfig } from '../billing/config';
 import type { BillingStripe } from '../billing/stripe';
 
@@ -32,7 +32,7 @@ export function startBillingLoop(options: {
   db?: Database;
   intervalMs?: number;
   /** D-154: the Stripe client and the offer configuration the seat cap reads. Absent: no seat cap. */
-  seatCap?: { stripe: BillingStripe | null; config: Pick<OfferConfig, 'open' | 'foundingClosesAt' | 'seatCapLinks'> };
+  seatCap?: { stripe: BillingStripe | null; config: Pick<OfferConfig, 'open' | 'foundingClosesAt' | 'seatCapLinks' | 'paymentLinks'> };
 }): BillingLoop {
   if (!options.database) return { running: false, stop: async () => {} };
   let inFlight: Promise<void> | null = null;
@@ -60,7 +60,7 @@ export function startBillingLoop(options: {
         (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'week 0 email tick failed; the next tick retries'),
       )
       .then(async () => {
-        if (options.seatCap) await reconcileAcceleratorSeats({ ...options.seatCap, now: clock.now(), log: options.log, db: options.db });
+        if (options.seatCap) await reconcileCohortSeats({ ...options.seatCap, now: clock.now(), log: options.log, db: options.db });
       })
       .finally(() => {
         inFlight = null;

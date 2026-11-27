@@ -46,15 +46,26 @@ export const COURSE_OPENS_AT = COHORT_ONE.firstBuildAt;
 
 /**
  * R-5 (D-254): when the course opens for a cohort's plans, as D-153's instant is December's: the start of its first
- * live build. December's stays the constant (`COURSE_OPENS_AT`) until Phase 5 moves its dates onto its record, so no
- * edit to a December session can move when its course opens. Another cohort's is the earliest of its sessions of kind
- * `live_build`; with none, its course never opens by date (its preview, and a test account's early access, still do).
+ * live build, the earliest of its sessions of kind `live_build`. R-5 Phase 5 (D-262, PLAN § 10.10): every cohort reads
+ * it the same way, December too: its first live build, `dec26-s1`, starts at D-153's instant (`COURSE_OPENS_AT`), which
+ * Phase 5's data step checks and names if not. With none, a cohort's course never opens by date (its preview, and a
+ * test account's early access, still do).
  */
 export function cohortOpensAt(cohortId: string, sessions: readonly Pick<Session, 'cohortId' | 'start' | 'kind'>[]): number {
-  if (cohortId === DEFAULT_COHORT_ID) return COURSE_OPENS_AT;
   let at = Number.POSITIVE_INFINITY;
   for (const s of sessions) if (s.cohortId === cohortId && s.kind === 'live_build' && s.start < at) at = s.start;
   return at;
+}
+
+/**
+ * R-5 Phase 5 (D-262): when a cohort's course opens, where its sessions may not be at hand: its first live build
+ * (`cohortOpensAt`), and for December, while none of its live builds is in the rows read (a test database seeded
+ * without its calendar, or a learner's snapshot before the preview, which carries no session), D-153's instant, which
+ * is its first live build's start. Every other cohort with no live build never opens by date.
+ */
+export function courseOpensAt(cohortId: string, sessions: readonly Pick<Session, 'cohortId' | 'start' | 'kind'>[]): number {
+  const at = cohortOpensAt(cohortId, sessions);
+  return Number.isFinite(at) || cohortId !== DEFAULT_COHORT_ID ? at : COURSE_OPENS_AT;
 }
 
 export const buildSessionId = (week: number): string => `${ACCELERATOR_COHORT_ID}-s${week}`;

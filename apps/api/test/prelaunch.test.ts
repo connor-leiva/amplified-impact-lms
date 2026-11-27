@@ -9,8 +9,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { eq, sql } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
+import type { Db } from '@ai/core';
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
-import { ensureCurriculum } from '@ai/core/seed/curriculum';
+import { ensureCurriculum, seedProduction } from '@ai/core/seed/curriculum';
 import type { SkillGuide, SkillGuidesFile } from '@ai/core/skill-guides';
 import { build } from '../src/app';
 import type { App } from '../src/app';
@@ -73,8 +74,10 @@ afterAll(() => {
 beforeEach(async () => {
   process.env.FIXED_NOW = new Date(TONIGHT).toISOString();
   // D-173: the course is data, so the database holds it as production's does (the deploy's ensure);
-  // without it the course route answers 503 "not loaded" rather than opening at the build.
-  await resetDatabase(ensureCurriculum(seedForDatabase('live')));
+  // without it the course route answers 503 "not loaded" rather than opening at the build. R-5 Phase 5 (D-262): its
+  // December is production's, whose first live build is D-153's instant: every cohort's course now opens at its own
+  // first live build as the database holds it (`courseOpensAt`), and the demo seed's December meets a day earlier.
+  await resetDatabase(ensureCurriculum(withProductionDecember(seedForDatabase('live'))));
   await db.insert(skills).values([
     { id: 'appointment-follow-up', title: 'Appointment Follow-Up', sets: 'agent', releasedAt: TONIGHT - 10 * DAY, files: { claude: 'afu.zip' } },
     { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: TONIGHT - 10 * DAY, files: { claude: 'pnl.zip' } },
@@ -89,6 +92,16 @@ afterEach(async () => {
 const at = (t: number) => {
   process.env.FIXED_NOW = new Date(t).toISOString();
 };
+
+/** The demo seed with December's cohort and sessions as production's launch seed has them (`seedProduction`). */
+function withProductionDecember(demo: Db): Db {
+  const prod = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
+  return {
+    ...demo,
+    cohorts: [...demo.cohorts.filter((c) => c.id !== 'dec26'), ...prod.cohorts.filter((c) => c.id === 'dec26')],
+    sessions: [...demo.sessions.filter((s) => s.cohortId !== 'dec26'), ...prod.sessions.filter((s) => s.cohortId === 'dec26')],
+  };
+}
 
 /** A checkout tonight, through the path the webhook takes. Returns the owner's cookie. */
 async function buy(who: Buyer): Promise<string> {

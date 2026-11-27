@@ -11,15 +11,78 @@
 //               that did not reach GoHighLevel (`ghl_sync_status` is `failed`): the "Needs you" rows.
 //   readiness   of those teams, how many have someone signed in, their intake submitted, and are paid in full.
 //
+//   stripe      R-5 Phase 5 (D-262): what Stripe says about the cohort's lookup keys (its active price under each, through
+//               the price cache, `PriceBook`) and its Payment Links (each stored address found in Stripe, and the cohort
+//               its metadata names, `ai_cohort`). Read only: Prices: Read and Payment Links: Read on the restricted key.
+//
 // Read-only. "Before it opens" (`beforeItOpens` in `@ai/core`) reads these beside the snapshot, and so does Open
 // enrollment's refusal, so the checklist and the refusal cannot drift. Two booleans and counts; no names.
 
 import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { CohortFacts } from '@ai/core';
+import type { CohortStripeFacts, StripeLink, StripePrice } from '@ai/core/cohort-selling';
 import type { Database } from '../db/client';
 import { accounts, auditLog, orders, plans, teamIntake, users } from '../db/schema';
+import { envOf, sellingOf } from '../billing/cohort-sale';
+import type { OfferConfig } from '../billing/config';
+import type { PriceCache } from '../billing/prices';
+import type { BillingStripe } from '../billing/stripe';
 
 type Reader = Pick<Database, 'select'>;
+
+/** What Stripe says about one cohort's keys and links, read only. */
+export type StripeFactsReader = (db: Reader, cohortId: string) => Promise<CohortStripeFacts>;
+
+const isPermission = (err: unknown): boolean => {
+  const e = err as { statusCode?: number; type?: string; raw?: { statusCode?: number } };
+  return e?.statusCode === 403 || e?.raw?.statusCode === 403 || e?.type === 'StripePermissionError';
+};
+
+/**
+ * R-5 Phase 5 (D-262): the reader the facts route and Open enrollment use. With no Stripe key, both halves are
+ * `unavailable`. A key that may not read Payment Links makes the links `unreadable`, which Before It Opens says.
+ */
+export function stripeFactsReader(deps: {
+  stripe: BillingStripe | null;
+  prices: PriceCache;
+  config: Pick<OfferConfig, 'foundingClosesAt' | 'paymentLinks'>;
+  now: () => number;
+}): StripeFactsReader {
+  return async (db, cohortId) => {
+    const selling = await sellingOf(db, cohortId, envOf(deps.config));
+    const keys = [selling.keys.full, selling.keys.rollover, selling.twoPay ? selling.keys.twoPay : null].filter((k): k is string => !!k);
+    const urls = [selling.links.full, selling.twoPay ? selling.links.twoPay : null].filter((u): u is string => !!u);
+    const out: { prices: CohortStripeFacts['prices']; price: Record<string, StripePrice | null>; links: CohortStripeFacts['links']; link: Record<string, StripeLink | null> } =
+      { prices: 'unavailable', price: {}, links: 'unavailable', link: {} };
+    if (!deps.stripe) return out;
+    try {
+      const got = keys.length ? await deps.prices.lookup?.(keys, deps.now()) : {};
+      if (got) {
+        out.prices = 'ok';
+        for (const k of keys) {
+          const p = got[k];
+          out.price[k] = p ? { unitAmount: p.unitAmount, currency: p.currency, interval: p.interval, intervalCount: p.intervalCount ?? null } : null;
+        }
+      }
+    } catch {
+      out.prices = 'unavailable';
+    }
+    try {
+      if (!deps.stripe.paymentLinksByUrl) out.links = 'unavailable';
+      else {
+        const found = urls.length ? await deps.stripe.paymentLinksByUrl(urls) : new Map();
+        out.links = 'ok';
+        for (const u of urls) {
+          const l = found.get(u);
+          out.link[u] = l ? { active: l.active, aiCohort: l.metadata.ai_cohort ?? null } : null;
+        }
+      }
+    } catch (err) {
+      out.links = isPermission(err) ? 'unreadable' : 'unavailable';
+    }
+    return out;
+  };
+}
 
 const notTest = sql`not exists (
   select 1 from ${accounts} a
@@ -33,7 +96,7 @@ const notComp = sql`not exists (
   where o.id = ${plans.orderId} and o.origin = 'comp'
 )`;
 
-export async function cohortFactsOf(db: Reader, cohortId: string): Promise<CohortFacts> {
+export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: StripeFactsReader): Promise<CohortFacts> {
   const sends = await db
     .select({ action: auditLog.action })
     .from(auditLog)
@@ -76,5 +139,6 @@ export async function cohortFactsOf(db: Reader, cohortId: string): Promise<Cohor
     signedIn: new Set(people.filter((u) => u.last !== null).map((u) => u.teamId)).size,
     intakeSubmitted: intake.filter((r) => r.submittedAt !== null).length,
     paidInFull: new Set(sold.filter((p) => p.status !== 'ended' && p.option === 'full').map((p) => p.teamId)).size,
+    ...(stripe ? { stripe: await stripe(db, cohortId) } : {}),
   };
 }

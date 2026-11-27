@@ -37,6 +37,8 @@ import { passwordProblem, userByEmail } from '../auth';
 import type { UserRow } from '../auth';
 import { createGroupMember, emailDomainOf, normalizeAddress, recordVerified } from '../billing/access-groups';
 import { CARTS, initialPlanDates } from '../billing/catalog';
+import { planCohortOf } from '../billing/cohort-sale';
+import { NO_SELLING_ENV } from '@ai/core/cohort-selling';
 import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
 import { audit } from '../console/audit';
 import { clock, randomIds } from '../lib/clock';
@@ -155,7 +157,8 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
     if (held) await tx.update(accounts).set({ inviteSentAt: now }).where(eq(accounts.id, existing.id));
     if (plan) return held;
   }
-  const dates = initialPlanDates(ACCELERATOR, now, true);
+  // R-5 Phase 5 (D-262): the plan's dates are its cohort's (its first live build and its included-time end).
+  const dates = initialPlanDates(ACCELERATOR, now, true, await planCohortOf(tx, cohortId, NO_SELLING_ENV));
   const ids = randomIds();
   const accountId = existing?.id ?? ids('acct');
   const orderId = ids('ord');
@@ -189,8 +192,8 @@ async function ensureAcceleratorPlan(tx: Database, user: UserRow, email: string,
     kind: 'cohort',
     option: 'full',
     seats: ACCELERATOR.seats,
-    // R-5 Phase 4 (D-261): the cohort it is placed in; December's (`dates.cohortId`) when none is named.
-    cohortId: cohortId === DEFAULT_COHORT_ID ? dates.cohortId : cohortId,
+    // R-5 Phase 4 (D-261): the cohort it is placed in (R-5 Phase 5: its dates are that cohort's).
+    cohortId: dates.cohortId,
     status: 'active',
     startsAt: dates.startsAt,
     paidThrough: dates.paidThrough,

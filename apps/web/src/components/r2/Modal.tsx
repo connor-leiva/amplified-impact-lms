@@ -108,6 +108,8 @@ export function Modal({ title, children, foot, onClose, lock, width, focusClose 
 export interface ConfirmProps {
   title: string;
   body: string;
+  /** A second sentence after `body`, in the same words' style: what the action does not do (D-262's Close enrollment). */
+  warn?: string | null;
   cta: string;
   danger?: boolean;
   /**
@@ -135,7 +137,7 @@ export interface ConfirmProps {
 export const AUDITED = 'This action is audit-logged.';
 
 /** The mockup's `Confirm`: the question, the sentence, "This action is audit-logged.", Cancel and the action. */
-export function Confirm({ title, body, cta, danger, typed, onConfirm, onClose, keepOpen, busy, error }: ConfirmProps) {
+export function Confirm({ title, body, warn, cta, danger, typed, onConfirm, onClose, keepOpen, busy, error }: ConfirmProps) {
   const [text, setText] = useState('');
   const ok = !typed || text.trim() === typed.word;
   return (
@@ -159,6 +161,7 @@ export function Confirm({ title, body, cta, danger, typed, onConfirm, onClose, k
       }
     >
       <p className={s.body}>{body}</p>
+      {warn ? <p className={s.body}>{warn}</p> : null}
       {typed ? (
         <label className={s.lab}>
           {typed.label}

@@ -35,13 +35,16 @@ export function countdownWords(msLeft: number): string {
   return 'Less than an hour left';
 }
 
-/** The founding tokens' values for one request. */
-export function foundingValues(now: number, closesAt: number, seatsSold: number): Record<string, string> {
-  const left = Math.max(0, COHORT_SEATS - seatsSold);
+/**
+ * The founding tokens' values for one request. R-5 Phase 5 (D-262, PLAN § 10.10): the seats are the cohort on sale's
+ * (its `capacity`, December's 15) and the countdown is to its founding close.
+ */
+export function foundingValues(now: number, closesAt: number, seatsSold: number, total: number = COHORT_SEATS): Record<string, string> {
+  const left = Math.max(0, total - seatsSold);
   return {
     countdown: countdownWords(closesAt - now),
     'seats-left': String(left),
-    'seats-total': String(COHORT_SEATS),
+    'seats-total': String(total),
     seats: left > 0 ? 'left' : 'soldout',
   };
 }

@@ -3,7 +3,7 @@
 // a hang, Stripe's refusals) without a 500, deploys hidden from a role without ops.read, nothing
 // written, and the Skills list's order, pages and refusals. Stripe is a fake (spec § 9).
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { asc } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { HEALTH_TILE_KEYS, seedForDatabase } from '@ai/core';
 import type { BillingSubscription, ConsolePage, ConsoleSkillRow, HealthResponse } from '@ai/core';
 import { build } from '../src/app';
@@ -13,7 +13,7 @@ import { HEALTH_PATHS } from '../src/console/health';
 import { resetDeploysCache } from '../src/console/infra-deploys';
 import type { HealthSources } from '../src/console/health';
 import type { ReadInvoice } from '../src/console/stripe-read';
-import { accounts, ai101Waitlist, apiMetrics, auditLog, incidents, jobTicks, orders, plans, skills, stripeEvents, users } from '../src/db/schema';
+import { accounts, ai101Waitlist, apiMetrics, auditLog, cohorts, incidents, jobTicks, orders, plans, skills, stripeEvents, users } from '../src/db/schema';
 import { MAX_ATTEMPTS } from '../src/jobs/ghl-sync';
 import { settleEmails } from '../src/auth';
 import { fakeConsoleStripe } from './fake-console-stripe';
@@ -138,7 +138,9 @@ describe('GET /api/console/health (D-169)', () => {
     // stripe_events errored and unprocessed (1), plus GHL's gave-up row (1).
     expect(r.tiles.failedWebhooks).toEqual({ value: 2, status: 'attention', detail: { stripe: 1, ghl: 1 } });
     // D-154's own counter.
-    expect(r.tiles.acceleratorSeats).toEqual({ value: await cohortSeatsSold(await testDatabase()), status: 'ok', detail: { cap: 15 } });
+    // R-5 Phase 5 (D-262): December's own cap (`capacity`): 15 in production, this demo database's 200.
+    const cap = (await (await testDatabase()).select({ capacity: cohorts.capacity }).from(cohorts).where(eq(cohorts.id, 'dec26')))[0]!.capacity;
+    expect(r.tiles.acceleratorSeats).toEqual({ value: await cohortSeatsSold(await testDatabase()), status: 'ok', detail: { cap } });
     expect(r.tiles.acceleratorSeats.value).toBe(1);
     expect(r.attention.map((a) => a.kind)).toEqual(['payment', 'webhook', 'ghl']);
     expect(r.attention[0]).toMatchObject({ kind: 'payment', invoiceId: 'in_failed', customer: 'Harbor & Pine Group', teamId: 'harbor', plan: 'Team Plan', amountCents: 69500, attempts: 2, retriesLeft: null });

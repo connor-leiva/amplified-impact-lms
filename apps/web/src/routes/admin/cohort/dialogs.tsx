@@ -6,15 +6,19 @@ import { Modal } from '../../../components/r2/Modal';
 import { TextArea, k } from '../../../components/r2/kit';
 import { useAct, useDb } from '../../../data/hooks';
 import { cohortLabel } from '../../../data/admin-shell';
-import { datesForm, moveWeek1, newCohortVM, runArgs, runChanged } from './cohort.vm';
-import type { DatesForm } from './cohort.vm';
+import { datesForm, enrollmentForm, keyPriceLine, moveWeek1, newCohortVM, priceForm, runArgs, runChanged, stripePriceOf } from './cohort.vm';
+import type { DatesForm, EnrollmentForm, PriceForm } from './cohort.vm';
+import { cohortSelling, laterWords } from '@ai/core';
+import type { CohortFacts } from '@ai/core';
+import { dollars } from '@ai/core/offer';
 import { Field, PlanList, ShapeFields, WeekPick, Wn } from './parts';
 import type { ShapeForm } from './parts';
 import c from './Cohort.module.css';
 
 // D-255 (R-5 Phase 3): the Cohort page's dialogs, each the mockup's (p3-cohort.jsx), each saving through the audited
 // admin actions: the weeks (`WeeksDlg`), the shape, Dates and Release (Week 1, the week's open time, the setup week,
-// the welcome email, the included time and each week's Opens and Due: PLAN.md § 10.3), and Edit words.
+// the welcome email, the included time and each week's Opens and Due: PLAN.md § 10.3), and Edit words. R-5 Phase 5
+// (D-262): the price (its lookup keys, with Stripe's price under each: Q-30) and Edit enrollment.
 
 function Errors({ error }: { error: string }) {
   if (!error) return null;
@@ -385,6 +389,157 @@ export function WordsDialog({ cohortId, onClose }: { cohortId: string; onClose: 
       <Field label="Holiday note">
         <TextArea rows={2} value={holiday} onChange={(e) => setHoliday(e.target.value)} />
       </Field>
+      <Errors error={error} />
+    </Modal>
+  );
+}
+
+/** Q-30's sentence (PLAN.md § 10.1), word for word. */
+export const PRICE_SENTENCE = 'Prices and Payment Links are made in Stripe. This shows Stripe’s price for this cohort.';
+
+/**
+ * R-5 Phase 5 (D-262): "Price for a Seat in the January 2027 Cohort", the mockup's price dialog with § 10.5's change: no
+ * typed price. The cohort's three lookup keys (made by hand in Stripe), each with Stripe's price under it, and whether
+ * two payments are offered, with Stripe's own schedule. Saves `saveCohortPrice`.
+ */
+export function PriceDialog({ cohortId, facts, onClose }: { cohortId: string; facts: CohortFacts | null; onClose: () => void }) {
+  const db = useDb();
+  const act = useAct();
+  const co = db.cohorts.find((x) => x.id === cohortId)!;
+  const saved = cohortSelling(db, cohortId);
+  const [f, setF] = useState<PriceForm>(() => priceForm(db, cohortId));
+  const [error, setError] = useState('');
+  const up = (p: Partial<PriceForm>) => setF({ ...f, ...p });
+  const two = stripePriceOf(facts, saved.keys.twoPay);
+  const later = two ? laterWords(two) : null;
+  const save = async () => {
+    const out = await act('saveCohortPrice', {
+      cohortId,
+      full: f.full.trim() || null,
+      rollover: f.rollover.trim() || null,
+      twoPay: f.twoPay.trim() || null,
+      offerTwoPay: f.offerTwoPay,
+    });
+    if (out.error) setError(out.error);
+    else onClose();
+  };
+  return (
+    <Modal
+      title={`Price for a Seat in the ${cohortLabel(co)}`}
+      width={520}
+      onClose={onClose}
+      focusClose
+      foot={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button kind="primary" disabled={!f.full.trim()} onClick={() => void save()}>
+            Save price
+          </Button>
+        </>
+      }
+    >
+      <Field label="Lookup key, paid in full" hint={keyPriceLine(facts, saved.keys.full, f.full)}>
+        <input className={k.in} value={f.full} onChange={(e) => up({ full: e.target.value })} />
+      </Field>
+      <Field label="Lookup key, Insiders after" hint={keyPriceLine(facts, saved.keys.rollover, f.rollover)}>
+        <input className={k.in} value={f.rollover} onChange={(e) => up({ rollover: e.target.value })} />
+      </Field>
+      <label className={c.ckr}>
+        <input type="checkbox" checked={f.offerTwoPay} onChange={(e) => up({ offerTwoPay: e.target.checked })} />
+        <span className={clsx(k.col, k.col0)}>
+          <span className={k.w5}>Offer two payments</span>
+          <span className={k.me}>
+            {two && later
+              ? `${dollars(two.unitAmount)} at checkout and ${dollars(two.unitAmount)} ${later}, as Stripe schedules it. Revenue shows the second as still to collect.`
+              : 'Stripe’s price sets the schedule. Revenue shows the second payment as still to collect.'}
+          </span>
+        </span>
+      </label>
+      {f.offerTwoPay ? (
+        <Field label="Lookup key, two payments" hint={keyPriceLine(facts, saved.keys.twoPay, f.twoPay)}>
+          <input className={k.in} value={f.twoPay} onChange={(e) => up({ twoPay: e.target.value })} />
+        </Field>
+      ) : null}
+      <p className={clsx(k.p, k.me)}>{PRICE_SENTENCE}</p>
+      <Errors error={error} />
+    </Modal>
+  );
+}
+
+/**
+ * R-5 Phase 5 (D-262): Edit enrollment, the rest of what a cohort sells through (PLAN.md § 10.10): founding and when it
+ * closes (MT), its two Payment Link addresses, its seat cap and GoHighLevel's Cohort value. Saves `saveCohortEnrollment`.
+ */
+export function EnrollmentDialog({ cohortId, onClose }: { cohortId: string; onClose: () => void }) {
+  const db = useDb();
+  const act = useAct();
+  const co = db.cohorts.find((x) => x.id === cohortId)!;
+  const twoPay = cohortSelling(db, cohortId).twoPay;
+  const [f, setF] = useState<EnrollmentForm>(() => enrollmentForm(db, cohortId));
+  const [error, setError] = useState('');
+  const up = (p: Partial<EnrollmentForm>) => setF({ ...f, ...p });
+  const save = async () => {
+    const out = await act('saveCohortEnrollment', {
+      cohortId,
+      founding: f.founding,
+      foundingCloses: f.founding && f.closesDate ? { date: f.closesDate, time: f.closesTime || '23:59' } : null,
+      linkFull: f.linkFull.trim() || null,
+      linkTwoPay: f.linkTwoPay.trim() || null,
+      capacity: Number(f.capacity),
+      ghlValue: f.ghl.trim() || null,
+    });
+    if (out.error) setError(out.error);
+    else onClose();
+  };
+  return (
+    <Modal
+      title={`Enrollment for the ${cohortLabel(co)}`}
+      width={560}
+      onClose={onClose}
+      focusClose
+      foot={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button kind="primary" onClick={() => void save()}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <label className={c.ckr}>
+        <input type="checkbox" checked={f.founding} onChange={(e) => up({ founding: e.target.checked })} />
+        <span className={clsx(k.col, k.col0)}>
+          <span className={k.w5}>A founding cohort</span>
+          <span className={k.me}>Founding prices sell until founding closes. Its sold-out line says founding seats.</span>
+        </span>
+      </label>
+      <div className={c.g2}>
+        <Field label="Founding closes">
+          <input className={k.in} type="date" value={f.closesDate} disabled={!f.founding} onChange={(e) => up({ closesDate: e.target.value })} />
+        </Field>
+        <Field label="Time (MT)">
+          <input className={k.in} type="time" value={f.closesTime} disabled={!f.founding} onChange={(e) => up({ closesTime: e.target.value })} />
+        </Field>
+      </div>
+      <Field label="Payment Link, paid in full">
+        <input className={k.in} value={f.linkFull} onChange={(e) => up({ linkFull: e.target.value })} />
+      </Field>
+      {twoPay ? (
+        <Field label="Payment Link, two payments">
+          <input className={k.in} value={f.linkTwoPay} onChange={(e) => up({ linkTwoPay: e.target.value })} />
+        </Field>
+      ) : null}
+      <div className={c.g2}>
+        <Field label="Seats">
+          <input className={k.in} type="number" min={1} value={f.capacity} onChange={(e) => up({ capacity: e.target.value })} />
+        </Field>
+        <Field label="GoHighLevel cohort value">
+          <input className={k.in} value={f.ghl} onChange={(e) => up({ ghl: e.target.value })} />
+        </Field>
+      </div>
+      <p className={clsx(k.p, k.me)}>
+        {`A link sells this cohort when, in Stripe, its metadata says ai_cohort = ${cohortId}. A link without it sells December.`}
+      </p>
       <Errors error={error} />
     </Modal>
   );

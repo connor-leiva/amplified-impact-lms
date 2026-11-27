@@ -1233,6 +1233,108 @@
    }
   }
  },
+ "stripe-writes": {
+  "afterInvoice": {
+   "<order:full>": {
+    "cohortId": "dec26",
+    "kind": "cohort",
+    "liveUntil": "2027-05-04T05:00:00.000Z",
+    "option": "full",
+    "paidThrough": "2027-05-04T05:00:00.000Z",
+    "startsAt": "2026-12-02T19:00:00.000Z",
+    "status": "active",
+    "stripeSubscriptionId": "sub_dw_full"
+   },
+   "<order:two>": {
+    "cohortId": "dec26",
+    "kind": "cohort",
+    "liveUntil": "2027-05-04T05:00:00.000Z",
+    "option": "two_pay",
+    "paidThrough": "2027-05-04T05:00:00.000Z",
+    "startsAt": "2026-12-02T19:00:00.000Z",
+    "status": "active",
+    "stripeSubscriptionId": "sub_dw_insiders"
+   }
+  },
+  "plans": {
+   "<order:full>": {
+    "cohortId": "dec26",
+    "kind": "cohort",
+    "liveUntil": "2027-05-04T05:00:00.000Z",
+    "option": "full",
+    "paidThrough": "2027-05-04T05:00:00.000Z",
+    "startsAt": "2026-12-02T19:00:00.000Z",
+    "status": "active",
+    "stripeSubscriptionId": "sub_dw_full"
+   },
+   "<order:two>": {
+    "cohortId": "dec26",
+    "kind": "cohort",
+    "liveUntil": "2027-05-04T05:00:00.000Z",
+    "option": "two_pay",
+    "paidThrough": "2027-05-04T05:00:00.000Z",
+    "startsAt": "2026-12-02T19:00:00.000Z",
+    "status": "active",
+    "stripeSubscriptionId": "sub_dw_insiders"
+   }
+  },
+  "results": {
+   "full": "paid",
+   "invoice": "recorded",
+   "two": "paid"
+  },
+  "writes": [
+   {
+    "call": "subscriptions.update",
+    "id": "sub_dw_full",
+    "key": "order-<order:full>-sub",
+    "params": {
+     "metadata": {
+      "ai_option": "full",
+      "ai_plan": "cohort",
+      "order_id": "<order:full>"
+     },
+     "proration_behavior": "none",
+     "trial_end": 1809406800
+    }
+   },
+   {
+    "call": "subscriptions.update",
+    "id": "sub_dw_two",
+    "key": "order-<order:two>-sub",
+    "params": {
+     "metadata": {
+      "ai_option": "two_pay",
+      "ai_plan": "cohort",
+      "order_id": "<order:two>"
+     }
+    }
+   },
+   {
+    "call": "subscriptions.create",
+    "key": "membership-autoroll-cs_test_decwrites_two000000001",
+    "params": {
+     "customer": "cus_dw_two",
+     "default_payment_method": "pm_of_pi_dw_two",
+     "items": [
+      {
+       "price": "price_dw_mtl"
+      }
+     ],
+     "metadata": {
+      "ai_option": "monthly",
+      "ai_plan": "membership",
+      "order_id": "<order:two>",
+      "origin": "payment_link",
+      "source_option": "two_pay",
+      "source_plan": "cohort",
+      "source_session": "cs_test_decwrites_two000000001"
+     },
+     "trial_end": 1809406800
+    }
+   }
+  ]
+ },
  "tour": {
   "out": {
    "after-last-session": {

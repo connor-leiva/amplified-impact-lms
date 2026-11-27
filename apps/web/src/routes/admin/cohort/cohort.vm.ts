@@ -31,7 +31,15 @@ import {
   slotLine,
   weekOpensLine,
   zonedInputs,
+  cohortSelling,
+  enrollmentOpen,
+  foundingCloseInputs,
+  foundingCloseLine,
+  cohortLinksNeeded,
+  twoPayWords,
 } from '@ai/core';
+import { dollars } from '@ai/core/offer';
+import type { CohortSelling, StripePrice } from '@ai/core';
 import type {
   BeforeKey,
   CohortFacts,
@@ -164,7 +172,7 @@ export interface OverviewVM {
   teams: number | null;
   seats: { taken: number | null; cap: number; note: string };
   coming: ComingVM[];
-  shape: { promise: string; meets: string; seats: string };
+  shape: { promise: string; meets: string; seats: string; /** R-5 Phase 5 (D-262): Stripe's price, "$7,500, or two payments"; null for "Not set". */ price: string | null };
 }
 
 const BEFORE_TO = (id: string): Record<BeforeKey, string> => ({
@@ -329,6 +337,7 @@ export function overviewVM(db: Db, cohortId: string, now: number, facts: CohortF
       promise: words?.promise || 'Not set',
       meets: shape?.shape.slots.length ? meetsLine(shape.shape.slots) : 'Self-paced',
       seats: `${co.capacity} teams`,
+      price: enrollmentVM(db, cohortId, facts).shapePrice,
     },
   };
 }
@@ -496,7 +505,7 @@ export interface SettingsVM {
     setupWeek: boolean;
   };
   dates: { label: string; value: string }[];
-  enrollment: { seats: string; open: boolean };
+  enrollment: EnrollmentVM;
   words: { name: string; promise: string; how: string[]; holiday: string; unread: boolean } | null;
   includedFrozen: boolean;
 }
@@ -558,12 +567,128 @@ export function settingsVM(db: Db, cohortId: string, facts: CohortFacts | null):
       { label: 'Session reminders', value: 'The day before and an hour before, in MT and CT' },
       { label: 'Time zone', value: 'Mountain in the admin. Learners see Central.' },
     ],
-    enrollment: { seats: `${facts?.teams ?? 0} of ${co.capacity} taken`, open: co.status !== 'draft' },
+    enrollment: enrollmentVM(db, cohortId, facts),
     words: words
       ? { name: words.name, promise: words.promise, how: words.how, holiday: words.holiday, unread: words.unread }
       : null,
     includedFrozen: (facts?.plans ?? 0) > 0,
   };
+}
+
+// ================================================================================================
+// R-5 Phase 5 (D-262): Settings › Enrollment, what the cohort sells through (PLAN.md § 10.5's "Sells through")
+// ================================================================================================
+
+/** A value on the Enrollment card: words, or a warning pill (the mockup's `pl warn`) when there is nothing to show. */
+export interface EnrollValue {
+  text: string;
+  warn: boolean;
+}
+
+export interface EnrollmentVM {
+  open: boolean;
+  /** "0 of 15 taken": opens the cohort's people. */
+  seats: string;
+  /** Stripe's price for paid in full, or "Not set" / "Not found in Stripe". */
+  price: EnrollValue;
+  twoPay: string;
+  founding: string;
+  links: EnrollValue;
+  ghl: string;
+  /** The mockup's button: "Set the price" with no keys, else "Change the price". */
+  priceButton: string;
+  /** The Overview's "This Cohort's Shape" price: "$7,500, or two payments", or null for its "Not set" pill. */
+  shapePrice: string | null;
+}
+
+/** Stripe's price under a key, from the cohort's facts; undefined when Stripe was not asked or has none there. */
+export const stripePriceOf = (facts: CohortFacts | null | undefined, key: string | null): StripePrice | undefined =>
+  key && facts?.stripe?.prices === 'ok' ? (facts.stripe.price[key] ?? undefined) : undefined;
+
+export function enrollmentVM(db: Db, cohortId: string, facts: CohortFacts | null): EnrollmentVM {
+  const s: CohortSelling = cohortSelling(db, cohortId);
+  const co = db.cohorts.find((c) => c.id === cohortId);
+  const full = stripePriceOf(facts, s.keys.full);
+  const anyKey = !!(s.keys.full || s.keys.rollover || s.keys.twoPay);
+  const price: EnrollValue = !s.keys.full
+    ? { text: 'Not set', warn: true }
+    : full
+      ? { text: dollars(full.unitAmount), warn: false }
+      : { text: facts?.stripe?.prices === 'ok' ? 'Not found in Stripe' : 'Not found yet', warn: true };
+  const needed = cohortLinksNeeded(s);
+  const entered = needed.filter((l) => !!l.url).length;
+  return {
+    open: enrollmentOpen(co),
+    seats: `${facts?.teams ?? 0} of ${s.capacity} taken`,
+    price,
+    twoPay: s.twoPay && !s.keys.twoPay ? 'Offered. Set its price to see Stripe’s schedule.' : twoPayWords(s, stripePriceOf(facts, s.keys.twoPay)),
+    founding: !s.founding ? 'No' : s.foundingClosesAt === null ? 'Yes. No close is set.' : `Yes, until ${foundingCloseLine(s.foundingClosesAt)}`,
+    links: entered === 0 ? { text: 'Not set', warn: true } : { text: `${entered} of ${needed.length} entered`, warn: entered < needed.length },
+    ghl: s.ghlValue,
+    priceButton: anyKey ? 'Change the price' : 'Set the price',
+    shapePrice: full ? `${dollars(full.unitAmount)}${s.twoPay ? ', or two payments' : ''}` : null,
+  };
+}
+
+/** The price dialog's form: the three lookup keys and whether two payments are offered. */
+export interface PriceForm {
+  full: string;
+  rollover: string;
+  twoPay: string;
+  offerTwoPay: boolean;
+}
+
+export function priceForm(db: Db, cohortId: string): PriceForm {
+  const s = cohortSelling(db, cohortId);
+  return { full: s.keys.full ?? '', rollover: s.keys.rollover ?? '', twoPay: s.keys.twoPay ?? '', offerTwoPay: s.twoPay };
+}
+
+/** What Stripe has under a key as the price dialog says it: its price, or why there is none to show. */
+export function keyPriceLine(facts: CohortFacts | null | undefined, saved: string | null, typed: string): string {
+  const key = typed.trim();
+  if (!key) return 'Not set';
+  if (key !== saved) return 'Save to look it up in Stripe.';
+  if (facts?.stripe?.prices !== 'ok') return 'Stripe can’t be asked right now.';
+  const p = facts.stripe.price[key];
+  if (!p) return 'Not found in Stripe';
+  return `Stripe: ${p.interval ? `${dollars(p.unitAmount)} a ${p.interval}${(p.intervalCount ?? 1) > 1 ? ` (every ${p.intervalCount})` : ''}` : `${dollars(p.unitAmount)} once`}`;
+}
+
+/** The Edit enrollment dialog's form: founding and its close (MT), the two links, the seats and GoHighLevel's value. */
+export interface EnrollmentForm {
+  founding: boolean;
+  closesDate: string;
+  closesTime: string;
+  linkFull: string;
+  linkTwoPay: string;
+  capacity: string;
+  ghl: string;
+}
+
+export function enrollmentForm(db: Db, cohortId: string): EnrollmentForm {
+  const s = cohortSelling(db, cohortId);
+  const co = db.cohorts.find((c) => c.id === cohortId);
+  const at = foundingCloseInputs(s.foundingClosesAt, co?.timezone ?? MT);
+  return {
+    founding: s.founding,
+    closesDate: at.date,
+    closesTime: at.time,
+    linkFull: s.links.full ?? '',
+    linkTwoPay: s.links.twoPay ?? '',
+    capacity: String(s.capacity),
+    ghl: s.ghlValue,
+  };
+}
+
+/** The Open enrollment dialog's sentence (the mockup's `useEnroll`): who is placed here, up to its cap, and from when. */
+export function openEnrollmentBody(db: Db, cohortId: string): string {
+  const co = db.cohorts.find((c) => c.id === cohortId)!;
+  const s = cohortSelling(db, cohortId);
+  const rows = runRows(db, cohortId);
+  const setup = rows.some((w) => w.n === 0);
+  const at = setup ? (co.previewOpensAt ?? null) : (rows.find((w) => w.n === 1)?.opensAt ?? null);
+  const when = at !== null ? fmt.mtDay(at) : 'its first day';
+  return `From now on, a team that buys a seat is placed in this cohort, up to ${s.capacity} seats. They get the welcome email and can start ${setup ? 'the setup week' : 'Week 1'} on ${when}.`;
 }
 
 // ================================================================================================
@@ -672,7 +797,8 @@ export function runChanged(f: DatesForm, initial: DatesForm): boolean {
 
 export interface NewCohortForm {
   name: string | null;
-  from: 'dec26' | '';
+  /** R-5 Phase 5 (D-262): the cohort it starts from (any cohort not archived), or '' for a blank cohort. */
+  from: string;
   promise: string | null;
   setupWeek: boolean;
   picks: string[];

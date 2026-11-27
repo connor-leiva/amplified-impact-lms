@@ -211,9 +211,10 @@ export interface BillingPlanRow {
 }
 
 export interface BillingAccelerator {
-  /** D-154's counter, `cohortSeatsSold`: every cohort plan not ended. */
+  /** D-154's counter, `cohortSeatsSold`: the cohort's plans not ended (R-5 Phase 5: one cohort's, December's). */
   sold: number;
-  cap: typeof COHORT_SEATS;
+  /** R-5 Phase 5 (D-262): the cohort's cap (`capacity`, December's 15). */
+  cap: number;
   /** Seats paid in full: one payment, or both of two. */
   paidInFull: number;
   /** Seats on two payments with one still to come. */
@@ -245,7 +246,7 @@ export interface CohortSeat {
 }
 
 /** The Accelerator's money, from its seats' own orders (the amounts Stripe charged). */
-export function acceleratorFigures(seats: readonly CohortSeat[], sold: number, opensAt: number): BillingAccelerator {
+export function acceleratorFigures(seats: readonly CohortSeat[], sold: number, opensAt: number, cap: number = COHORT_SEATS): BillingAccelerator {
   let paidInFull = 0;
   let twoPay = 0;
   let collected = 0;
@@ -265,7 +266,7 @@ export function acceleratorFigures(seats: readonly CohortSeat[], sold: number, o
       scheduled += (INSTALLMENTS - made) * each;
     }
   }
-  return { sold, cap: COHORT_SEATS, paidInFull, twoPay, collectedCents: collected, scheduledCents: scheduled, opensAt };
+  return { sold, cap, paidInFull, twoPay, collectedCents: collected, scheduledCents: scheduled, opensAt };
 }
 
 export interface BillingFacts {

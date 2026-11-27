@@ -8,6 +8,8 @@
 
 import { DEFAULT_COHORT_ID, isCourseWeek } from './accelerator';
 import { LAYOUT_KIND_LABEL, cohortRun, layoutWarnings, meetsLine } from './cohort-run';
+import { cohortSelling, enrollmentOpen, paymentLinksLine, stripePriceLine } from './cohort-selling';
+import type { CohortStripeFacts } from './cohort-selling';
 import { COURSE_TZ, zonedInputs, zonedInstant } from './course-actions';
 import { fmt } from './time';
 import type { Cohort, CohortShape, CohortSlot, CohortWords, Db, Session, SessionType } from './types';
@@ -253,6 +255,11 @@ export interface CohortFacts {
   signedIn?: number;
   intakeSubmitted?: number;
   paidInFull?: number;
+  /**
+   * R-5 Phase 5 (D-262): what Stripe says about the cohort's lookup keys and Payment Links, read only (`PriceBook` and
+   * Payment Links: Read). Absent: not asked (Before It Opens' two Stripe lines are then not done).
+   */
+  stripe?: CohortStripeFacts | null;
 }
 
 export const NO_FACTS: CohortFacts = { testSends: { welcome: false, week0: false }, plans: 0 };
@@ -343,7 +350,7 @@ export function beforeItOpens(
   const zoom = sessions.filter((s) => s.zoom.trim() !== '').length;
   const setup = run.find((w) => w.n === 0);
   const words = cohortWordsOf(db, cohortId);
-  const open = co.status !== 'draft';
+  const open = enrollmentOpen(co);
 
   const lines: BeforeLine[] = [];
   lines.push({
@@ -394,9 +401,13 @@ export function beforeItOpens(
           warn: true,
         },
   );
-  // Phase 5 records a cohort's lookup keys and links; until then neither is entered, so neither is done (§ 10.2).
-  lines.push({ key: 'stripe', label: 'Stripe price found for each lookup key', detail: 'None yet. Prices and Payment Links are made in Stripe.', done: false });
-  lines.push({ key: 'links', label: 'Payment Links entered', detail: 'None yet', done: false });
+  // R-5 Phase 5 (D-262): the cohort's lookup keys found in Stripe (`PriceBook`), and its Payment Links entered and naming
+  // this cohort in Stripe (`ai_cohort`), read only. Not done while Stripe can't be asked.
+  const selling = cohortSelling(db, cohortId);
+  const price = stripePriceLine(selling, facts.stripe);
+  const links = paymentLinksLine(selling, facts.stripe);
+  lines.push({ key: 'stripe', label: 'Stripe price found for each lookup key', detail: price.detail, done: price.done });
+  lines.push({ key: 'links', label: 'Payment Links entered', detail: links.detail, done: links.done });
   lines.push({
     key: 'included',
     label: 'Included time ends',
@@ -486,9 +497,19 @@ export function programWeeks(db: Pick<Db, 'modules'>): { id: string; week: numbe
     }));
 }
 
-/** The cohort the Cohort page defaults its New cohort's source to: the program's first (December). */
-export const SOURCE_COHORT_ID = DEFAULT_COHORT_ID;
+/**
+ * R-5 Phase 5 (D-262, PLAN § 10.10): New cohort's "Start from": every cohort that is not archived, the newest first,
+ * not December by id. It starts on the newest that is past its draft (the one running now), else the newest.
+ */
+export function newCohortSources(db: Pick<Db, 'cohorts'>): Cohort[] {
+  return db.cohorts.filter((c) => c.archivedAt === undefined).sort((a, b) => b.start - a.start || a.id.localeCompare(b.id));
+}
 
+/** The cohort New cohort starts from: the newest past its draft, else the newest, else none. */
+export function defaultSourceId(db: Pick<Db, 'cohorts'>): string | null {
+  const all = newCohortSources(db);
+  return (all.find((c) => c.status !== 'draft') ?? all[0])?.id ?? null;
+}
 
 
 // ================================================================================================

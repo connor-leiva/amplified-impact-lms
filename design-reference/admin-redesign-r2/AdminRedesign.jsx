@@ -44,7 +44,7 @@ position:absolute;left:0;top:0;transform-origin:0 0;display:flex;flex-direction:
 .ax h2{font:600 var(--sh)/22px Geist,sans-serif;letter-spacing:-.005em;margin:0}
 .ax p{margin:0;text-wrap:pretty}
 .mo{font-family:'Geist Mono',ui-monospace,monospace;font-size:var(--mo);letter-spacing:-.01em}
-.mu{color:var(--f3)}.s2{color:var(--f2)}.me{font-size:var(--m);line-height:var(--ml);color:var(--f3)}.w5{font-weight:500}.w6{font-weight:600}
+.mu{color:var(--f3)}.s2{color:var(--f2)}.er{margin:0;color:var(--bad)}.me{font-size:var(--m);line-height:var(--ml);color:var(--f3)}.w5{font-weight:500}.w6{font-weight:600}
 .el{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tn{font-variant-numeric:tabular-nums}
 .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.row.nw{flex-wrap:nowrap}
@@ -1327,12 +1327,18 @@ function p3Plan({ start, setup, picks, slots }) {
   return { weeks, ses, setupOpens };
 }
 const JAN_SLOTS = [{ day: 2, time: '12:00', kind: 'live_build', mins: 90 }, { day: 4, time: '12:00', kind: 'office_hours', mins: 60 }];
+/* R-5 Phase 5 (D-262): what each cohort sells through (Settings › Enrollment, PLAN.md § 10.5's "Sells through"). The price
+   is Stripe's, under the cohort's lookup keys (Q-30): December's $7,500 in full, or $3,750 a month twice; January has
+   nothing entered yet. Founding closes Mon, Nov 30, 11:59 PM MT for December; January's close is its own (Q-34). */
+const FOUND_DEC = Date.parse('2026-11-30T23:59:00-07:00');
+const DEC_SELLS = { enroll: true, price: '$7,500', two: 'Offered. $3,750 at checkout and $3,750 one month later.', founding: 'Yes, until ' + mtDay(FOUND_DEC) + ' · ' + mtCt(FOUND_DEC), links: '2 of 2 entered', ghl: 'dec26', keys: { full: 'cohort_founding_full', rollover: 'membership_monthly_team_leader', two: 'cohort_founding_two_pay' } };
+const JAN_SELLS = { enroll: false, price: null, two: 'Offered. Set its price to see Stripe’s schedule.', founding: 'Yes. No close is set.', links: null, ghl: 'jan27', keys: { full: '', rollover: '', two: '' } };
 const JAN_PLAN = p3Plan({ start: '2027-01-03', setup: true, picks: P3_BUILD.slice(0, 6).map(w => w.id), slots: JAN_SLOTS });
 /* December, as this reference has it: six Wednesday builds, no course weeks of its own */
 const DEC_SES = COHORT_SESSIONS.map((s, i) => ({ title: s[0].replace(/^Session \d+ · /, ''), kind: null, week: null, start: zAt(['2026-12-02', '2026-12-09', '2026-12-16', '2026-12-23', '2026-12-30', '2027-01-06'][i], '12:00'), mins: 60, zoom: i < 4 }));
 const P3_COH = {
-  dec26: { id: 'dec26', n: 'December 2026 Cohort', name: 'December 2026', st: 'Active', draft: false, weeks: [], ses: DEC_SES, slots: [], setup: false, opens: null, preview: null, words: DEC_WORDS, unread: false, hosts: 'Connor Leiva', included: null, cap: 200, w1: null },
-  jan27: { id: 'jan27', n: 'January 2027 Cohort', st: 'Draft', draft: true, weeks: JAN_PLAN.weeks, ses: JAN_PLAN.ses.map(s => ({ ...s, zoom: false })), slots: JAN_SLOTS, setup: true, opens: JAN_PLAN.setupOpens, preview: JAN_PLAN.setupOpens, words: DEC_WORDS, unread: true, hosts: 'Connor Leiva and Spring', included: '2027-05-10', cap: 200, w1: JAN_PLAN.weeks[1].opens },
+  dec26: { id: 'dec26', n: 'December 2026 Cohort', name: 'December 2026', st: 'Active', draft: false, weeks: [], ses: DEC_SES, slots: [], setup: false, opens: null, preview: null, words: DEC_WORDS, unread: false, hosts: 'Connor Leiva', included: null, cap: 200, w1: null, ...DEC_SELLS },
+  jan27: { id: 'jan27', n: 'January 2027 Cohort', st: 'Draft', draft: true, weeks: JAN_PLAN.weeks, ses: JAN_PLAN.ses.map(s => ({ ...s, zoom: false })), slots: JAN_SLOTS, setup: true, opens: JAN_PLAN.setupOpens, preview: JAN_PLAN.setupOpens, words: DEC_WORDS, unread: true, hosts: 'Connor Leiva and Spring', included: '2027-05-10', cap: 200, w1: JAN_PLAN.weeks[1].opens, ...JAN_SELLS },
 };
 let P3C = P3_COH.dec26;
 const NOW_P3 = Date.parse('2026-12-10T16:30:00Z');
@@ -1361,6 +1367,8 @@ function p3Before(c) {
   ];
   return L;
 }
+/* Open enrollment's refusal: the first line of Before It Opens that is not done (the app's `openEnrollmentRefusal`) */
+const p3Refusal = c => { const t = p3Before(c).find(l => !l[2] && l[0] !== 'Open enrollment'); return t ? t[0] + ': ' + t[1] : null; };
 /* a fact that opens what it counts (`.fx>.fxl`) */
 const LFacts = ({ items }) => { const { go, ph } = useC(); return <div className="cd fx">{items.map(([k, v, to, short]) => to ? <button key={k} className="fxl" onClick={() => typeof to === 'function' ? to() : go(to)}><span className="me">{k}</span><span className="w5 el">{ph && short ? short : v}</span><I n="chev" s={12} w={2.2} /></button> : <div key={k}><span className="me">{k}</span><span className="w5 el">{v}</span></div>)}</div>; };
 const Wn = ({ n, sm, pk }) => <span className={'wn' + (sm ? ' sm' : '') + (pk ? ' pk' : '')}>{n}</span>;
@@ -1389,7 +1397,7 @@ function CohortOverview() {
         <Card t="Seats" right={<Btn onClick={() => go('learners')}>People</Btn>}><div className="col m"><button className="rdy" onClick={() => go('cohortset')}><span style={{ flex: '0 0 96px' }}>Seats taken</span><Bar v={0} max={c.cap} /><span className="tn w5 rdn">0 of {c.cap}</span></button><p className="me">{c.draft ? 'No one yet. Enrollment is closed.' : 'Enrollment is open. A team that buys a seat lands here.'}</p></div></Card>
         <Card t="Coming Up" right={<Btn onClick={() => go('cohorts')}>Schedule</Btn>}><div className="col m">{coming.length ? coming.map((s, i) => { const [dow, mon, dd] = mtDay(s.start).replace(',', '').split(' ');
           return <button key={i} className="rnw" onClick={() => go('cohorts')}><span className="dt"><b>{dd}</b><span>{mon}</span></span><span className="col" style={{ gap: 0, flex: 1, minWidth: 0 }}><span className="w5 el">{s.title}</span><span className="me">{dow + ' · ' + mtCt(s.start)}</span></span>{p3Clash(c).includes(s) ? <span className="pl warn">Same time</span> : !s.zoom && <span className="pl warn">No link</span>}</button>; }) : <p className="s2">No sessions yet.</p>}</div></Card>
-        <Card t="This Cohort’s Shape" right={<Btn onClick={() => go('cohortset')}>Settings</Btn>}><div className="kvs"><KV rows={[['Promise', c.words.promise], ['Meets', p3Rhythm(c.slots)], ['Seats', <button className="lk" onClick={() => go('cohortset')}>{c.cap} teams</button>], ['Price', <span className="pl warn">Not set</span>]]} /></div></Card>
+        <Card t="This Cohort’s Shape" right={<Btn onClick={() => go('cohortset')}>Settings</Btn>}><div className="kvs"><KV rows={[['Promise', c.words.promise], ['Meets', p3Rhythm(c.slots)], ['Seats', <button className="lk" onClick={() => go('cohortset')}>{c.cap} teams</button>], ['Price', c.price ? c.price + ', or two payments' : <span className="pl warn">Not set</span>]]} /></div></Card>
       </div>
     </div>
   </div>;
@@ -1461,9 +1469,12 @@ function CohortSettings() {
           ['Session reminders', 'The day before and an hour before, in MT and CT'], ['Time zone', 'Mountain in the admin. Learners see Central.']]} /></div></Card>
       </div>
       <div className="col">
-        <Card t="Enrollment" right={<St v={c.draft ? 'Closed' : 'Open'} tone={c.draft ? 'off' : 'ok'} />}>
-          <div className="kvs"><KV rows={[['Seats', <button className="lk" onClick={() => go('learners')}>0 of {c.cap} taken</button>], ['A seat is', 'A team: an owner and an AI Implementer'], ['Price', <span className="pl warn">Not set</span>], ['Who lands here', 'A team that buys a seat while enrollment is open']]} /></div>
-          <p className="me" style={{ marginTop: 12 }}>Prices and Payment Links are made in Stripe.</p></Card>
+        <Card t="Enrollment" right={<St v={c.enroll ? 'Open' : 'Closed'} tone={c.enroll ? 'ok' : 'off'} />}>
+          <div className="kvs"><KV rows={[['Seats', <button className="lk" onClick={() => go('learners')}>0 of {c.cap} taken</button>], ['A seat is', 'A team: an owner and an AI Implementer'], ['Price', c.price ? c.price : <span className="pl warn">Not set</span>], ['Two payments', c.two], ['Founding', c.founding], ['Payment Links', c.links ? c.links : <span className="pl warn">Not set</span>], ['GoHighLevel', c.ghl], ['Who lands here', 'A team that buys a seat while enrollment is open']]} /></div>
+          <div className="row" style={{ marginTop: 12 }}>{c.enroll
+            ? <Btn onClick={() => setDlg({ title: 'Close Enrollment for the ' + c.n + '?', body: 'No new team can buy a seat in this cohort. The 0 already in it are not affected.', warn: 'This doesn’t turn off its Payment Links. Turn them off in Stripe by hand: a link left on still sells seats in this cohort.', cta: 'Close enrollment', yes: () => toast('Enrollment is closed') })}>Close enrollment</Btn>
+            : <Btn k="p" onClick={() => setDlg({ title: 'Open Enrollment for the ' + c.n + '?', body: 'From now on, a team that buys a seat is placed in this cohort, up to ' + c.cap + ' seats. They get the welcome email and can start the setup week on ' + mtDay(c.opens) + '.', cta: 'Open enrollment', error: p3Refusal(c), yes: () => toast('Enrollment is open') })}>Open enrollment</Btn>}
+            <Btn onClick={() => setD('price')}>{c.price ? 'Change the price' : 'Set the price'}</Btn><Btn onClick={() => setD('enroll')}>Edit enrollment</Btn></div></Card>
         <Card t="Words From This Cohort" sub="Learners see them on Home and the Schedule."><div className="col m">
           {c.unread && <span style={{ alignSelf: 'flex-start' }}><span className="pl warn">Read them once</span></span>}
           <div className="cfx"><span className="me">Name</span><span>{c.name || c.n}</span></div>
@@ -1494,6 +1505,21 @@ function CohortSettings() {
       <div className="lab"><span>Each week</span><span className="fat">Move one week on its own, for a holiday break. Its sessions that haven’t happened move with it.</span>
         <div className="ewl"><div className="ewr ewh" aria-hidden="true"><span /><span /><span>Opens</span><span>Due</span></div>
           {c.weeks.map(w => <div key={w.id} className="ewr"><Wn n={w.n} sm /><span className="el">{w.t}</span><label className="ewf"><span className="ewk">Opens</span>{w.n === 0 ? <span className="me">Set above</span> : <input className="in" type="date" aria-label={'Week ' + w.n + ' opens'} defaultValue={new Date(w.opens - 7 * 36e5).toISOString().slice(0, 10)} />}</label><label className="ewf"><span className="ewk">Due</span><input className="in" type="date" aria-label={'Week ' + w.n + ' is due'} /></label></div>)}</div></div>
+    </Modal>}
+    {dlg === 'price' && <Modal title={'Price for a Seat in the ' + c.n} w={520} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" disabled={!c.keys.full} onClick={() => setD(null)}>Save price</Btn></>}>
+      <label className="lab">Lookup key, paid in full<span className="fat">{c.keys.full ? 'Stripe: $7,500 once' : 'Not set'}</span><input className="in" defaultValue={c.keys.full} /></label>
+      <label className="lab">Lookup key, Insiders after<span className="fat">{c.keys.rollover ? 'Stripe: $169 a month' : 'Not set'}</span><input className="in" defaultValue={c.keys.rollover} /></label>
+      <label className="ckr"><input type="checkbox" defaultChecked /><span className="col" style={{ gap: 0 }}><span className="w5">Offer two payments</span><span className="me">{c.price ? '$3,750 at checkout and $3,750 one month later, as Stripe schedules it. Revenue shows the second as still to collect.' : 'Stripe’s price sets the schedule. Revenue shows the second payment as still to collect.'}</span></span></label>
+      <label className="lab">Lookup key, two payments<span className="fat">{c.keys.two ? 'Stripe: $3,750 a month' : 'Not set'}</span><input className="in" defaultValue={c.keys.two} /></label>
+      <p className="me">Prices and Payment Links are made in Stripe. This shows Stripe’s price for this cohort.</p>
+    </Modal>}
+    {dlg === 'enroll' && <Modal title={'Enrollment for the ' + c.n} w={560} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save</Btn></>}>
+      <label className="ckr"><input type="checkbox" defaultChecked /><span className="col" style={{ gap: 0 }}><span className="w5">A founding cohort</span><span className="me">Founding prices sell until founding closes. Its sold-out line says founding seats.</span></span></label>
+      <div className="g2"><label className="lab">Founding closes<input className="in" type="date" defaultValue={c.enroll ? '2026-11-30' : ''} /></label><label className="lab">Time (MT)<input className="in" type="time" defaultValue="23:59" /></label></div>
+      <label className="lab">Payment Link, paid in full<input className="in" defaultValue={c.enroll ? 'https://buy.stripe.com/test_dec26_full' : ''} /></label>
+      <label className="lab">Payment Link, two payments<input className="in" defaultValue={c.enroll ? 'https://buy.stripe.com/test_dec26_two' : ''} /></label>
+      <div className="g2"><label className="lab">Seats<input className="in" type="number" defaultValue={c.cap} /></label><label className="lab">GoHighLevel cohort value<input className="in" defaultValue={c.ghl} /></label></div>
+      <p className="me">{'A link sells this cohort when, in Stripe, its metadata says ai_cohort = ' + c.id + '. A link without it sells December.'}</p>
     </Modal>}
     {dlg === 'words' && <Modal title="Words From This Cohort" w={560} onClose={() => setD(null)} foot={<><Btn onClick={() => setD(null)}>Cancel</Btn><Btn k="p" onClick={() => setD(null)}>Save words</Btn></>}>
       <label className="lab">Name<input className="in" defaultValue={c.name || c.n} /></label>
@@ -1614,10 +1640,12 @@ function ReasonModal({ mq, onGo, onCancel }) {
 }
 function Confirm({ d, onClose }) {
   const [r, setR] = useState('');
-  const ok = !d.needReason || r.trim();
+  const ok = (!d.needReason || r.trim()) && !d.error;
   return <Modal title={d.title} onClose={onClose} foot={<><Btn onClick={onClose}>Cancel</Btn><Btn k={'p' + (d.danger ? ' d' : '')} disabled={!ok} onClick={() => { onClose(); d.yes(r.trim()); }}>{d.cta}</Btn></>}>
     <p className="s2">{d.body}</p>
+    {d.warn && <p className="s2">{d.warn}</p>}
     {d.needReason && <label className="lab">Reason<input className="in" autoFocus value={r} onChange={e => setR(e.target.value)} placeholder="Required" /></label>}
+    {d.error && <p className="er" role="alert">{d.error}</p>}
     <p className="me">This action is audit-logged.</p>
   </Modal>;
 }

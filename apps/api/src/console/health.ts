@@ -18,7 +18,9 @@
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { and, count, desc, gte, inArray, isNotNull, isNull, ne, sql } from 'drizzle-orm';
-import { CONSOLE_PAGE_DEFAULT, CONSOLE_PAGE_MAX, CONSOLE_PLAN_LABELS, HEALTH_SEAT_CAP, HEALTH_WINDOW_MS, composeHealth, consoleCan, consoleCanWith } from '@ai/core';
+import { CONSOLE_PAGE_DEFAULT, CONSOLE_PAGE_MAX, CONSOLE_PLAN_LABELS, HEALTH_WINDOW_MS, NO_SELLING_ENV, composeHealth, consoleCan, consoleCanWith } from '@ai/core';
+import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { sellingOf } from '../billing/cohort-sale';
 import type {
   ConsoleSkillRow,
   ConsolePage,
@@ -253,7 +255,12 @@ export function realHealthSources(deps: HealthDeps): HealthSources {
     ghl: ghlSource,
     jobs: (since) => jobsSource(db(), since),
     incidents: () => incidentsSource(db()),
-    seats: async () => ({ sold: await cohortSeatsSold(db()), cap: HEALTH_SEAT_CAP }),
+    // R-5 Phase 5 (D-262): the cohort's own cap (`capacity`, December's 15) and its own seats. December's until Phase 9
+    // makes a row for each selling cohort.
+    seats: async () => ({
+      sold: await cohortSeatsSold(db(), DEFAULT_COHORT_ID),
+      cap: (await sellingOf(db(), DEFAULT_COHORT_ID, NO_SELLING_ENV)).capacity,
+    }),
     workspaces: () => workspaceSource(db()),
     deploys: () => deploysSource(deps),
   };

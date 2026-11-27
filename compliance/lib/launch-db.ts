@@ -14,6 +14,9 @@ import { planCopyV2 } from '../../packages/core/seed/copy-v2';
 import { planCopyV3 } from '../../packages/core/seed/copy-v3';
 import { seedProduction } from '../../packages/core/seed/curriculum';
 import { planDecemberRunV1 } from '../../packages/core/seed/december-run-v1';
+import { planDecemberSellingV1 } from '../../packages/core/seed/december-selling-v1';
+import { DEFAULT_FOUNDING_CLOSES_AT } from '../../packages/core/src/offer';
+import type { SellingEnv } from '../../packages/core/src/cohort-selling';
 import { planFiveWordsV1 } from '../../packages/core/seed/five-words-v1';
 import { planGlossaryV1 } from '../../packages/core/seed/glossary-v1';
 import { planIntakeV1 } from '../../packages/core/seed/intake-v1';
@@ -25,6 +28,15 @@ import { planStackV1 } from '../../packages/core/seed/stack-v1';
 import { planStartHereV1 } from '../../packages/core/seed/start-here-v1';
 import { planUnshownV1 } from '../../packages/core/seed/unshown-v1';
 import { planWeeks12V1 } from '../../packages/core/seed/weeks-1-2-steps-v1';
+
+/**
+ * R-5 Phase 5 (D-262): the environment Phase 5's step reads as production has it, its two cohort Payment Link variables
+ * set (test addresses here: the fixture has no Stripe).
+ */
+export const LAUNCH_SELLING_ENV: SellingEnv = {
+  foundingClosesAt: Date.parse(DEFAULT_FOUNDING_CLOSES_AT),
+  links: { full: 'https://buy.stripe.com/test_dec26_full', twoPay: 'https://buy.stripe.com/test_dec26_two' },
+};
 
 /** The deploy's data steps, in order (`DATA_MIGRATIONS`). */
 const STEPS: readonly ((db: Db) => { db: Db })[] = [
@@ -45,6 +57,7 @@ const STEPS: readonly ((db: Db) => { db: Db })[] = [
   planSeatCardOneCopyV1,
   planAiImplementerV1,
   planDecemberRunV1,
+  (db) => planDecemberSellingV1(db, LAUNCH_SELLING_ENV),
 ];
 
 /** The launch database: December as production has it, before anyone bought, with the fixture's admin as its Owner. */

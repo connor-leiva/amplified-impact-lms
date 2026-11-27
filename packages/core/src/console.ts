@@ -225,6 +225,13 @@ export const AUDIT_ACTIONS = [
   'cohort.included_save',
   'cohort.hosts_save',
   'cohort.overlap_keep',
+  // R-5 Phase 5 (D-262): Settings › Enrollment (its price, that is its lookup keys; its founding, links, seats and
+  // GoHighLevel value; opening and closing it), and a team a sale moved into another cohort (Q-23, provisioning).
+  'cohort.price_save',
+  'cohort.enrollment_save',
+  'cohort.enrollment_open',
+  'cohort.enrollment_close',
+  'cohort.team_moved',
   'copy.save',
   // D-175: a one-time data step's change (the system, on deploy): the release plan, the copy strings.
   'curriculum.migrate',

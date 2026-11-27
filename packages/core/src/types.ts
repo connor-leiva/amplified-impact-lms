@@ -137,6 +137,20 @@ export interface Cohort {
    * in America/Chicago); and its hosts, for a cohort whose shape is not stored (December's, Q-28).
    */
   words?: CohortWords; wordsCheckedAt?: number; overlapOkAt?: number; includedUntil?: string; hosts?: string;
+  /**
+   * R-5 Phase 5 (D-262), all optional and absent on every cohort made before: what it sells through (Settings ›
+   * Enrollment). Founding, yes or no, and when founding prices stop selling (epoch ms); the Stripe lookup keys for paid
+   * in full, the Insiders price the full cart carries and two payments roll onto, and two payments (made by hand in
+   * Stripe; never created by the code); whether two payments are offered; the two Payment Link addresses; and
+   * GoHighLevel's Cohort value. `cohortSelling` (cohort-selling.ts) reads them; December's are written by its data step.
+   */
+  founding?: boolean; foundingClosesAt?: number; lookupKeyFull?: string; lookupKeyRollover?: string; lookupKeyTwoPay?: string;
+  twoPay?: boolean; linkFull?: string; linkTwoPay?: string; ghlValue?: string;
+  /**
+   * R-5 Phase 5 (D-262): when Close enrollment was pressed (epoch ms); absent while enrollment is open. Close writes this
+   * and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`); Open on a closed cohort clears it.
+   */
+  enrollmentClosedAt?: number;
 }
 /** R-5 Phase 3 (D-255): the words a cohort's learners read that are only theirs: the promise, how it works, the holiday note. */
 export interface CohortWords { promise: string; how: string[]; holiday: string }

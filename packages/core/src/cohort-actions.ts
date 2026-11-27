@@ -3,7 +3,8 @@
 // missing thing, and the one audit row the write owes. The API runs them on `POST /api/admin/actions/:name`.
 //
 // Who may run them is the `cohorts` permission: a cohort's shape, run and sessions are the Cohorts row's, as its
-// sessions and release plan already are. Opening or closing enrollment, seats and the price are Phase 5's.
+// sessions and release plan already are. Opening or closing enrollment, seats and the price (R-5 Phase 5, D-262) are the
+// `billing` permission (Owner and Admin by default), as the spec's rule 5 asks.
 //
 // NOTHING HERE TOUCHES A COHORT WITHOUT A STORED RUN. A cohort created here has one. December has none until Phase 3's
 // data step writes it, so every action below refuses it, inline, and December's rows cannot move through them.
@@ -18,7 +19,10 @@ import { cohortCopyFields, copyIssues, changedFields, diffSummary, issueLine } f
 import { MutationError } from './mutations';
 import type { Actor, Ctx } from './mutations';
 import type { AdminOutcome } from './admin-actions';
-import { draftWords, includedDefault } from './cohort-page';
+import { NO_FACTS, beforeItOpens, draftWords, includedDefault } from './cohort-page';
+import type { CohortFacts } from './cohort-page';
+import { ghlMonthValue } from './cohort-learner';
+import { cohortSelling, enrollmentOpen } from './cohort-selling';
 import type { Cohort, CohortShape, CohortSlot, CohortWeek, CohortWords, Db, Session } from './types';
 
 /** What a cohort write hands back beside its toast: the cohort, the layout's warnings, and what was left alone. */
@@ -203,6 +207,12 @@ export function createCohortFromShape(
     ...(words ? { words } : {}),
     ...(includedUntil ? { includedUntil } : {}),
   };
+  // R-5 Phase 5 (D-262): it sells as its source does (founding, two payments), never through the source's keys, links,
+  // founding close or GoHighLevel value; GoHighLevel's is prefilled from its own start ("jan27", Phase 4's rule).
+  const sells = cohortSelling(db, source.id);
+  cohort.founding = sells.founding;
+  cohort.twoPay = sells.twoPay;
+  cohort.ghlValue = ghlMonthValue(cohort);
   const rows = layout.sessions.map((s, i) => rowOf(s, id, c.id('s'), i + 1));
   const next = produce(db, (d) => {
     d.cohorts.push(cohort);
@@ -225,6 +235,9 @@ export function createCohortFromShape(
         sessions: rows.length,
         words: words ?? null,
         includedUntil: includedUntil ?? null,
+        founding: cohort.founding,
+        twoPay: cohort.twoPay,
+        ghlValue: cohort.ghlValue,
       },
     },
   };
@@ -641,6 +654,92 @@ export function keepCohortOverlap(db: Db, a: Actor, args: { cohortId: string }, 
       target: { type: 'cohort', id: co.id, label: co.name },
       before: { overlapOkAt: null },
       after: { overlapOkAt: c.now },
+    },
+  };
+}
+
+// ================================================================================================
+// R-5 Phase 5 (D-262): Open enrollment and Close enrollment (the mockup's dialogs). Who: the `billing` permission.
+// ================================================================================================
+
+/** Why Open enrollment is refused for a cohort already taking sales. */
+export const ALREADY_OPEN = 'Enrollment is already open.';
+
+/**
+ * Close enrollment's warning (Connor, Nov 27): Close writes nothing to Stripe, so its dialog tells staff to turn the
+ * cohort's Payment Links off there by hand. A link left on still sells, and that seat is placed in the closed cohort.
+ */
+export const CLOSE_LINKS_WARNING = 'This doesn’t turn off its Payment Links. Turn them off in Stripe by hand: a link left on still sells seats in this cohort.';
+
+/**
+ * Why Open enrollment would be refused now, or null: for a draft, Before It Opens' first line not done (PLAN § 10.3);
+ * for a cohort closed after it opened (`enrollmentClosedAt`), its two Stripe lines. The Cohort page's dialog shows the same words.
+ */
+export function enrollmentRefusal(db: Db, cohortId: string, facts: CohortFacts = NO_FACTS): string | null {
+  const co = db.cohorts.find((x) => x.id === cohortId);
+  if (!co) return 'No such cohort.';
+  const before = beforeItOpens(db, cohortId, facts);
+  if (co.status === 'draft') return before.refusal;
+  const left = before.lines.find((l) => (l.key === 'stripe' || l.key === 'links') && !l.done);
+  return left ? `${left.label}: ${left.detail}` : null;
+}
+
+/**
+ * Open enrollment: `draft` to `enrolling`, the one status write R-5 makes (PLAN.md § 2.5, as the reference's
+ * `openEnrollment`), refused, with its reason, until Before It Opens is done (`beforeItOpens`: the checklist and the
+ * refusal are one function, PLAN § 10.3). A cohort closed after it opened (`enrollmentClosedAt` set) opens again once
+ * its two Stripe lines are done (its prices found and its links naming it), the rest of its checklist having been done
+ * when it first opened: that clears the close and writes no status. A cohort the demo seed holds as `live` or
+ * `completed` is not opened, as R-5 writes neither (§ 2.5). What the record holds beyond the snapshot (test sends,
+ * Stripe) is the API's `cohortFacts`.
+ */
+export function openCohortEnrollment(db: Db, a: Actor, args: { cohortId: string }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'billing');
+  const co = cohortOf(db, args.cohortId);
+  if (enrollmentOpen(co)) return { db, error: ALREADY_OPEN };
+  if (co.status === 'completed' || co.archivedAt !== undefined) return { db, error: 'This cohort is over.' };
+  if (co.status === 'live') return { db, error: 'Only a draft cohort can open for enrollment.' };
+  const refusal = enrollmentRefusal(db, co.id, c.cohortFacts?.[co.id] ?? NO_FACTS);
+  if (refusal) return { db, error: refusal };
+  const reopen = co.status === 'enrolling';
+  const next = produce(db, (d) => {
+    const x = d.cohorts.find((y) => y.id === co.id)!;
+    if (reopen) delete x.enrollmentClosedAt;
+    else x.status = 'enrolling';
+  });
+  return {
+    db: next,
+    toast: { msg: 'Enrollment is open', tone: 'success' },
+    audit: {
+      action: 'cohort.enrollment_open',
+      target: { type: 'cohort', id: co.id, label: co.name },
+      before: reopen ? { enrollmentClosedAt: co.enrollmentClosedAt ?? null } : { status: co.status },
+      after: reopen ? { enrollmentClosedAt: null } : { status: 'enrolling' },
+    },
+  };
+}
+
+/**
+ * Close enrollment: no new team can buy a seat in this cohort (the offer stops selling it, and the seat cap no longer
+ * turns its links back on), and no one already in is touched. Connor's call (Nov 27): it writes when it was closed
+ * (`enrollmentClosedAt`) and never `status` (PLAN.md § 2.5: R-5 never writes `live` or `completed`), and it writes
+ * nothing to Stripe. Its dialog tells staff to turn the cohort's Payment Links off in Stripe by hand.
+ */
+export function closeCohortEnrollment(db: Db, a: Actor, args: { cohortId: string }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'billing');
+  const co = cohortOf(db, args.cohortId);
+  if (!enrollmentOpen(co)) return { db, error: 'Enrollment is already closed.' };
+  const next = produce(db, (d) => {
+    d.cohorts.find((y) => y.id === co.id)!.enrollmentClosedAt = c.now;
+  });
+  return {
+    db: next,
+    toast: { msg: 'Enrollment is closed', tone: 'success' },
+    audit: {
+      action: 'cohort.enrollment_close',
+      target: { type: 'cohort', id: co.id, label: co.name },
+      before: { enrollmentClosedAt: null },
+      after: { enrollmentClosedAt: c.now },
     },
   };
 }

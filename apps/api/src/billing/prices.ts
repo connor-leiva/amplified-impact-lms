@@ -18,6 +18,12 @@ export type PriceMap = Partial<Record<LookupKey, PriceInfo>>;
 export interface PriceCache {
   /** The prices, or null when Stripe has never answered. Never throws. */
   get(now: number): Promise<PriceMap | null>;
+  /**
+   * R-5 Phase 5 (D-262): Stripe's active price under each of these lookup keys, any key (a cohort's own keys, made by
+   * hand in Stripe, are not in `LOOKUP_KEYS`): a key Stripe has no active price under maps to null. Null when Stripe
+   * can't be asked. Each key is kept `PRICE_TTL_MS`, like the list. Never throws.
+   */
+  lookup?(keys: readonly string[], now: number): Promise<Readonly<Record<string, PriceInfo | null>> | null>;
   /** For a test: forget everything. */
   reset(): void;
 }
@@ -43,7 +49,29 @@ export function createPriceCache(stripe: () => BillingStripe | null, onError?: (
     }
   };
 
+  // R-5 Phase 5 (D-262): a cohort's own keys, asked about by name and kept a while each.
+  const byKey = new Map<string, { price: PriceInfo | null; at: number }>();
+
   return {
+    async lookup(keys, now) {
+      const client = stripe();
+      if (!client) return null;
+      const want = [...new Set(keys.filter(Boolean))];
+      const stale = want.filter((k) => {
+        const hit = byKey.get(k);
+        return !hit || now - hit.at >= PRICE_TTL_MS;
+      });
+      if (stale.length) {
+        try {
+          const list = await client.pricesByLookupKeys(stale);
+          for (const k of stale) byKey.set(k, { price: list.find((p) => p.lookupKey === k) ?? null, at: now });
+        } catch (err) {
+          onError?.(err);
+          if (stale.some((k) => !byKey.has(k))) return null;
+        }
+      }
+      return Object.fromEntries(want.map((k) => [k, byKey.get(k)?.price ?? null]));
+    },
     async get(now) {
       const stale = prices === null || now - fetchedAt >= PRICE_TTL_MS;
       if (stale && now >= retryAt) {
@@ -57,6 +85,7 @@ export function createPriceCache(stripe: () => BillingStripe | null, onError?: (
       return prices;
     },
     reset() {
+      byKey.clear();
       prices = null;
       fetchedAt = 0;
       retryAt = 0;

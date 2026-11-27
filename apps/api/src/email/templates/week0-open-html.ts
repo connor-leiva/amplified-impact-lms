@@ -48,6 +48,11 @@ export interface Week0OpenInput {
    * December's words, byte for byte.
    */
   cohortName?: string;
+  /**
+   * R-5 Phase 5 (D-262): false for a cohort that is not founding (Settings › Enrollment), whose body then says "one of
+   * the members of" for "one of the founding members of". Absent: Connor's words, as December's are.
+   */
+  founding?: false;
 }
 
 /** The words, in one place: Connor's, as approved. Title Case headings, no em dashes, "MT" with every clock. */
@@ -82,15 +87,17 @@ export const WEEK0_OPEN_COPY = {
  * The words for one email: Connor's, with another cohort's name where his name December (R-5 Phase 4, D-261). Only the
  * cohort's name changes; every other word is his.
  */
-function copyOf(input: Pick<Week0OpenInput, 'cohortName'>): typeof WEEK0_OPEN_COPY {
-  if (!input.cohortName) return WEEK0_OPEN_COPY;
-  const full = week0CohortName(input.cohortName);
+function copyOf(input: Pick<Week0OpenInput, 'cohortName' | 'founding'>): typeof WEEK0_OPEN_COPY {
+  if (!input.cohortName && input.founding !== false) return WEEK0_OPEN_COPY;
+  const full = input.cohortName ? week0CohortName(input.cohortName) : 'December 2026 Cohort';
   const swap = (s: string): string => s.split('December 2026 Cohort').join(full);
+  // R-5 Phase 5 (D-262): a cohort that is not founding is not "founding members".
+  const intro = swap(WEEK0_OPEN_COPY.intro);
   return {
     ...WEEK0_OPEN_COPY,
-    title: `Welcome to the ${week0CohortLabel(input.cohortName)}: Week 0 Is Open`,
+    title: input.cohortName ? `Welcome to the ${week0CohortLabel(input.cohortName)}: Week 0 Is Open` : WEEK0_OPEN_COPY.title,
     eyebrow: swap(WEEK0_OPEN_COPY.eyebrow),
-    intro: swap(WEEK0_OPEN_COPY.intro),
+    intro: input.founding === false ? intro.replace('one of the founding members of', 'one of the members of') : intro,
     gifAlt: swap(WEEK0_OPEN_COPY.gifAlt),
   } as typeof WEEK0_OPEN_COPY;
 }
@@ -112,7 +119,7 @@ function times(input: Week0OpenInput): { dueShort: string; dueLong: string; buil
 export function week0OpenHtml(input: Week0OpenInput): string {
   const t = times(input);
   // A cohort's name is staff's typing: escaped before it joins Connor's words in the HTML.
-  const C = copyOf(input.cohortName ? { cohortName: esc(input.cohortName) } : {});
+  const C = copyOf({ ...(input.cohortName ? { cohortName: esc(input.cohortName) } : {}), ...(input.founding === false ? { founding: false as const } : {}) });
   return brandedEmailHtml({
     title: C.title,
     preheader: esc(C.preheader(t.dueShort)),

@@ -101,7 +101,7 @@ export interface SubjectData {
   'cohort-welcome': { cohortName: string };
   // R-5 Phase 4 (D-261): the cohort's stored name, named without its year ("January Cohort"). Absent for December,
   // whose line is Connor's.
-  'week0-open': { cohortName?: string };
+  'week0-open': { cohortName?: string; founding?: false };
 }
 
 /**

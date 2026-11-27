@@ -29,27 +29,40 @@
 // it in the same minute, D-028), `Referrer-Policy: same-origin` so a plain form post carries a real
 // Origin, `noindex` in the page itself. Unlike them, `no-store`: the page holds live prices.
 
-import { BUILDS_ICS_PATH, BUILDS_ICS_URL, OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS_URL, SCHEDULE_ICS_PATH, calendarFiles, cohortScheduleIcs } from './offer-calendar';
+import {
+  BUILDS_ICS_PATH,
+  BUILDS_ICS_URL,
+  OFFICE_HOURS_ICS_PATH,
+  OFFICE_HOURS_ICS_URL,
+  SCHEDULE_ICS_PATH,
+  calendarFiles,
+  cohortCalendarFiles,
+  cohortScheduleIcs,
+} from './offer-calendar';
 import { DEFAULT_COHORT_ID } from '@ai/core/accelerator';
+import { cohortIcsPath } from '@ai/core/cohort-learner';
 import { requireSession } from '../auth';
 import { viewerCohortId } from '../lib/course-access';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db/client';
-import { orders } from '../db/schema';
+import { cohorts as cohortsTable, orders } from '../db/schema';
 import { clock } from '../lib/clock';
 import {
   AGENT_PLAN_FIRST_CHARGE_AT,
   CARTS,
   CART_IDS,
-  COHORT_SEATS,
   HELP_EMAIL,
+  LOOKUP_KEYS,
   PLAN_NAMES,
   TOKEN_PATTERN,
   cartFor,
   longDay,
   mountainDeadline,
 } from '../billing/catalog';
+import { cohortCartItems, cohortCartLink, cohortSelling, foundingOpenFor, sellingEnvOf } from '@ai/core/cohort-selling';
+import type { CohortSelling } from '@ai/core/cohort-selling';
+import { onSaleOf, orderCohortId, sellingOf } from '../billing/cohort-sale';
 import type { CartId, CartState, PlanKind } from '../billing/catalog';
 import { cartItemName } from '../lib/analytics';
 import { foundingOpen } from '../billing/config';
@@ -115,22 +128,53 @@ export function fillTokens(template: string, values: Readonly<Record<string, str
 }
 
 /**
- * What every cart shows right now: nothing sells while `OFFER_OPEN` is off; a founding cart closes at
- * `FOUNDING_CLOSES_AT`; the AI Accelerator's two carts sell out together at 15 seats; a cart with no
- * Payment Link set "opens soon".
+ * R-5 Phase 5 (D-262, PLAN § 10.10): the cohort the AI Accelerator's two carts sell (`cohortOnSale`: the cohort whose
+ * enrollment is open; with two open, the next to start), with its settings, and whether its enrollment is open. With none open, the carts read "closed"
+ * and the page's other cohort facts are December's.
  */
-export function cartStates(config: OfferConfig, now: number, seatsSold: number): Record<CartId, CartState> {
+export interface OfferSale {
+  selling: CohortSelling;
+  open: boolean;
+}
+
+/** December, as the code sold it before R-5: its built-in values and the configuration's (a database with no cohort). */
+export const builtInSale = (config: Pick<OfferConfig, 'foundingClosesAt' | 'paymentLinks'>): OfferSale => ({
+  selling: cohortSelling({ cohorts: [] }, DEFAULT_COHORT_ID, sellingEnvOf(config)),
+  open: true,
+});
+
+/**
+ * What every cart shows right now: nothing sells while `OFFER_OPEN` is off; a founding cart closes at its close (the
+ * AI Accelerator's at its cohort's, R-5 Phase 5; the Team Plan's at `FOUNDING_CLOSES_AT`); the AI Accelerator's two
+ * carts sell out together at its cohort's cap (December's 15), and read "closed" while no cohort's enrollment is open;
+ * a cart with no Payment Link set "opens soon".
+ */
+export function cartStates(config: OfferConfig, now: number, seatsSold: number, sale: OfferSale = builtInSale(config)): Record<CartId, CartState> {
   const out = {} as Record<CartId, CartState>;
   for (const id of CART_IDS) {
     const cart = CARTS[id];
     if (!config.open) out[id] = 'soon';
-    else if (cart.founding && !foundingOpen(config, now)) out[id] = 'closed';
-    else if (cart.plan === 'cohort' && seatsSold >= COHORT_SEATS) out[id] = 'soldout';
+    else if (cart.plan === 'cohort') {
+      const link = cohortCartLink(id as 'cohort-full' | 'cohort-two-pay', sale.selling);
+      if (!sale.open) out[id] = 'closed';
+      else if (sale.selling.founding && !foundingOpenFor(sale.selling, now)) out[id] = 'closed';
+      else if (seatsSold >= sale.selling.capacity) out[id] = 'soldout';
+      else if (link) out[id] = 'link';
+      else out[id] = 'soon';
+    } else if (cart.founding && !foundingOpen(config, now)) out[id] = 'closed';
     else if (config.paymentLinks[id]) out[id] = 'link';
     else out[id] = 'soon';
   }
   return out;
 }
+
+/** A cart's Payment Link: a cohort cart's is its cohort's (stored, or December's from the configuration). */
+const linkOf = (config: OfferConfig, sale: OfferSale, id: CartId): string | null =>
+  CARTS[id].plan === 'cohort' ? cohortCartLink(id as 'cohort-full' | 'cohort-two-pay', sale.selling) : (config.paymentLinks[id] ?? null);
+
+/** When the page's founding facts close: the cohort on sale's, when it is founding, else the configuration's. */
+const closesOf = (config: OfferConfig, sale: OfferSale): number =>
+  sale.selling.founding && sale.selling.foundingClosesAt !== null ? sale.selling.foundingClosesAt : config.foundingClosesAt;
 
 /** The page as a whole: `links` when any cart sells, else `soon`. */
 const offerState = (states: Record<CartId, CartState>): 'links' | 'soon' => (Object.values(states).includes('link') ? 'links' : 'soon');
@@ -143,16 +187,20 @@ export interface OfferFill {
   now: number;
   /** Where the visit came from: the link's `src`, or `forum` on /forum. */
   src: string | null;
-  /** AI Accelerator seats sold so far. */
+  /** AI Accelerator seats sold so far, in the cohort on sale. */
   seatsSold: number;
+  /** R-5 Phase 5 (D-262): the cohort on sale. Absent: December as before R-5 (`builtInSale`). */
+  sale?: OfferSale;
 }
 
 export function offerValues(f: OfferFill): Record<string, string> {
-  const states = cartStates(f.config, f.now, f.seatsSold);
+  const sale = f.sale ?? builtInSale(f.config);
+  const states = cartStates(f.config, f.now, f.seatsSold, sale);
+  const closes = closesOf(f.config, sale);
   const values: Record<string, string> = {
     'offer-state': offerState(states),
-    founding: foundingOpen(f.config, f.now) ? 'open' : 'closed',
-    'founding-closes': mountainDeadline(f.config.foundingClosesAt),
+    founding: f.now < closes ? 'open' : 'closed',
+    'founding-closes': mountainDeadline(closes),
     invites: f.now < f.config.invitesFrom ? 'held' : 'sent',
     'login-day': dayOfYear(f.config.invitesFrom),
     'team-call': f.config.teamCallUrl ?? `mailto:${HELP_EMAIL}`,
@@ -161,14 +209,15 @@ export function offerValues(f: OfferFill): Record<string, string> {
   for (const id of CART_IDS) {
     values[`state:${id}`] = states[id];
     // A link shows only while it sells: a closed, sold-out or unset one is an empty href the page hides.
-    values[`link:${id}`] = states[id] === 'link' ? (f.config.paymentLinks[id] ?? '') : '';
+    values[`link:${id}`] = states[id] === 'link' ? (linkOf(f.config, sale, id) ?? '') : '';
   }
   return values;
 }
 
-/** A sales page's tokens (D-111): the offer's, plus the founding countdown and the seats left. */
+/** A sales page's tokens (D-111): the offer's, plus the founding countdown and the seats left (the cohort on sale's). */
 export function salesValues(f: OfferFill): Record<string, string> {
-  return { ...offerValues(f), ...foundingValues(f.now, f.config.foundingClosesAt, f.seatsSold) };
+  const sale = f.sale ?? builtInSale(f.config);
+  return { ...offerValues(f), ...foundingValues(f.now, closesOf(f.config, sale), f.seatsSold, sale.selling.capacity) };
 }
 
 /** The welcome page's facts for one Checkout Session. */
@@ -188,6 +237,12 @@ export interface WelcomeFill {
    * Stripe's `amount_total` (cents) and currency. Absent, or a null amount, reports 0.
    */
   purchase?: { cart: CartId | null; amountTotal: number | null; currency: string | null };
+  /**
+   * R-5 Phase 5 (D-262): the cohort whose calendar the buttons download: the order's (`ai_cohort`), else the cohort on
+   * sale while the order is still confirming. December's are the bare files, as before (`cohortIcsPath`); absent or
+   * December's, `CALENDAR_URL_*` still names another file when it is set.
+   */
+  calendarCohort?: string | null;
 }
 
 /**
@@ -215,8 +270,8 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'login-day': dayOfYear(w.config.invitesFrom),
     // The served files (offer-calendar.ts) unless a CALENDAR_URL_* variable names another, so the
     // welcome page's add-to-calendar buttons always download something.
-    'calendar-builds': builds ?? BUILDS_ICS_URL,
-    'calendar-office-hours': officeHours ?? OFFICE_HOURS_ICS_URL,
+    'calendar-builds': w.calendarCohort ? cohortIcsPath(BUILDS_ICS_URL, w.calendarCohort) : (builds ?? BUILDS_ICS_URL),
+    'calendar-office-hours': w.calendarCohort ? cohortIcsPath(OFFICE_HOURS_ICS_URL, w.calendarCohort) : (officeHours ?? OFFICE_HOURS_ICS_URL),
     'calendar-state': 'links',
     'plan-name': w.plan ? PLAN_NAMES[w.plan] : '',
     login: held
@@ -294,14 +349,32 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
    * must not take the page down in a room of buyers: it is logged and counted as 0, and each Stripe
    * link's own limit of 15 sales still holds.
    */
-  const seatsSold = async (): Promise<number> => {
+  const seatsSold = async (cohortId: string = DEFAULT_COHORT_ID): Promise<number> => {
     if (!options.database) return 0;
     try {
-      return await cohortSeatsSold(getDb());
+      return await cohortSeatsSold(getDb(), cohortId);
     } catch (err) {
       log.error({ reason: errorReason(err) }, 'offer: the seat count failed; showing the AI Accelerator links');
       return 0;
     }
+  };
+
+  /**
+   * R-5 Phase 5 (D-262): the cohort on sale and its seats sold. With no database, or a read that fails, December as
+   * before R-5 (`builtInSale`). With no cohort open, its carts read "closed" and the page's facts are December's.
+   */
+  const saleNow = async (): Promise<{ sale: OfferSale; sold: number }> => {
+    if (!options.database) return { sale: builtInSale(config), sold: 0 };
+    let sale: OfferSale;
+    try {
+      const env = sellingEnvOf(config);
+      const on = await onSaleOf(getDb(), env, now());
+      sale = on ? { selling: on.selling, open: true } : { selling: await sellingOf(getDb(), DEFAULT_COHORT_ID, env), open: false };
+    } catch (err) {
+      log.error({ reason: errorReason(err) }, 'offer: the cohort on sale could not be read; selling December as before');
+      sale = builtInSale(config);
+    }
+    return { sale, sold: await seatsSold(sale.selling.cohortId) };
   };
 
   // The offer page, at both of its addresses.
@@ -311,11 +384,13 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
       if (offerPage === null) return reply.code(404).send({ error: 'Not found' });
       const q = queryOf(req);
+      const { sale, sold } = await saleNow();
       const values = offerValues({
         config,
         now: now(),
         src: q.src && SRC.test(q.src) ? q.src : campaign,
-        seatsSold: await seatsSold(),
+        seatsSold: sold,
+        sale,
       });
       return sendPage(reply, fillTokens(offerPage, values));
     });
@@ -327,11 +402,13 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
       if (page === null) return reply.code(404).send({ error: 'Not found' });
       const q = queryOf(req);
+      const { sale, sold } = await saleNow();
       const values = salesValues({
         config,
         now: now(),
         src: q.src && SRC.test(q.src) ? q.src : null,
-        seatsSold: await seatsSold(),
+        seatsSold: sold,
+        sale,
       });
       return sendPage(reply, fillTokens(page, values));
     });
@@ -350,9 +427,19 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
       if (!options.database) return reply.code(404).send({ error: 'Not found' });
       // R-5 Phase 4 (D-261): the learner portal's "Add all to calendar" for a cohort other than December names it
       // (`?cohort=`, `scheduleIcsPath`). That file is its learners' alone (staff may read it): signed in, and never
-      // kept by anything between. Without one, December's file, exactly as before.
-      const cohort = pick === 'schedule' ? queryOf(req).cohort : undefined;
-      if (cohort && cohort !== DEFAULT_COHORT_ID) {
+      // kept by anything between. Without one, December's file, exactly as before: the bare paths stay December's, as
+      // a changed UID duplicates every event in a calendar subscribed to them (PLAN § 5.3).
+      const named = queryOf(req).cohort;
+      const cohort = named && named !== DEFAULT_COHORT_ID ? named : undefined;
+      // R-5 Phase 5 (D-262): another cohort's builds and office hours, the welcome page's buttons for a buyer of it,
+      // public as December's are, once it is past its draft.
+      if (cohort && pick !== 'schedule') {
+        const [row] = await getDb().select({ status: cohortsTable.status }).from(cohortsTable).where(eq(cohortsTable.id, cohort)).limit(1);
+        const files = row && row.status !== 'draft' ? await cohortCalendarFiles(cohort) : null;
+        if (!files) return reply.code(404).send({ error: 'Not found' });
+        return reply.code(200).type('text/calendar; charset=utf-8').header('cache-control', 'public, max-age=3600').send(files[pick]);
+      }
+      if (cohort) {
         await requireSession.call(app, req, reply);
         if (reply.sent) return reply;
         const viewer = req.viewer;
@@ -368,6 +455,21 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     });
   }
 
+  /**
+   * R-5 Phase 5 (D-262): whose calendar the welcome page's buttons download: the order's cohort, or, while the order is
+   * still confirming, the cohort on sale. December's is the bare files (null), as before.
+   */
+  const welcomeCalendar = async (known: string | null | undefined): Promise<string | null> => {
+    if (!options.database) return null;
+    try {
+      const id = known === undefined ? ((await onSaleOf(getDb(), sellingEnvOf(config), now()))?.id ?? null) : known;
+      // December's files are the bare addresses, so its buttons keep `CALENDAR_URL_*` when it is set.
+      return id && cohortIcsPath(BUILDS_ICS_URL, id) !== BUILDS_ICS_URL ? id : null;
+    } catch {
+      return null;
+    }
+  };
+
   app.get(WELCOME_PATH, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
     if (welcomePage === null) return reply.code(404).send({ error: 'Not found' });
     const raw = queryOf(req).session_id;
@@ -376,13 +478,22 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     let plan: PlanKind | null = null;
     let trialing = false;
     let purchase: WelcomeFill['purchase'];
+    let calendarCohort: string | null | undefined;
     if (sessionId && options.database) {
       const [order] = await getDb()
-        .select({ status: orders.status, plan: orders.plan, option: orders.option, amountTotal: orders.amountTotal, currency: orders.currency })
+        .select({
+          status: orders.status,
+          plan: orders.plan,
+          option: orders.option,
+          amountTotal: orders.amountTotal,
+          currency: orders.currency,
+          cohortId: orders.cohortId,
+        })
         .from(orders)
         .where(eq(orders.stripeSessionId, sessionId))
         .limit(1);
       if (order) {
+        calendarCohort = order.plan === 'cohort' ? orderCohortId(order) : null;
         plan = order.plan as PlanKind;
         trialing = order.status === 'trialing';
         purchase = { cart: cartFor(order.plan, order.option ?? '')?.id ?? null, amountTotal: order.amountTotal, currency: order.currency };
@@ -405,34 +516,57 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     }
     return sendPage(
       reply,
-      fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config, trialing, setPasswordUrl, purchase })),
+      fillTokens(
+        welcomePage,
+        welcomeValues({
+          state,
+          plan,
+          sessionId,
+          now: now(),
+          config,
+          trialing,
+          setPasswordUrl,
+          purchase,
+          calendarCohort: await welcomeCalendar(calendarCohort),
+        }),
+      ),
     );
   });
 
   app.get(OFFER_API_PATH, { config: { rateLimit: false } }, async (): Promise<unknown> => {
     const p = await currentPrices();
-    const sold = await seatsSold();
-    const states = cartStates(config, now(), sold);
+    // R-5 Phase 5 (D-262, PLAN § 10.10): the AI Accelerator's facts are the cohort on sale's: its founding, its seats,
+    // its lookup keys and its links. The answer keeps its shape, so the marketing pages read them as they always have.
+    const { sale, sold } = await saleNow();
+    const states = cartStates(config, now(), sold, sale);
+    const closes = closesOf(config, sale);
+    const cap = sale.selling.capacity;
+    const own = (key: string) => !(LOOKUP_KEYS as readonly string[]).includes(key);
+    const cohortKeys = [...cohortCartItems('cohort-full', sale.selling), ...cohortCartItems('cohort-two-pay', sale.selling)].filter(own);
+    const extra = options.stripe && cohortKeys.length ? await prices.lookup?.(cohortKeys, now()) : null;
+    const priceOf = (key: string) => (own(key) ? (extra?.[key] ?? null) : (p?.[key as (typeof LOOKUP_KEYS)[number]] ?? null));
     return {
       open: config.open,
-      founding: { open: foundingOpen(config, now()), closesAt: new Date(config.foundingClosesAt).toISOString() },
-      seats: { total: COHORT_SEATS, sold, left: Math.max(0, COHORT_SEATS - sold) },
+      founding: { open: now() < closes, closesAt: new Date(closes).toISOString() },
+      seats: { total: cap, sold, left: Math.max(0, cap - sold) },
       carts: CART_IDS.map((id) => {
         const cart = CARTS[id];
+        const cohortCart = cart.plan === 'cohort';
+        const items = cohortCart ? cohortCartItems(id as 'cohort-full' | 'cohort-two-pay', sale.selling) : cart.items;
         return {
           id,
           plan: cart.plan,
           option: cart.option,
           name: PLAN_NAMES[cart.plan],
           state: states[id],
-          founding: cart.founding,
-          prices: cart.items.map((key) => ({
+          founding: cohortCart ? sale.selling.founding : cart.founding,
+          prices: items.map((key) => ({
             lookupKey: key,
-            amount: p?.[key]?.unitAmount ?? null,
-            currency: p?.[key]?.currency ?? null,
-            interval: p?.[key]?.interval ?? null,
+            amount: priceOf(key)?.unitAmount ?? null,
+            currency: priceOf(key)?.currency ?? null,
+            interval: priceOf(key)?.interval ?? null,
           })),
-          paymentLink: config.paymentLinks[id] ?? null,
+          paymentLink: linkOf(config, sale, id),
         };
       }),
     };

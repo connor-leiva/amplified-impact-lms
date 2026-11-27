@@ -262,12 +262,34 @@ export async function calendarFiles(): Promise<{ builds: string; officeHours: st
  * Null for a cohort the database does not hold.
  */
 export async function cohortScheduleIcs(cohortId: string): Promise<string | null> {
-  if (cohortId === DEFAULT_COHORT_ID) return (await calendarFiles()).schedule;
+  return (await cohortCalendarFiles(cohortId))?.schedule ?? null;
+}
+
+/**
+ * R-5 Phase 5 (D-262): a cohort's three files: its builds, its other sessions (office hours and the rest), and both in
+ * one. December's are `calendarFiles`, unchanged: their UIDs end `-dec26`, and a changed UID duplicates every event in
+ * a calendar subscribed to them (PLAN § 5.3). Another cohort's name each session in its UID. Null for a cohort the
+ * database does not hold.
+ */
+export async function cohortCalendarFiles(cohortId: string): Promise<{ builds: string; officeHours: string; schedule: string } | null> {
+  if (cohortId === DEFAULT_COHORT_ID) return calendarFiles();
+  const events = await cohortEvents(cohortId);
+  if (!events) return null;
+  const byStart = (a: CalEvent, b: CalEvent) => a.start - b.start;
+  return {
+    builds: calendar('Amplified AI Accelerator Live Builds', events.filter((e) => e.uid.startsWith('accelerator-build-')).sort(byStart)),
+    officeHours: calendar('Amplified Impact Office Hours', events.filter((e) => !e.uid.startsWith('accelerator-build-')).sort(byStart)),
+    schedule: calendar('Amplified AI Accelerator Schedule', [...events].sort(byStart)),
+  };
+}
+
+/** Another cohort's events, each named for its session; null for a cohort the database does not hold. */
+async function cohortEvents(cohortId: string): Promise<CalEvent[] | null> {
   const [cohort] = await getDb().select({ id: cohortsTable.id, run: cohortsTable.run }).from(cohortsTable).where(eq(cohortsTable.id, cohortId)).limit(1);
   if (!cohort) return null;
   const run = (cohort.run ?? undefined) as CohortWeek[] | undefined;
   const { sessions, instructor } = await readCalendar(cohortId);
-  const events = sessions.map((s): CalEvent => {
+  return sessions.map((s): CalEvent => {
     const week = (s.moduleId ? weekOfModuleIn({ ...(run ? { run } : {}) }, s.moduleId) : null) ?? sessionWeek(s);
     if (typeOf(s) === 'live_build') {
       const who = s.moduleId ? instructor.get(s.moduleId) : undefined;
@@ -289,5 +311,4 @@ export async function cohortScheduleIcs(cohortId: string): Promise<string | null
       };
     return { uid: `session-${s.id}`, start: s.start, end: endOf(s), summary: s.title, description: `${s.mins} minutes. ${JOIN}` };
   });
-  return calendar('Amplified AI Accelerator Schedule', events.sort((a, b) => a.start - b.start));
 }

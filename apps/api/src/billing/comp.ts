@@ -184,7 +184,12 @@ export async function compAcceleratorTeam(input: CompInput, options: CompOptions
     placeInCohort: true,
     planDates: placed.dates,
   });
-  if (!provisioned.ok) return provisioned;
+  // R-5 Phase 5 (D-262) added two refusals a comp never meets (it names no `ai_cohort` and hands in its own dates); either
+  // would mean the cohort is not one a seat can be placed in.
+  if (!provisioned.ok) {
+    const { reason } = provisioned;
+    return { ok: false, reason: reason === 'unknown-cohort' || reason === 'cohort-not-ready' ? 'no-cohort' : reason };
+  }
 
   await upsertCohortEnrollments(db);
   const [owner] = await db

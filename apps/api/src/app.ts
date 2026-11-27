@@ -111,6 +111,7 @@ import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import { registerCohortFactsRoute } from './routes/cohort-facts';
+import { stripeFactsReader } from './lib/cohort-facts';
 import { registerIntakeRoute } from './routes/intake';
 import { registerCommunityRoutes } from './routes/community';
 import { registerSubmissionRoutes } from './routes/submissions';
@@ -662,6 +663,9 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   }
 
   let events: EventHub | null = null;
+  // R-5 Phase 5 (D-262): what Stripe says about a cohort's lookup keys and Payment Links, read only, for the Cohort
+  // page's Enrollment card and Open enrollment. Never writes to Stripe.
+  const cohortStripeFacts = stripeFactsReader({ stripe: offerStripe, prices: offerPrices, config: offerConfig, now: () => clock.now() });
 
   if (!fixtureOnly) {
     // Once per process. `transport.send` takes the subject from `SUBJECTS` and only the `html`
@@ -698,7 +702,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The AI Accelerator's pages (D-110): signed in, and only for a plan that opens the course.
     registerCourseRoute(app);
     // R-5 Phase 3 (D-255): what the Cohort page needs beyond the snapshot. Staff with the `cohorts` permission.
-    registerCohortFactsRoute(app);
+    // R-5 Phase 5 (D-262): what Stripe says about a cohort's keys and links, read only, beside its facts.
+    registerCohortFactsRoute(app, cohortStripeFacts);
     registerIntakeRoute(app);
     registerStackRoute(app);
     registerPersonalizeRoute(app);
@@ -758,7 +763,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     });
     registerMutateRoute(app, { broadcast });
     // The R2 mockup's remaining Build controls (D-172): audited, beside `/api/mutate`.
-    registerAdminActionsRoute(app, { broadcast });
+    registerAdminActionsRoute(app, { broadcast, stripeFacts: cohortStripeFacts });
     // D-247 (H-9): Resend Invite and Send Nudge, with a real email.
     registerLearnerEmailRoutes(app, { broadcast });
 

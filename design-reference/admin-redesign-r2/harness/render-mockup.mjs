@@ -31,7 +31,9 @@ const sArg = arg('screens', 'all');
 const SCREENS = sArg === 'all' ? ALL : sArg.split(',');
 const NAME = { workspace: 'workspace-detail', cohorts: 'cohort-schedule', cohortov: 'cohort-overview', cohortset: 'cohort-settings', newcohort: 'new-cohort', january: 'january-overview', janschedule: 'january-schedule', jansettings: 'january-settings' };
 /** A dialog's ref: the screen it opens on, the button that opens it (its exact text) and which of them. */
-const DIALOGS = { 'january-shape': ['jansettings', 'Edit', 0], 'january-weeks': ['jansettings', '6 of the program’s 8', 0], 'january-dates': ['jansettings', 'Edit', 1], 'january-words': ['jansettings', 'Edit words', 0] };
+// D-262 (R-5 Phase 5): January's price dialog, its Edit enrollment dialog and its Open enrollment (refused: Before It Opens' first line
+// not done), and December's Close enrollment.
+const DIALOGS = { 'january-shape': ['jansettings', 'Edit', 0], 'january-weeks': ['jansettings', '6 of the program’s 8', 0], 'january-dates': ['jansettings', 'Edit', 1], 'january-words': ['jansettings', 'Edit words', 0], 'january-price': ['jansettings', 'Set the price', 0], 'january-enrollment': ['jansettings', 'Edit enrollment', 0], 'january-open': ['jansettings', 'Open enrollment', 0], 'cohort-close': ['cohortset', 'Close enrollment', 0] };
 const PHONE_H = 844, DESK_H = 900;                    // viewport heights for the modal (confirm) frames
 
 const tmp = mkdtempSync(join(tmpdir(), 'mock-r2-'));

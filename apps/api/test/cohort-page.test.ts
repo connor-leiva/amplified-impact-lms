@@ -77,7 +77,8 @@ describe('December’s run data step', () => {
     expect(row).toBeDefined();
     const [dec] = await handle.select().from(cohorts).where(eq(cohorts.id, DEFAULT_COHORT_ID));
     expect((dec!.run as { n: number }[]).map((w) => w.n)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(dec).toMatchObject({ shape: null, words: null, includedUntil: null, hosts: null, wordsCheckedAt: null, overlapOkAt: null });
+    // R-5 Phase 5 (D-262): its included time is written by Phase 5's own step (`2026-11-27-december-selling`), not this one.
+    expect(dec).toMatchObject({ shape: null, words: null, hosts: null, wordsCheckedAt: null, overlapOkAt: null });
     const rows = (await handle.select().from(auditLog).where(eq(auditLog.targetId, DEFAULT_COHORT_ID))).filter((r) => r.reason?.includes('D-255'));
     expect(rows.map((r) => [r.action, r.before])).toEqual([['curriculum.migrate', { run: null }]]);
     expect(await applyDataMigrations(handle, NOW)).toEqual([]);
@@ -138,7 +139,19 @@ describe('the cohort facts route and Open enrollment', () => {
   it('reads the two test sends from the audit log, for staff with the cohorts permission only', async () => {
     const id = await january();
     const url = `/api/admin/cohorts/${id}/facts`;
-    expect((await get('st_owner', url)).json()).toEqual({ testSends: { welcome: false, week0: false }, plans: 0, teams: 0, learners: 0, intakeNotStarted: 0, intakeGhlFailed: 0, signedIn: 0, intakeSubmitted: 0, paidInFull: 0 });
+    expect((await get('st_owner', url)).json()).toEqual({
+      testSends: { welcome: false, week0: false },
+      plans: 0,
+      teams: 0,
+      learners: 0,
+      intakeNotStarted: 0,
+      intakeGhlFailed: 0,
+      signedIn: 0,
+      intakeSubmitted: 0,
+      paidInFull: 0,
+      // R-5 Phase 5 (D-262): what Stripe says about its keys and links; this test has no Stripe key.
+      stripe: { prices: 'unavailable', price: {}, links: 'unavailable', link: {} },
+    });
     await audit(null, { action: 'welcome.test_send', outcome: 'ok', actor: { source: 'system' }, target: { type: 'cohort', id, label: 'January' } }, handle);
     await audit(null, { action: 'week0.test_send', outcome: 'failed', actor: { source: 'system' }, target: { type: 'cohort', id, label: 'January' } }, handle);
     expect((await get('st_owner', url)).json()).toMatchObject({ testSends: { welcome: true, week0: false }, plans: 0 });

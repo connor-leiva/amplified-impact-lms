@@ -89,12 +89,11 @@ describe('the run, with no stored run, is today’s weeks exactly (December)', (
     expect(run[0]!.dueAt).toBe(MT('2026-11-30T12:00:00'));
   });
 
-  it('December’s course opens at D-153’s instant whatever its sessions say; another cohort’s at its first live build', () => {
+  it('every cohort’s course opens at its first live build, read the same way: December’s is D-153’s instant (R-5 Phase 5)', () => {
     const db = prod();
-    expect(cohortOpensAt(DEFAULT_COHORT_ID, [])).toBe(COURSE_OPENS_AT);
-    expect(cohortOpensAt(DEFAULT_COHORT_ID, [{ cohortId: DEFAULT_COHORT_ID, start: 1, kind: 'live_build' }])).toBe(
-      COURSE_OPENS_AT,
-    );
+    // R-5 Phase 5 (D-262, PLAN § 10.10): no December branch. Its first live build, dec26-s1, is D-153's instant.
+    expect(cohortOpensAt(DEFAULT_COHORT_ID, db.sessions)).toBe(COURSE_OPENS_AT);
+    expect(cohortOpensAt(DEFAULT_COHORT_ID, [])).toBe(Number.POSITIVE_INFINITY);
     const { db: both, id } = withJanuary(db);
     expect(mtLine(cohortOpensAt(id, both.sessions))).toBe('Tue 2027-01-05 12:00');
     expect(cohortOpensAt('none', both.sessions)).toBe(Number.POSITIVE_INFINITY);
@@ -301,6 +300,13 @@ describe('which cohort a viewer is in', () => {
         plan({ cohortId: 'c_jan', createdAt: 2, status: 'ended' }),
       ]),
     ).toBe('dec26');
+  });
+  it('Q-23 (Connor, Nov 26): the newest purchase decides, whichever cohort starts first and in any order', () => {
+    // A January team that then buys December is in December: the purchase decides, not the cohort's dates.
+    expect(cohortOfPlans([plan({ cohortId: 'c_jan', createdAt: 1 }), plan({ cohortId: 'dec26', createdAt: 2 })])).toBe('dec26');
+    expect(cohortOfPlans([plan({ cohortId: 'dec26', createdAt: 2 }), plan({ cohortId: 'c_jan', createdAt: 1 })])).toBe('dec26');
+    // A purchase that is not a cohort seat (a membership) moves no one.
+    expect(cohortOfPlans([plan({ cohortId: 'c_jan', createdAt: 1 }), plan({ kind: 'membership', cohortId: null, createdAt: 2 })])).toBe('c_jan');
   });
 });
 

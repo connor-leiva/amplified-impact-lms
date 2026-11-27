@@ -60,7 +60,7 @@ const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 | 9 }> = {
   users: { table: 'users', columns: ['cohort_id', 'early_access', 'email', 'id', 'is_test', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats', 'seq'] },
-  cohorts: { table: 'cohorts', columns: ['archived_at', 'cadence', 'capacity', 'course', 'default_open_time', 'end', 'hosts', 'id', 'included_until', 'name', 'overlap_ok_at', 'preview_opens_at', 'program_id', 'run', 'shape', 'start', 'status', 'timezone', 'weeks', 'welcome_sends_at', 'words', 'words_checked_at'] },
+  cohorts: { table: 'cohorts', columns: ['archived_at', 'cadence', 'capacity', 'course', 'default_open_time', 'end', 'enrollment_closed_at', 'founding', 'founding_closes_at', 'ghl_value', 'hosts', 'id', 'included_until', 'link_full', 'link_two_pay', 'lookup_key_full', 'lookup_key_rollover', 'lookup_key_two_pay', 'name', 'overlap_ok_at', 'preview_opens_at', 'program_id', 'run', 'shape', 'start', 'status', 'timezone', 'two_pay', 'weeks', 'welcome_sends_at', 'words', 'words_checked_at'] },
   sessions: { table: 'sessions', columns: ['attended', 'cohort_id', 'id', 'kind', 'live', 'mins', 'module_id', 'moved_from', 'n', 'replay', 'replay_url', 'replay_visibility', 'slot', 'start', 'title', 'views', 'zoom'] },
   modules: { table: 'modules', columns: ['build', 'checklist', 'course', 'due_at', 'dur', 'files', 'for_who', 'headline', 'icon', 'id', 'instructor', 'kind', 'name', 'notes', 'opens', 'order', 'outcome', 'outputs', 'platform', 'prompt', 'resources', 'run_demo', 'run_label', 'session', 'short', 'status', 'tier', 'tone', 'transcript'] },
   progress: { table: 'progress', columns: ['built_at', 'deployed_at', 'issue', 'last_run', 'module_id', 'runtime', 'steps', 'user_id'] },
@@ -111,7 +111,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // the public pages sit; these are their tables.
   orders: {
     table: 'orders',
-    columns: ['account_id', 'agreement_accepted_at', 'agreement_version', 'amount_total', 'campaign', 'company', 'created_at', 'crm', 'currency', 'email', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'id', 'membership_ended_at', 'name', 'option', 'origin', 'paid_at', 'payment_failed_at', 'payments_made', 'phone', 'plan', 'refunded_at', 'renewal_consent_at', 'renewal_consent_text', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'src', 'status', 'stripe_customer_id', 'stripe_payment_intent_id', 'stripe_session_id', 'stripe_subscription_id', 'team_size'],
+    columns: ['account_id', 'agreement_accepted_at', 'agreement_version', 'amount_total', 'campaign', 'cohort_id', 'company', 'created_at', 'crm', 'currency', 'email', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'id', 'membership_ended_at', 'name', 'option', 'origin', 'paid_at', 'payment_failed_at', 'payments_made', 'phone', 'plan', 'refunded_at', 'renewal_consent_at', 'renewal_consent_text', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'src', 'status', 'stripe_customer_id', 'stripe_payment_intent_id', 'stripe_session_id', 'stripe_subscription_id', 'team_size'],
     gate: 9,
   },
   stripeEvents: { table: 'stripe_events', columns: ['error', 'id', 'processed_at', 'received_at', 'type'], gate: 9 },
@@ -364,6 +364,10 @@ const EPOCH_COLUMNS: [string, string][] = [
   // R-5 Phase 3 (D-255, migration 0044): when a cohort's words were saved, and when its overlap was kept.
   ['cohorts', 'wordsCheckedAt'],
   ['cohorts', 'overlapOkAt'],
+  // R-5 Phase 5 (D-262): when a cohort's founding prices stop selling.
+  ['cohorts', 'foundingClosesAt'],
+  // R-5 Phase 5 (D-262): when Close enrollment was pressed (it never writes `status`, PLAN.md § 2.5).
+  ['cohorts', 'enrollmentClosedAt'],
   ['progress', 'builtAt'], ['progress', 'deployedAt'],
   ['checklistState', 'checkedAt'],
   ['learnerPrefs', 'updatedAt'],
