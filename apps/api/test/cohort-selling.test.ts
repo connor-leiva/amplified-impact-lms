@@ -346,6 +346,11 @@ describe('Done when: a checkout names its cohort', () => {
     const offer = (await (await appAt(NOV27)).inject({ method: 'GET', url: '/api/offer' })).json() as { seats: { total: number }; carts: { id: string; paymentLink: string | null }[] };
     expect(offer.seats.total).toBe(15);
     expect(offer.carts.find((c) => c.id === 'cohort-full')!.paymentLink).toBe(DEC_LINKS.full);
+    // A checkout through January's link, still live in Stripe after Close: paid, placed in January, and reported.
+    logs.length = 0;
+    expect(await handleStripeEvent(event('checkout.session.completed', session('janlate', 'full', jan)), deps())).toBe('paid');
+    expect((await planOf('janlate@buyers.example.test'))!.plan.cohortId).toBe(jan);
+    expect(logs).toContain('a seat was sold in a cohort whose enrollment is closed: placed in it. Connor follows up');
   });
 
   it('an ai_cohort the database does not hold is recorded and paid, not provisioned, for Connor', async () => {
