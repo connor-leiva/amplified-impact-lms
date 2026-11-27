@@ -23,9 +23,10 @@ import {
   OBSERVER_COPY_TEMPLATES,
   OBSERVER_NEVER_TEMPLATES,
   WEEK0_OPEN_FLAG,
+  rollupOf,
   seedForDatabase,
 } from '@ai/core';
-import type { Db } from '@ai/core';
+import type { Db, EmailLogPage } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { settleEmails } from '../src/auth';
@@ -605,5 +606,28 @@ describe('POST /api/console/email-observers @observers', () => {
     const d = await database();
     expect(await d.select().from(consoleSettings)).toEqual([]);
     expect(await d.select().from(auditLog).where(and(eq(auditLog.action, 'email_observers.save')))).toEqual([]);
+  });
+
+  it('the Email Log lists a copy, marked, and its delivery rollup (D-263) counts the learners’ email only', async () => {
+    const d = await database();
+    // One session reminder delivered to a learner and opened, and the observer's copy of it, delivered, opened and
+    // clicked: the copy must not lift the learners' sent, delivered, opened or clicked.
+    const base = { template: 'session-24h', subject: 'Tomorrow: Session 3', provider: 'resend', status: 'sent', deliveryStatus: 'delivered', deliveredAt: NOW - 50_000, openCount: 1, openedFirstAt: NOW - 40_000, openedLastAt: NOW - 40_000 };
+    await d.insert(emailLog).values([
+      { ...base, at: NOW - 60_000, to: 'jamie@ortizhomes.com', userId: 'u_jamie', providerId: 're_learner' },
+      { ...base, at: NOW - 60_000, to: OBS[0]!, userId: null, providerId: 're_observer', observerCopy: true, clickCount: 1, clickedFirstAt: NOW - 30_000, clickedLastAt: NOW - 30_000 },
+    ]);
+    const res = await app.inject({ method: 'GET', url: '/api/console/email', headers: { cookie } });
+    expect(res.statusCode, res.body).toBe(200);
+    const page = res.json() as EmailLogPage;
+    // Both listed; only the copy carries the mark, so a learner's row reads exactly as it did.
+    expect(page.rows.map((r) => [r.providerId, r.observerCopy ?? null])).toEqual([
+      ['re_observer', true],
+      ['re_learner', null],
+    ]);
+    expect(page.rows.find((r) => r.providerId === 're_learner')).not.toHaveProperty('observerCopy');
+    expect(page.rollup).toMatchObject({ sent: 1, delivered: 1, opened: 1, clicked: 0, deliveredPct: 100, openedPct: 100, clickedPct: 0 });
+    // The SQL still counts exactly what core's `rollupOf` counts from the same rows.
+    expect(rollupOf(page.rows)).toEqual({ sent: 1, delivered: 1, delayed: 0, bounced: 0, complained: 0, opened: 1, clicked: 0 });
   });
 });

@@ -14,6 +14,7 @@ import {
   observerAddressesFromEnv,
   parseObserverAddresses,
   resolveObservers,
+  rollupOf,
 } from '../src';
 
 describe('which templates an observer gets (D-264)', () => {
@@ -96,5 +97,13 @@ describe('the list in force (D-264)', () => {
     expect(AUDIT_ACTIONS).toContain('email_observers.save');
     expect(COHORT_OBSERVER_ENV).toBe('COHORT_OBSERVER_EMAILS');
     expect(EMAIL_OBSERVERS_COPY.fromEnv).toContain('COHORT_OBSERVER_EMAILS');
+  });
+});
+
+describe('the Email Log’s delivery rollup (D-263) leaves copies out (D-264)', () => {
+  it('counts a learner’s delivered, opened email and not an observer’s copy of it', () => {
+    const row = { status: 'sent', delivery: 'delivered', openCount: 1, clickCount: 1 };
+    expect(rollupOf([row, { ...row, observerCopy: true }])).toEqual({ sent: 1, delivered: 1, delayed: 0, bounced: 0, complained: 0, opened: 1, clicked: 1 });
+    expect(rollupOf([{ ...row, observerCopy: true }])).toEqual({ sent: 0, delivered: 0, delayed: 0, bounced: 0, complained: 0, opened: 0, clicked: 0 });
   });
 });

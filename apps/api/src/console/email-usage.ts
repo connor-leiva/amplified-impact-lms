@@ -166,14 +166,17 @@ const toEmailRow = (r: EmailRaw): EmailLogRow => ({
   clickedFirstAt: num0(r.clickedFirstAt),
   clickedLastAt: num0(r.clickedLastAt),
   clickedLink: r.clickedLink,
+  // D-264: marked only on a cohort observer's copy, so a learner's row reads exactly as it did.
+  ...(r.observerCopy ? { observerCopy: true as const } : {}),
 });
 
 /**
  * The rollup's counts over every row the filters pick (D-263), as `rollupOf` counts rows in hand: sends
- * Resend took, deliveries with complaints among them, and opens and clicks only on delivered rows.
+ * Resend took, deliveries with complaints among them, and opens and clicks only on delivered rows. D-264: a cohort
+ * observer's copy is never counted (every count below starts from `sent`), so the rollup stays the learners'.
  */
 export async function readEmailRollup(db: Database, f: EmailLogFilters): Promise<EmailRollupCounts> {
-  const sent = sql`${emailLog.status} = 'sent'`;
+  const sent = sql`${emailLog.status} = 'sent' and ${emailLog.observerCopy} = false`;
   const reached = sql`${sent} and ${emailLog.deliveryStatus} in ('delivered', 'complained')`;
   const [r] = await db
     .select({
