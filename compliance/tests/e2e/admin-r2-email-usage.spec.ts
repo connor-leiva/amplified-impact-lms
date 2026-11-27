@@ -37,7 +37,7 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await expect(crumbs(page)).toHaveText('Admin/Operations/Email Log');
     await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Email Log');
     await expect(rows(page)).toHaveCount(7);
-    await expect(rows(page).first()).toContainText('Tomorrow at 12:00 PM MST: Session 2 live build');
+    await expect(rows(page).first()).toContainText('Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build');
     await expect(rows(page).first()).toContainText('Dec 8, 12:00 PM');
     // D-263: the rollup over every row the filters pick, and each row's opens and clicks.
     // The tiles' grid is the Sent tile's parent; a tile is its label's parent ("Sent" and "Delivered" are row words too).
@@ -77,8 +77,8 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     for (const t of ['sam@tidewaterproperty.example', 'Amplified Impact', 'payment-failed', 'Resend', 'First opened', 'Last opened'])
       await expect(dialog.getByText(t, { exact: true })).toBeVisible();
     // Sent and Delivered the same minute; one open, so its first and last are the same minute too.
-    await expect(dialog.getByText('Dec 4, 9:04 AM MST', { exact: true })).toHaveCount(2);
-    await expect(dialog.getByText('Dec 4, 9:30 AM MST', { exact: true })).toHaveCount(2);
+    await expect(dialog.getByText('Dec 4, 9:04 AM MT', { exact: true })).toHaveCount(2);
+    await expect(dialog.getByText('Dec 4, 9:30 AM MT', { exact: true })).toHaveCount(2);
     await expect(dialog).toContainText('The log keeps the subject and delivery events. The message body is not stored here.');
     await expectAccessible(page);
     await dialog.getByRole('button', { name: 'Done' }).click();
@@ -210,7 +210,7 @@ test.describe('the record tabs (D-166) @g9 @console', () => {
     const { page, close } = await openAt(browser, '/admin/users/u_1042');
     await page.getByRole('tablist', { name: 'Section' }).getByRole('tab', { name: 'Emails sent' }).click();
     await expect(rows(page)).toHaveCount(1);
-    await expect(rows(page).first()).toContainText('Tomorrow at 12:00 PM MST: Session 2 live build');
+    await expect(rows(page).first()).toContainText('Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build');
     await expect(rows(page).first()).toContainText('Delivered');
     await expectAccessible(page);
     await close();

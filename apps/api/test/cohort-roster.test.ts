@@ -163,7 +163,19 @@ describe('who counts in a cohort: one rule', () => {
   it('the Cohort page’s facts count the same people; a comp is in the cohort and is no seat sold', async () => {
     const facts = await cohortFactsOf(handle, DEFAULT_COHORT_ID);
     expect(facts).toMatchObject({ teams: 2, learners: 3, plans: 1, paidInFull: 1 });
+    expect(facts.secondPayments).toEqual({ count: 0, each: null, next: null });
     expect(await cohortFactsOf(handle, jan)).toMatchObject({ teams: 1, learners: 1, plans: 1 });
+  });
+
+  it('Needs You’s second payments: a two-payment seat with one paid, due a month after the first', async () => {
+    await team({ id: 'twopay', cohortId: DEFAULT_COHORT_ID });
+    await handle.update(plans).set({ option: 'two_pay' }).where(eq(plans.id, 'p_twopay'));
+    await handle.update(orders).set({ option: 'two_pay', amountTotal: 375000, paymentsMade: 1, paidAt: MT('2026-11-30T09:00:00') }).where(eq(orders.id, 'o_twopay'));
+    const facts = await cohortFactsOf(handle, DEFAULT_COHORT_ID);
+    expect(facts.secondPayments).toEqual({ count: 1, each: 375000, next: MT('2026-12-30T09:00:00') });
+    // Once the second is paid, nothing is owed.
+    await handle.update(orders).set({ paymentsMade: 2 }).where(eq(orders.id, 'o_twopay'));
+    expect((await cohortFactsOf(handle, DEFAULT_COHORT_ID)).secondPayments).toEqual({ count: 0, each: null, next: null });
   });
 });
 

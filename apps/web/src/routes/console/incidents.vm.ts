@@ -7,7 +7,7 @@
 // toasts ("INC-0007 is acknowledged"). The two dialogs and the Linked card's empty line are new
 // (listed in D-167), the stack's R2 `Confirm` and `Modal`.
 
-import { INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS, adminStamp, consoleCan, incidentEventText, incidentLinked } from '@ai/core';
+import { INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS, adminStamp, adminStampZoned, consoleCan, incidentEventText, incidentLinked } from '@ai/core';
 import type { AdminStatus, IconName, IncidentDetail, IncidentFilters, IncidentRow, IncidentSeverity, IncidentStatus } from '@ai/core';
 
 export const INCIDENTS_PATH = '/admin/incidents';
@@ -120,7 +120,7 @@ export function incidentVM(d: IncidentDetail, role: string | null): IncidentVM {
     title: d.title,
     severity: severityOf(d.severity),
     status: incidentStatusOf(d.status),
-    facts: { id: d.id, severity: INCIDENT_SEVERITY_LABELS[d.severity], owner: d.owner?.name ?? NONE, opened: `${adminStamp(d.openedAt)} MST` },
+    facts: { id: d.id, severity: INCIDENT_SEVERITY_LABELS[d.severity], owner: d.owner?.name ?? NONE, opened: adminStampZoned(d.openedAt) },
     timeline: d.events.map((e) => ({ key: e.id, text: incidentEventText(e), when: adminStamp(e.at) })),
     linked: incidentLinked(d.events).map((l) => ({ key: l.to, to: l.to, icon: LINK_ICON[l.icon], label: l.label })),
     canAck: d.status === 'open' && consoleCan(role, 'incidents.ack'),

@@ -16,8 +16,8 @@
 // WHERE IT IS READ. The API reads the rows (`apps/api/src/lib/cohort-roster.ts`), counts every cohort's `enrolled` from
 // it (`db/codec.ts`), and hands staff the roster itself (`Db.roster`) and each access group's people outside every cohort
 // (`Db.groups`, the People › Utah Life tab). A learner's snapshot carries neither. Without `Db.roster` (the fixture, the
-// demo), `rosterLearners` and `rosterTeams` read the snapshot as every screen read it before, so nothing a fixture draws
-// moves.
+// demo), `rosterLearners` reads the learners whose row names the cohort and `rosterTeams` every team, as the screens read
+// them before, so nothing a fixture draws moves.
 //
 // Pure: no clock, no I/O.
 
@@ -131,18 +131,13 @@ export function rosterLearners(db: Pick<Db, 'users' | 'roster'>, cohortId: strin
 }
 
 /**
- * A cohort's teams by the rule. Without `db.roster` (the fixture): every team with someone in the cohort, and every team
- * with no one modelled (the fixture's sample teams), as before.
+ * A cohort's teams by the rule. Without `db.roster` (the fixture): every team, as every screen counted them before (a
+ * fixture's sample team names no cohort), so nothing a fixture draws moves.
  */
-export function rosterTeams(db: Pick<Db, 'users' | 'teams' | 'roster'>, cohortId: string): Team[] {
-  if (db.roster) {
-    const ids = new Set(db.roster[cohortId]?.teams ?? []);
-    return db.teams.filter((t) => ids.has(t.id));
-  }
-  return db.teams.filter((t) => {
-    const people = db.users.filter((u) => u.teamId === t.id);
-    return !people.length || people.some((u) => u.cohortId === cohortId);
-  });
+export function rosterTeams(db: Pick<Db, 'teams' | 'roster'>, cohortId: string): Team[] {
+  if (!db.roster) return db.teams;
+  const ids = new Set(db.roster[cohortId]?.teams ?? []);
+  return db.teams.filter((t) => ids.has(t.id));
 }
 
 /** Every cohort's learners together, for a figure across cohorts (Plans & Upgrades). Without `db.roster`: everyone. */

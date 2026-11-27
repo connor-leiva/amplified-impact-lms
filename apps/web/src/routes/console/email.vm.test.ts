@@ -58,7 +58,7 @@ describe('the Email Log’s filters @console', () => {
 });
 
 describe('the Email Log’s rows and detail @console', () => {
-  it('prints a row in MST with its status word and tone', () => {
+  it('prints a row in MT and CT with its status word and tone', () => {
     expect(emailRowVM(row)).toMatchObject({ subject: row.subject, to: row.to, template: 'session-24h', sent: 'Dec 8, 12:00 PM', status: { label: 'Failed', tone: 'bad' } });
   });
   it('says the body is not kept, and names a failure’s kind', () => {
@@ -71,7 +71,7 @@ describe('the Email Log’s rows and detail @console', () => {
       ['Provider', 'Resend'],
       ['Status', 'Failed'],
       ['Error', 'Resend refused it'],
-      ['Sent', 'Dec 8, 12:00 PM MST'],
+      ['Sent', 'Dec 8, 12:00 PM MT'],
     ]);
     // The mockup's own note, now that the log keeps delivery events (D-263).
     expect(d.note).toBe('The log keeps the subject and delivery events. The message body is not stored here.');
@@ -80,7 +80,7 @@ describe('the Email Log’s rows and detail @console', () => {
   it('draws the mockup’s rows from the fixture, and filters them as the API does', () => {
     const rows = fixtureEmails();
     expect(rows.map(emailRowVM).map((r) => [r.subject, r.status.label, r.opens, r.clicks, r.sent])).toEqual([
-      ['Tomorrow at 12:00 PM MST: Session 2 live build', 'Delivered', 2, 1, 'Dec 8, 12:00 PM'],
+      ['Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build', 'Delivered', 2, 1, 'Dec 8, 12:00 PM'],
       ['Your Insiders payment did not go through', 'Delivered', 1, 0, 'Dec 4, 9:04 AM'],
       ['The Session 2 replay is ready', 'Delivered', 3, 2, 'Dec 9, 3:10 PM'],
       ['Your sign-in link', 'Delivered', 1, 1, 'Dec 9, 11:26 AM'],
@@ -147,14 +147,14 @@ describe('the Email Log’s delivery (D-263) @console', () => {
       ['Template', 'session-24h'],
       ['Provider', 'Resend'],
       ['Status', 'Delivered'],
-      ['Sent', 'Dec 8, 12:00 PM MST'],
-      ['Delivered', 'Dec 8, 12:00 PM MST'],
+      ['Sent', 'Dec 8, 12:00 PM MT'],
+      ['Delivered', 'Dec 8, 12:00 PM MT'],
       ['Opens', '2'],
-      ['First opened', 'Dec 8, 12:41 PM MST'],
-      ['Last opened', 'Dec 8, 6:40 PM MST'],
+      ['First opened', 'Dec 8, 12:41 PM MT'],
+      ['Last opened', 'Dec 8, 6:40 PM MT'],
       ['Clicks', '1'],
-      ['First clicked', 'Dec 8, 12:42 PM MST'],
-      ['Last clicked', 'Dec 8, 12:42 PM MST'],
+      ['First clicked', 'Dec 8, 12:42 PM MT'],
+      ['Last clicked', 'Dec 8, 12:42 PM MT'],
       ['Last link clicked', 'https://learn.example.com/sessions/2'],
     ]);
   });
@@ -167,7 +167,7 @@ describe('the Email Log’s delivery (D-263) @console', () => {
       ['Template', 'weekly-digest'],
       ['Provider', 'Resend'],
       ['Status', 'Bounced'],
-      ['Sent', 'Dec 7, 7:00 AM MST'],
+      ['Sent', 'Dec 7, 7:00 AM MT'],
       ['Bounce', 'Permanent · General · The mailbox does not exist.'],
       ['Opens', '0'],
       ['Clicks', '0'],

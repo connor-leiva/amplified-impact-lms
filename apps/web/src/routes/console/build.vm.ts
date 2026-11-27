@@ -13,7 +13,7 @@ import type { AdminStatus, ConsoleSkillRow, Db, IconName } from '@ai/core';
 
 export const BUILD_COPY = {
   title: 'Build',
-  description: 'The builder screens, the skill library and the cohort, in one place. Times are MST (America/Phoenix).',
+  description: 'The builder screens, the skill library and the cohort, in one place. Times are MT (America/Denver).',
   screens: 'Builder screens',
   skills: 'Skills',
   skillsEmpty: 'No skills yet',

@@ -10,6 +10,8 @@
 //   intake      of those teams, how many have not started their intake (no `team_intake` row), and how many sent one
 //               that did not reach GoHighLevel (`ghl_sync_status` is `failed`): the "Needs you" rows.
 //   readiness   of those teams, how many have someone signed in, their intake submitted, and are paid in full.
+//   secondPayments  R-5 audit (D-267): of those teams' two-payment seats, the second payments still to come: how many,
+//               each one's amount when they agree, and the next one's date (`secondPaymentAt`, a month after the first).
 //
 //   stripe      R-5 Phase 5 (D-262): what Stripe says about the cohort's lookup keys (its active price under each, through
 //               the price cache, `PriceBook`) and its Payment Links (each stored address found in Stripe, and the cohort
@@ -18,7 +20,8 @@
 // Read-only. "Before it opens" (`beforeItOpens` in `@ai/core`) reads these beside the snapshot, and so does Open
 // enrollment's refusal, so the checklist and the refusal cannot drift. Two booleans and counts; no names.
 
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
+import { secondPaymentAt } from '@ai/core';
 import type { CohortFacts, CohortRoster } from '@ai/core';
 import type { CohortStripeFacts, StripeLink, StripePrice } from '@ai/core/cohort-selling';
 import type { Database } from '../db/client';
@@ -122,6 +125,19 @@ export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: Strip
   const people = roster.learners.length
     ? await db.select({ id: users.id, teamId: users.teamId, last: users.last }).from(users).where(inArray(users.id, roster.learners))
     : [];
+  // R-5 audit (D-267): the second payments still to come on its two-payment seats in the roster (not a comp, not a test
+  // account's): Needs You's "2 second payments are on the calendar".
+  const twoPay = live.length
+    ? await db
+        .select({ teamId: accounts.teamId, paymentsMade: orders.paymentsMade, amountTotal: orders.amountTotal, paidAt: orders.paidAt, createdAt: orders.createdAt })
+        .from(plans)
+        .innerJoin(accounts, eq(accounts.id, plans.accountId))
+        .innerJoin(orders, eq(orders.id, plans.orderId))
+        .where(and(eq(plans.kind, 'cohort'), eq(plans.cohortId, cohortId), eq(plans.option, 'two_pay'), ne(plans.status, 'ended'), notTest, notComp))
+    : [];
+  const owed = twoPay.filter((p) => inRoster.has(p.teamId) && (p.paymentsMade ?? 0) === 1);
+  const amounts = [...new Set(owed.map((p) => p.amountTotal))];
+  const dues = owed.map((p) => secondPaymentAt(Number(p.paidAt ?? p.createdAt)));
   const intake = live.length
     ? await db
         .select({ teamId: teamIntake.teamId, ghl: teamIntake.ghlSyncStatus, submittedAt: teamIntake.submittedAt })
@@ -141,6 +157,11 @@ export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: Strip
     signedIn: new Set(people.filter((u) => u.last !== null).map((u) => u.teamId)).size,
     intakeSubmitted: intake.filter((r) => r.submittedAt !== null).length,
     paidInFull: new Set(sold.filter((p) => p.status !== 'ended' && p.option === 'full' && inRoster.has(p.teamId)).map((p) => p.teamId)).size,
+    secondPayments: {
+      count: owed.length,
+      each: amounts.length === 1 && amounts[0] !== null ? Number(amounts[0]) : null,
+      next: dues.length ? Math.min(...dues) : null,
+    },
     ...(stripe ? { stripe: await stripe(db, cohortId) } : {}),
   };
 }

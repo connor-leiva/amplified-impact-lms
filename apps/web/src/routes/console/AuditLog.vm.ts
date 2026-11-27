@@ -4,7 +4,7 @@
 // Times go through `fmt.*`: the viewer's zone first, the program zone in parentheses (CLAUDE.md).
 // Outcomes are a word and a glyph on a status token, never a colour alone.
 
-import { ADMIN_ZONE, AUDIT_ACTION_GROUPS, CONSOLE_CAP_LABELS, adminDate, adminStamp, adminTime, auditActionGroup, auditRedactsNetwork, consoleCan, fmt, permissionChangeSummary } from '@ai/core';
+import { AUDIT_ACTION_GROUPS, CONSOLE_CAP_LABELS, adminDate, adminStamp, auditActionGroup, auditRedactsNetwork, consoleCan, fmt, permissionChangeSummary } from '@ai/core';
 import type { AuditFilters, AuditOutcome, AuditRow, ConsoleCap, Staff } from '@ai/core';
 import type { TokenGlyph, TokenTone } from '../../components/StatusToken';
 import type { ConsoleFailure } from '../../data/console';
@@ -275,7 +275,7 @@ export const actionGroupLabel = (action: string): string => groupLabel(auditActi
 // ================================================================================================
 
 export const AUDIT_R2_COPY = {
-  description: 'Every staff action. Append-only. Times are MST (America/Phoenix).',
+  description: 'Every staff action. Append-only. Times are MT (America/Denver).',
   search: 'Filter target or detail',
   exportSelected: 'Export selected',
   emptyTitle: 'No audit entries yet',
@@ -312,5 +312,5 @@ export const rowR2 = (r: AuditRow): AuditR2Row => ({
 
 /** The drawer's pairs, the time in MST with its year. */
 export function detailR2(r: AuditRow, viewerRole: string | null): DetailPair[] {
-  return detailVM(r, viewerRole).map((p) => (p.label === 'Time' ? { ...p, value: `${adminDate(r.at)}, ${adminTime(r.at)} ${ADMIN_ZONE}` } : p));
+  return detailVM(r, viewerRole).map((p) => (p.label === 'Time' ? { ...p, value: `${adminDate(r.at)}, ${fmt.mtTime(r.at)}` } : p));
 }

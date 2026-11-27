@@ -21,8 +21,8 @@ import {
 
 const mst = (s: string) => Date.parse(`${s}-07:00`);
 
-describe('admin stamps (BUILD-SPEC § 7: one zone, MST) @console', () => {
-  it('is America/Phoenix', () => expect(ADMIN_TZ).toBe('America/Phoenix'));
+describe('admin stamps (one zone; R-5 audit, D-267: MT, where BUILD-SPEC § 7 had MST) @console', () => {
+  it('is America/Denver', () => expect(ADMIN_TZ).toBe('America/Denver'));
   it('prints a moment as the mockup does', () => {
     expect(adminStamp(mst('2026-12-10T08:52:00'))).toBe('Dec 10, 8:52 AM');
     expect(adminStamp(mst('2026-12-10T00:41:00'))).toBe('Dec 10, 12:41 AM');

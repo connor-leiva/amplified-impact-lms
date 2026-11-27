@@ -192,7 +192,7 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await close();
   });
 
-  test('every time is MST, and nothing scrolls sideways on a phone', async ({ browser }) => {
+  test('every time is MT, and nothing scrolls sideways on a phone', async ({ browser }) => {
     for (const tab of ['', '/invoices', '/failed', '/refunds']) {
       const { page, close } = await openAt(browser, `/admin/billing${tab}`, 390);
       await expect(page.locator('main')).not.toContainText(/\bCT\b|Central/);

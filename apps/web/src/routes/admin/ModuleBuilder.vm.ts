@@ -514,7 +514,7 @@ export function moveStepTo(list: readonly Step[], from: number, to: number): Ste
   return out;
 }
 
-/** An `<input type="date">` value for the opening day, in MST. */
+/** An `<input type="date">` value for the opening day, in MT (D-267). */
 export const opensInput = (t: number | null): string => (t ? toAdminLocal(t).date : '');
-/** The opening instant for an `<input type="date">` value: 9:00 AM MST that day. */
+/** The opening instant for an `<input type="date">` value: 9:00 AM MT that day (D-267). */
 export const opensFrom = (date: string): number | null => (date ? fromAdminLocal(date, '09:00') : null);

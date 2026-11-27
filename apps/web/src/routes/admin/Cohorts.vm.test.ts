@@ -239,7 +239,7 @@ describe('cohortsVM @g6', () => {
 });
 
 // ================================================================================================
-// R2 (D-160 R2-2b): the mockup's Cohorts & Sessions, every time in MST.
+// R2 (D-160 R2-2b): the mockup's Cohorts & Sessions, every time in MT and CT (D-267).
 // ================================================================================================
 
 describe('cohortsR2VM (D-160 R2-2b)', () => {
@@ -254,7 +254,7 @@ describe('cohortsR2VM (D-160 R2-2b)', () => {
     expect(vm.facts).toEqual({
       cohort: 'December 2026',
       status: { label: 'Active', tone: 'ok' },
-      opens: 'Wed, Dec 2 · 12:00 PM MST',
+      opens: 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT',
       week: '2 of 6',
       enrolled: '148 learners',
       cadence: 'Wednesdays, weekly',
@@ -265,15 +265,15 @@ describe('cohortsR2VM (D-160 R2-2b)', () => {
     expect(
       vm.rows.map((r) => [r.title, r.when, r.week, r.invite.label, r.replay?.label ?? '—', r.attendance ?? '—']),
     ).toEqual([
-      ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST', 'Week 1', 'Sent', 'Ready', '82%'],
-      ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST', 'Week 2', 'Sent', 'Ready', '74%'],
-      ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST', 'Week 3', 'Scheduled', '—', '—'],
-      ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST', 'Week 4', 'Scheduled', '—', '—'],
-      ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST', 'Week 5', 'Draft', '—', '—'],
-      ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST', 'Week 6', 'Draft', '—', '—'],
+      ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT', 'Week 1', 'Sent', 'Ready', '82%'],
+      ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MT / 1:00 PM CT', 'Week 2', 'Sent', 'Ready', '74%'],
+      ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MT / 1:00 PM CT', 'Week 3', 'Scheduled', '—', '—'],
+      ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MT / 1:00 PM CT', 'Week 4', 'Scheduled', '—', '—'],
+      ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MT / 1:00 PM CT', 'Week 5', 'Draft', '—', '—'],
+      ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MT / 1:00 PM CT', 'Week 6', 'Draft', '—', '—'],
     ]);
     expect(vm.rows.map((r) => r.primary?.label ?? null)).toEqual([null, null, 'Go Live', null, null, null]);
-    expect(JSON.stringify(vm)).not.toMatch(/\bCT\b|Central/);
+    expect(JSON.stringify(vm)).not.toMatch(/\bMST\b/); // D-267: MT, with CT after it
   });
 
   it('sends the invite once the 24-hour reminder window opens', () => {
@@ -288,7 +288,7 @@ describe('cohortsR2VM (D-160 R2-2b)', () => {
     expect(early.facts.week).toBe('Not started');
   });
 
-  it('edits a session in MST and saves the same instant in Central Time, which updateSession reads', () => {
+  it('edits a session in MT and saves the same instant in Central Time, which updateSession reads', () => {
     const s3 = db.sessions[2]!;
     const form = sessionFormR2(s3);
     expect(form).toEqual({

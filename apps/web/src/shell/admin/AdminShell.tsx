@@ -98,41 +98,6 @@ export function AdminShell() {
   }, []);
   const role = previewRole ?? staffRole;
 
-  // D-167: the sidebar's "1 incident" from the API, once we know this is not the parity fixture.
-  const openIncidents = useOpenIncidents(parity === null && consoleCan(role, 'incidents.read'), path);
-  const waiting = useWaitingThreads(parity === null && consoleCan(role, 'console.view'), path);
-  const data = useMemo(
-    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents, waiting)),
-    [db, openIncidents, parity, role, staffId, waiting],
-  );
-
-  // ---- the sidebar's form --------------------------------------------------------------------------
-  const band = bandOf(vw);
-  // The rail toggle is remembered only while the window stays in the same band, as the mockup resets
-  // it with the width: a laptop starts on the rail, a desktop expanded.
-  const [railChoice, setRailChoice] = useState<{ band: Band; rail: boolean } | null>(null);
-  const rail = band !== 'phone' && (railChoice?.band === band ? railChoice.rail : band === 'laptop');
-  const mode: SidebarMode = band === 'phone' ? 'drawer' : rail ? 'rail' : 'full';
-
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [paletteOpen, setPaletteOpen] = useState(false);
-  const [record, setRecord] = useState<string | null>(null);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const mainRef = useRef<HTMLElement | null>(null);
-  const menuRef = useRef<HTMLButtonElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
-
-  // ---- groups: one open (D-239) ----------------------------------------------------------------------
-  // The group opened or shut by hand, for the visit it was clicked on (`location.key`: each navigation has its own,
-  // even back to the same address): going to any page resets it, and that page's group is the open one. View state
-  // for the session: nothing is stored, and what an older build stored is left where it is, unread.
-  const visit = location.key;
-  const [peeked, setPeeked] = useState<{ visit: string; group: SystemGroup | null } | null>(null);
-  const peek = peeked && peeked.visit === visit ? peeked.group : undefined;
-  const navRole = parity ? data.viewer.role : role;
-
   // ---- the cohort the admin is on (D-253) ----------------------------------------------------------------------------
   const place = placeOf(path);
   const addressCohort = place?.cohortId && db.cohorts.some((c) => c.id === place.cohortId) ? place.cohortId : null;
@@ -167,6 +132,43 @@ export function AdminShell() {
   const cohortId = addressCohort ?? known(lastCohort) ?? defaultCohortId(db.cohorts, now);
   const current = db.cohorts.find((c) => c.id === cohortId) ?? null;
 
+  // D-167: the sidebar's "1 incident" from the API, once we know this is not the parity fixture.
+  const openIncidents = useOpenIncidents(parity === null && consoleCan(role, 'incidents.read'), path);
+  // R-5 audit (D-267): the threads waiting in the cohort the admin is on, as Cohort › Community lists them.
+  const waiting = useWaitingThreads(parity === null && consoleCan(role, 'console.view'), path, cohortId);
+  const data = useMemo(
+    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents, waiting)),
+    [db, openIncidents, parity, role, staffId, waiting],
+  );
+
+  // ---- the sidebar's form --------------------------------------------------------------------------
+  const band = bandOf(vw);
+  // The rail toggle is remembered only while the window stays in the same band, as the mockup resets
+  // it with the width: a laptop starts on the rail, a desktop expanded.
+  const [railChoice, setRailChoice] = useState<{ band: Band; rail: boolean } | null>(null);
+  const rail = band !== 'phone' && (railChoice?.band === band ? railChoice.rail : band === 'laptop');
+  const mode: SidebarMode = band === 'phone' ? 'drawer' : rail ? 'rail' : 'full';
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [record, setRecord] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
+  const menuRef = useRef<HTMLButtonElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+
+  // ---- groups: one open (D-239) ----------------------------------------------------------------------
+  // The group opened or shut by hand, for the visit it was clicked on (`location.key`: each navigation has its own,
+  // even back to the same address): going to any page resets it, and that page's group is the open one. View state
+  // for the session: nothing is stored, and what an older build stored is left where it is, unread.
+  const visit = location.key;
+  const [peeked, setPeeked] = useState<{ visit: string; group: SystemGroup | null } | null>(null);
+  const peek = peeked && peeked.visit === visit ? peeked.group : undefined;
+  const navRole = parity ? data.viewer.role : role;
+
+
   const groups = useMemo(
     () =>
       adminNav({
@@ -177,8 +179,9 @@ export function AdminShell() {
         cohortId: cohortId ?? '',
         cohortDraft: current?.status === 'draft',
         peek,
+        groups: db.groups ?? [],
       }),
-    [cohortId, current?.status, data, navRole, path, peek],
+    [cohortId, current?.status, data, navRole, path, peek, db.groups],
   );
   const onPeek = useCallback((group: SystemGroup | null) => setPeeked({ visit, group }), [visit]);
 
@@ -266,7 +269,7 @@ export function AdminShell() {
     if (band !== 'phone') setDrawerOpen(false);
   }, [band]);
 
-  const crumbs = crumbsOf(place, { record, cohortId: cohortId ?? '' });
+  const crumbs = crumbsOf(place, { record, cohortId: cohortId ?? '', groups: db.groups ?? [] });
 
   const shellApi = useMemo(() => ({ openLocked: () => {}, sidebarMode: mode, vw }), [mode, vw]);
 
@@ -381,7 +384,7 @@ export function AdminShell() {
 
         {paletteOpen ? (
           <Palette
-            pages={navPages(navRole, data.fullNav, cohortId ?? '')}
+            pages={navPages(navRole, data.fullNav, cohortId ?? '', db.groups ?? [])}
             cohortId={cohortId ?? ''}
             modules={db.modules.map((m) => ({ id: m.id, name: m.name, status: m.status }))}
             phone={band === 'phone'}

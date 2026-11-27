@@ -183,20 +183,6 @@
       "phase": "6"
     },
     {
-      "file": "apps/web/src/routes/admin/Overview.vm.ts",
-      "match": "const COHORT_ID = 'dec26'",
-      "count": 1,
-      "reason": "The admin Overview is December's until Overview by cohort (PLAN § 5.4).",
-      "phase": "9"
-    },
-    {
-      "file": "apps/web/src/routes/admin/Overview.vm.ts",
-      "match": "DAY0 = Date.parse('2026-12-01T00:00:00-06:00')",
-      "count": 1,
-      "reason": "The Overview's activity chart starts at December's first week.",
-      "phase": "9"
-    },
-    {
       "file": "apps/web/src/routes/admin/Tiers.vm.ts",
       "match": "c.id === 'dec26') ?? db.cohorts[0]",
       "count": 1,
@@ -246,13 +232,6 @@
       "phase": "9"
     },
     {
-      "file": "apps/web/src/routes/portal/TeamHub.vm.ts",
-      "match": "const COHORT = 'dec26'",
-      "count": 1,
-      "reason": "The prototype portal's team hub (fixture mode only); stays (PLAN § 5.4).",
-      "phase": "never"
-    },
-    {
       "file": "apps/api/src/billing/comp.ts",
       "match": "if (!cohortId || cohortId === DEFAULT_COHORT_ID) {",
       "count": 1,
@@ -272,6 +251,69 @@
       "count": 1,
       "reason": "Hotfix D-266: December sold before R-5 whatever its status said (production's record is not enrolling), and a checkout with no ai_cohort lands in it forever, so its sale never reads its status. Archive and Close, both R-5's, still stop it.",
       "phase": "none yet: until Connor decides December's sale may read its status"
+    },
+    {
+      "file": "apps/api/src/billing/comp.ts",
+      "match": "list.unshift({ id: defaultCohortId, name: 'December 2026' })",
+      "count": 1,
+      "reason": "#282's comp form: the default cohort's name when the list doesn't hold it (D-267 found it with the name check).",
+      "phase": "none yet: until Connor decides which cohort the comp form opens on"
+    },
+    {
+      "file": "apps/api/src/email/templates/week0-open-html.ts",
+      "match": "title: 'Welcome to the December Cohort: Week 0 Is Open'",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "6 (proposed): with the program's words"
+    },
+    {
+      "file": "apps/api/src/email/templates/week0-open-html.ts",
+      "match": "eyebrow: 'Amplified AI Accelerator · December 2026 Cohort'",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "6 (proposed): with the program's words"
+    },
+    {
+      "file": "apps/api/src/email/templates/week0-open-html.ts",
+      "match": "the founding members of the December 2026 Cohort",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "6 (proposed): with the program's words"
+    },
+    {
+      "file": "apps/api/src/email/templates/week0-open-html.ts",
+      "match": "celebrate the start of the December 2026 Cohort",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "6 (proposed): with the program's words"
+    },
+    {
+      "file": "apps/api/src/email/templates/week0-open-html.ts",
+      "match": "week0CohortName(input.cohortName) : 'December 2026 Cohort'",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "6 (proposed): with the program's words"
+    },
+    {
+      "file": "apps/api/src/email/templates/week0-open-html.ts",
+      "match": "s.split('December 2026 Cohort').join(full)",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "6 (proposed): with the program's words"
+    },
+    {
+      "file": "packages/core/src/cohort-learner.ts",
+      "match": "DEFAULT_WEEK0_LABEL = 'December Cohort'",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "never: December's approved subject"
+    },
+    {
+      "file": "packages/core/src/cohort-learner.ts",
+      "match": "DEFAULT_WEEK0_NAME = 'December 2026 Cohort'",
+      "count": 1,
+      "reason": "Connor's approved Week 0 Is Open copy, December's words (D-261: December's subject and body byte-identical); another cohort's own name is swapped in (`week0CohortName`).",
+      "phase": "never: December's approved body"
     }
   ],
   "notCohort": [
@@ -424,6 +466,10 @@
     {
       "file": "apps/web/src/data/console-fixture.ts",
       "reason": "The console's fixture data (fixture mode only), like the other fixture files: #282's comp form list."
+    },
+    {
+      "file": "apps/web/src/data/parity-r2.ts",
+      "reason": "The R2 parity fixture's data: the mockup's own words and sample values (fixture mode only), as parity-r2-db.ts."
     }
   ]
 }

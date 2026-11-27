@@ -25,6 +25,7 @@ import {
   fmt,
   sessionFor,
   sessionState,
+  rosterLearnersAll,
   sortedModules,
   statusOf,
 } from '@ai/core';
@@ -82,8 +83,9 @@ export interface CurriculumVM {
 export function curriculumVM(db: Db, now: number): CurriculumVM {
   const base = db.base;
   const mods = sortedModules(db);
-  // Invited people have no portal yet, so they are not part of any AI Employee's audience.
-  const users = db.users.filter((u) => u.status !== 'invited');
+  // Invited people have no portal yet, so they are not part of any AI Employee's audience. Nor is anyone who counts in no
+  // cohort (R-5 audit, D-267: an access group's member, another plan's buyer).
+  const users = rosterLearnersAll(db).filter((u) => u.status !== 'invited');
 
   const rows: CurriculumRow[] = mods.map((m, i) => {
     const sess = m.session ? sessionFor(db, COHORT_ID, m.session) : null;
@@ -210,7 +212,8 @@ export const tierWords = (t: Tier): string => (t === 'agent' ? 'Agent + Team' : 
 
 export function curriculumR2VM(db: Db, now: number): CurriculumR2VM {
   const mods = sortedModules(db);
-  const users = db.users.filter((u) => u.status !== 'invited');
+  // R-5 audit (D-267): the learners who count in a cohort, never an access group's member.
+  const users = rosterLearnersAll(db).filter((u) => u.status !== 'invited');
   const cohort = db.cohorts.find((c) => c.id === COHORT_ID) ?? null;
   const started = !!cohort && now >= cohort.start;
 

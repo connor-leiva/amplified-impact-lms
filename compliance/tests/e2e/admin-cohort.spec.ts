@@ -84,7 +84,8 @@ test.describe('the Cohort page and New cohort (D-255) @g9 @console', () => {
     const id = new URL(page.url()).pathname.split('/').pop()!;
     await expect(page.getByRole('heading', { level: 1, name: 'January 2027 Cohort' })).toBeVisible();
     await expect(main(page).getByText('Draft', { exact: true }).first()).toBeVisible();
-    await expect(main(page).getByText('Amplified AI Accelerator · 6 weeks of building · twice a week · opens Sun, Dec 27')).toBeVisible();
+    // R-5 audit (D-267, Connor): the head names the setup week's opening and Week 1's, until Week 1 opens.
+    await expect(main(page).getByText('Amplified AI Accelerator · 6 weeks of building · twice a week · Week 0 opens Sun, Dec 27 · Week 1 opens Sun, Jan 3')).toBeVisible();
     // The sidebar's Cohort row says Draft.
     await expect(aside(page).getByText('Draft', { exact: true })).toBeVisible();
 

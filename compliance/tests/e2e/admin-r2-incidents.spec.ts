@@ -58,7 +58,7 @@ test.describe('Incidents on R2 (D-167) @g9 @console', () => {
     const aside = page.locator('aside[aria-label="Primary"]');
     await expect(aside.getByRole('button', { name: /Incidents/ })).toContainText('1');
     await expect(page.getByRole('heading', { level: 1, name: 'GHL order sync failing with 401' })).toBeVisible();
-    for (const t of ['INC-0007', 'Open', 'Sev 2', 'Imani Brooks', 'Dec 9, 9:14 PM MST', 'Job ghl-orders', '3 webhook deliveries']) await expect(page.locator('main')).toContainText(t);
+    for (const t of ['INC-0007', 'Open', 'Sev 2', 'Imani Brooks', 'Dec 9, 9:14 PM MT', 'Job ghl-orders', '3 webhook deliveries']) await expect(page.locator('main')).toContainText(t);
     // Exactly the mockup's two actions, and no other control in the header or the cards' heads.
     await expect(page.locator('main button')).toHaveText(['Acknowledge', 'Resolve']);
     await expectAccessible(page);

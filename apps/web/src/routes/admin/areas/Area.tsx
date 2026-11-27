@@ -6,6 +6,7 @@ import { PageHead, Tabs } from '../../../components/r2/kit';
 import { AREAS, areaTabs, placeOf, tabPath } from '../../../shell/admin/adminNav';
 import type { AreaId } from '../../../shell/admin/adminNav';
 import { useAdminChrome } from '../../../shell/admin/chrome';
+import { useDb } from '../../../data/hooks';
 import { useViewportWidth } from '../../../shell/hooks';
 import type { TabCounts } from './area.vm';
 import a from './Area.module.css';
@@ -35,10 +36,12 @@ export function Area({
   counts: TabCounts;
 }) {
   const { role } = useAdminChrome();
+  const db = useDb();
   const phone = useViewportWidth() < 768;
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const tabs = areaTabs(area, role);
+  // R-5 audit (D-267): People's tab for each access group (Utah Life), from staff's snapshot.
+  const tabs = areaTabs(area, role, area === 'people' ? (db.groups ?? []) : []);
   // A page's own address is its first tab the role may open.
   const value = placeOf(pathname)?.tab ?? tabs[0]?.id ?? '';
   // A tab the role may not open isn't drawn, but its address still answers as it did before D-253 (Denied, or

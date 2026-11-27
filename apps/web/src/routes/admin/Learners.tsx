@@ -17,6 +17,7 @@ import { useViewportWidth } from '../../shell/hooks';
 import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
 import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
+import { cohortLabel } from '../../data/admin-shell';
 import s from './Learners.module.css';
 import { personPath, teamPath } from '../../shell/admin/addresses';
 
@@ -149,13 +150,15 @@ function Learners() {
     ...entry.item('Masquerade…', { id: u.id, name: u.name, workspace: u.team }),
   ];
 
-  const cohortName = db.cohorts.find((c) => c.id === cohortId)?.name ?? 'current';
+  const cohortRow = db.cohorts.find((c) => c.id === cohortId);
+  // R-5 audit (D-267): the cohort's own name with its noun once ("January 2027 Cohort"), as the head names it.
+  const cohortName = cohortRow ? cohortLabel(cohortRow) : 'current Cohort';
 
   return (
     <Page>
       <PageHead
         title="Learners & Teams"
-        description={`Everyone enrolled in the ${cohortName} Cohort, with build progress. Account and billing support lives in Workspaces and Users.`}
+        description={`Everyone enrolled in the ${cohortName}, with build progress. Account and billing support lives in Workspaces and Users.`}
       />
 
       <Tabs

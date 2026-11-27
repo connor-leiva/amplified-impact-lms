@@ -11,7 +11,7 @@ import { ROLES_R2_COPY, guardTitle, rolesMatrixR2, rolesStaffR2 } from './Roles.
 // matrix is read from `CONSOLE_CAPS` and the snapshot's `PermKey`s, never the mockup's `PERMS0`.
 
 describe('the R2 Audit Log (D-160 R2-3b)', () => {
-  it('prints the mockup’s rows: MST times, the actor, the action, the target and the detail', () => {
+  it('prints the mockup’s rows: MT times, the actor, the action, the target and the detail', () => {
     expect(parityAuditRows().map(rowR2).map((r) => [r.time, r.actor, r.action, r.target, r.detail])).toEqual(
       AUDIT0.map((a) => [...a]),
     );
@@ -42,10 +42,10 @@ describe('the R2 Audit Log (D-160 R2-3b)', () => {
     expect(Object.keys(AUDIT_R2_COPY)).not.toContain('moreFilters');
   });
 
-  it('dates the drawer’s entry in MST, with its year; Support still sees no IP', () => {
+  it('dates the drawer’s entry in MT and CT, with its year; Support still sees no IP', () => {
     const r = parityAuditRows()[2]!;
     const pairs = detailR2(r, 'Owner');
-    expect(pairs.find((p) => p.label === 'Time')!.value).toBe('Dec 9, 2026, 9:27 PM MST');
+    expect(pairs.find((p) => p.label === 'Time')!.value).toBe('Dec 9, 2026, 9:27 PM MT');
     // The API sends Support no IP (D3); the drawer says why.
     expect(detailR2({ ...r, ip: null }, 'Support').find((p) => p.label === 'IP Address')!.value).toBe('Hidden for your role');
   });

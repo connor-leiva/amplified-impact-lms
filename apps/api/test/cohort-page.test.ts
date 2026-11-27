@@ -149,6 +149,8 @@ describe('the cohort facts route and Open enrollment', () => {
       signedIn: 0,
       intakeSubmitted: 0,
       paidInFull: 0,
+      // R-5 audit (D-267): the second payments still to come on its two-payment seats (Needs You).
+      secondPayments: { count: 0, each: null, next: null },
       // R-5 Phase 5 (D-262): what Stripe says about its keys and links; this test has no Stripe key.
       stripe: { prices: 'unavailable', price: {}, links: 'unavailable', link: {} },
     });

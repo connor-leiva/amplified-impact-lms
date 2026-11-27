@@ -18,6 +18,7 @@
 // branches on where the snapshot came from.
 
 import { adminStamp, fmt, fromAdminLocal, toAdminLocal } from '@ai/core';
+import { announcementInCohort } from '@ai/core/cohort-learner';
 import type { Announcement, Db } from '@ai/core';
 
 // ---------------------------------------------------------------------------------------------
@@ -279,8 +280,14 @@ export interface AnnounceR2Row {
   sendTime: string;
 }
 
-export function announceR2Rows(db: Db): AnnounceR2Row[] {
-  return db.announcements.map((a) => {
+/**
+ * R-5 audit (D-267): a cohort's list is the announcements sent from its tab (`cohortId`), and every one that names no
+ * cohort (made before this change: the program's, which reaches every cohort, as `announcementInCohort` says), except
+ * one about another cohort's session. Without a cohort (no tab), every announcement.
+ */
+export function announceR2Rows(db: Db, cohortId?: string): AnnounceR2Row[] {
+  const mine = cohortId ? db.announcements.filter((a) => (a.cohortId !== undefined ? a.cohortId === cohortId : announcementInCohort(a, db.sessions, cohortId))) : db.announcements;
+  return mine.map((a) => {
     const ch = a.channels.map((x) => (x === 'inapp' ? 'in-app' : 'email')).join(', ');
     return {
       id: a.id,

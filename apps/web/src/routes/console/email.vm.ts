@@ -1,19 +1,19 @@
 // /admin/email on R2 (D-166, spec § 7.15): the words, filters, rows and detail of the mockup's `Email`,
 // and a user's "Emails sent" tab, from what the API answers. Pure; EmailLog.tsx and User.tsx only
-// render it. Times are MST (BUILD-SPEC § 7), as the page's description says.
+// render it. Times are MT (R-5 audit, D-267; BUILD-SPEC § 7 had MST), as the page's description says.
 //
 // D-263: DELIVERY FROM RESEND'S WEBHOOK. A row's badge is its delivery once Resend has reported one
 // (Delivered, Delayed, Bounced, Complained), else the send's outcome (Sent, Failed, Skipped), with its
 // opens and clicks beside it; the five tiles above the table are the rollup over every row the filters
 // pick (`emailRollup`), in the mockup's words.
 
-import { EMAIL_ERROR_LABELS, EMAIL_PROVIDER_LABELS, adminStamp, bounceLine, emailLogStatus, emailStatusOf } from '@ai/core';
+import { EMAIL_ERROR_LABELS, EMAIL_PROVIDER_LABELS, adminStamp, adminStampZoned, bounceLine, emailLogStatus, emailStatusOf } from '@ai/core';
 import type { AdminStatus, EmailErrorKind, EmailLogFilters, EmailLogRow, EmailRollup } from '@ai/core';
 import type { Option } from './workspaces.vm';
 
 export const EMAIL_COPY = {
   title: 'Email Log',
-  description: 'Every transactional email and notification sent through Resend. Times are MST (America/Phoenix).',
+  description: 'Every transactional email and notification sent through Resend. Times are MT (America/Denver).',
   export: 'Export CSV',
   exportSelected: 'Export selected',
   exported: 'Export started. It is in the audit log.',
@@ -174,7 +174,8 @@ export interface EmailDetailVM {
   note: string;
 }
 
-const mst = (t: number): string => `${adminStamp(t)} MST`;
+// R-5 audit (D-267): a detail's time names its zone, MT (`adminStampZoned`, through `fmt.mtTime`): an email is staff's record.
+const mst = (t: number): string => adminStampZoned(t);
 
 export function emailDetailVM(r: EmailLogRow): EmailDetailVM {
   const D = EMAIL_COPY.detail;

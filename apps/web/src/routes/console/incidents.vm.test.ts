@@ -43,7 +43,7 @@ describe('the list (the mockup’s Incidents)', () => {
 describe('one incident (the mockup’s Incident, INC-0007)', () => {
   it('prints its facts, timeline and links', () => {
     const vm = incidentVM(i7, 'Owner');
-    expect(vm.facts).toEqual({ id: 'INC-0007', severity: 'Sev 2', owner: 'Imani Brooks', opened: 'Dec 9, 9:14 PM MST' });
+    expect(vm.facts).toEqual({ id: 'INC-0007', severity: 'Sev 2', owner: 'Imani Brooks', opened: 'Dec 9, 9:14 PM MT' });
     expect(vm.timeline.map((t) => [t.when, t.text])).toEqual([
       ['Dec 9, 9:14 PM', 'Opened automatically after 3 failed runs of ghl-orders.'],
       ['Dec 9, 9:20 PM', 'Imani Brooks confirmed orders are saved locally. Only the GHL copy is behind.'],

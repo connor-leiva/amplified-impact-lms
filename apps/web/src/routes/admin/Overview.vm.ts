@@ -11,21 +11,25 @@
 // where the data came from.
 
 import {
-  ADMIN_ZONE,
   adminDay,
   adminMonthDay,
-  adminTime,
   canAccess,
   cohortLine,
+  cohortProgress,
+  cohortProgressLine,
   courseOpensAt,
   csv,
   curriculumWeeks,
   fmt,
   isOpen,
+  rosterLearners,
   sortedModules,
   statusOf,
+  zonedInputs,
+  zonedInstant,
 } from '@ai/core';
-import type { Baseline, Db, IconName, Learner, Tier } from '@ai/core';
+import type { Baseline, Cohort, Db, IconName, Learner, Tier } from '@ai/core';
+import { cohortLabel } from '../../data/admin-shell';
 
 // ---------------------------------------------------------------------------------------------
 // View-model shape
@@ -129,13 +133,16 @@ export interface OverviewVM {
 // ---------------------------------------------------------------------------------------------
 
 const DAY = 86400000;
-/** The cohort the admin console reports on. Hard-coded in the reference, so hard-coded here. */
-const COHORT_ID = 'dec26';
-/** Day 1 of the deployment chart: Dec 1 2026, midnight Central. A literal, not a clock read. */
-const DAY0 = Date.parse('2026-12-01T00:00:00-06:00');
+const CT = 'America/Chicago';
+/** Day 1 of the deployment chart: the cohort's first day, midnight Central (Dec 1 2026 for the fixture's). Not a clock read. */
+const day0Of = (cohort: Cohort | null): number => (cohort ? zonedInstant(zonedInputs(cohort.start, CT).date, '00:00', CT) : 0);
+/** The report's file: "cohort-report-dec-2026.csv", from the cohort's start. */
+const reportName = (cohort: Cohort | null): string =>
+  cohort
+    ? `cohort-report-${new Intl.DateTimeFormat('en-US', { timeZone: CT, month: 'short' }).format(cohort.start).toLowerCase()}-${zonedInputs(cohort.start, CT).date.slice(0, 4)}.csv`
+    : 'cohort-report.csv';
 /** The plot is 190 of the SVG's 200 user units tall, leaving 10 for the top label overhang. */
 const PLOT = 190;
-const REPORT_NAME = 'cohort-report-dec-2026.csv';
 
 /** Deployments across every modelled learner that landed before `before`. */
 const deployedBefore = (users: Learner[], before: number): number =>
@@ -148,9 +155,21 @@ const deployedBefore = (users: Learner[], before: number): number =>
 // The view-model
 // ---------------------------------------------------------------------------------------------
 
-export function overviewVM(db: Db, now: number): OverviewVM {
+/**
+ * R-5 audit (D-267): the cohort the Overview reports on: the one the admin is on (the sidebar's switcher), else the
+ * first. Nothing names a cohort here.
+ */
+export const overviewCohort = (db: Pick<Db, 'cohorts'>, cohortId?: string | null): Cohort | null =>
+  db.cohorts.find((c) => c.id === cohortId) ?? db.cohorts[0] ?? null;
+
+/** Its learners by the one rule (`rosterLearners`), not those still invited or test accounts. */
+const countedLearners = (db: Db, cohort: Cohort | null): Learner[] =>
+  (cohort ? rosterLearners(db, cohort.id) : []).filter((u) => u.status !== 'invited' && u.test !== true);
+
+export function overviewVM(db: Db, now: number, cohortId?: string | null): OverviewVM {
   const B: Baseline = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
+  const cohort = overviewCohort(db, cohortId);
+  const users = countedLearners(db, cohort);
   const mods = sortedModules(db).filter((m) => m.status !== 'draft');
 
   const teamSeats = B.teamSeats + users.filter((u) => u.tier === 'team').length;
@@ -184,7 +203,7 @@ export function overviewVM(db: Db, now: number): OverviewVM {
   }));
 
   // ---- the five KPI cards ----------------------------------------------------------------------
-  const sess = db.sessions.filter((s) => s.cohortId === COHORT_ID).sort((a, b) => a.start - b.start);
+  const sess = db.sessions.filter((s) => s.cohortId === cohort?.id).sort((a, b) => a.start - b.start);
   const lastHeld = sess.filter((s) => s.attended).pop();
   const pipe = db.requests.filter((q) => q.status === 'new' || q.status === 'contacted');
 
@@ -239,6 +258,7 @@ export function overviewVM(db: Db, now: number): OverviewVM {
   // ---- cumulative deployments, Dec 1 → today ---------------------------------------------------
   // Each point is the baseline for that day (clamped to the last baseline entry) plus every
   // modelled deployment up to the end of the day, never past `now`.
+  const DAY0 = day0Of(cohort);
   const days = Math.max(7, Math.floor((now - DAY0) / DAY) + 1);
   const pts = Array.from({ length: days }, (_, i) => {
     const end = DAY0 + (i + 1) * DAY;
@@ -310,7 +330,7 @@ export function overviewVM(db: Db, now: number): OverviewVM {
     });
 
   return {
-    subline: `${cohortLine(db.cohorts[0]!, now, db.sessions)} · Updated Live from Learner Activity`,
+    subline: cohort ? `${cohortLine(cohort, now, db.sessions)} · Updated Live from Learner Activity` : '',
     kpis,
     chart,
     feed,
@@ -321,7 +341,7 @@ export function overviewVM(db: Db, now: number): OverviewVM {
     noRisk: !risk.length,
     nudgeAllIds: risk.map((r) => r.id),
     report: {
-      name: REPORT_NAME,
+      name: reportName(cohort),
       content: csv([
         ['AI Employee', 'Deployed', 'In progress', 'Eligible learners'],
         ...funnelRaw.map((f) => [f.m.name, f.d, f.p, f.n]),
@@ -336,8 +356,9 @@ export function overviewVM(db: Db, now: number): OverviewVM {
 // ================================================================================================
 // R2 (D-160 R2-3): the Overview of the signed-off Admin redesign (AdminRedesign.jsx `Overview`). The
 // same snapshot and the same `db.base` rule as above (every figure adds the unmodelled learners'
-// aggregate; the API's ZERO_BASE leaves the modelled rows alone); the words are the mockup's, its
-// times MST (BUILD-SPEC § 7). `overviewVM` still makes the report the screen exports and the list of
+// aggregate; the API's ZERO_BASE leaves the modelled rows alone); the words are the mockup's. R-5
+// audit (D-267): its times in MT with CT after (`fmt.mtCt`, spec § 4 rule 3), and every figure the
+// selected cohort's roster's. `overviewVM` still makes the report the screen exports and the list of
 // learners who need a nudge.
 // ================================================================================================
 
@@ -404,11 +425,14 @@ export const FEED_ROWS = 5;
 
 const FEED_TONE: Record<OverviewFeedRow['tone'], 'ok' | 'warn' | 'info'> = { success: 'ok', warn: 'warn', info: 'info' };
 
-export function overviewR2VM(db: Db, now: number): OverviewR2VM {
+export function overviewR2VM(db: Db, now: number, cohortId?: string | null): OverviewR2VM {
   const B: Baseline = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited' && u.test !== true);
-  const cohort = db.cohorts.find((c) => c.id === COHORT_ID) ?? db.cohorts[0] ?? null;
+  // R-5 audit (D-267): the selected cohort, and its learners and Team Tier seats by the one rule (its roster).
+  const cohort = overviewCohort(db, cohortId);
+  const users = countedLearners(db, cohort);
   const started = !!cohort && now >= cohort.start;
+  const people = cohort ? `/admin/cohort/${encodeURIComponent(cohort.id)}/people` : '/admin/cohort';
+  const schedule = cohort ? `/admin/cohort/${encodeURIComponent(cohort.id)}/schedule` : '/admin/cohort';
 
   const learners = B.learners + users.length;
   const agents = B.agent + users.filter((u) => u.tier === 'agent').length;
@@ -487,7 +511,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
       sub: `${agents} Agent · ${teamSeats} Team`,
       subPhone: `${teamSeats} on Team Tier`,
       tone: null,
-      to: `/admin/cohort/${COHORT_ID}/people`,
+      to: people,
     },
     {
       key: 'deployed',
@@ -507,7 +531,8 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
       sub: 'Of builds available',
       subPhone: 'Of open builds',
       tone: null,
-      to: null,
+      // R-5 audit (D-267, spec § 4 rule 1): every number opens the list it counts: the builds, on Program › Curriculum.
+      to: '/admin/program',
     },
     {
       key: 'attendance',
@@ -522,7 +547,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
             : '—',
       subPhone: started && lastHeld ? `Session ${lastHeld.n}` : first ? `Opens ${adminMonthDay(first.start)}` : '—',
       tone: null,
-      to: `/admin/cohort/${COHORT_ID}/schedule`,
+      to: schedule,
     },
     {
       key: 'pipeline',
@@ -536,14 +561,23 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
     },
   ];
 
-  // The header's Opens is the earliest course week (Week 1 at 8:00 AM once the builder says so),
-  // not Session 1. The chart below still counts deploys from the first live build.
+  // R-5 audit (D-267, Connor): the header reads the cohort's run: "December 2026 Cohort · Week 1 opens Sun, Nov 29 ·
+  // 12:00 PM MT / 1:00 PM CT · 148 learners enrolled" until Week 1 opens, then "… · Week 2 of 6 · Updated live from
+  // learner activity". A cohort whose run holds no Week 1 (the fixture's) reads as before: the earliest course week, not
+  // Session 1, until the first live build. Times in MT and CT (`fmt.mtCt`). The chart below still counts deploys from
+  // the first live build.
+  const progress = cohort ? cohortProgress(db, cohort.id, now) : null;
   const opensAt = cohort ? (courseOpensAt(curriculumWeeks(db.modules)) ?? cohort.start) : 0;
+  const enrolledLine = `${fmt.num(learners)} learners enrolled`;
   const subline = !cohort
     ? ''
-    : started
-      ? `${cohortLine(cohort, now, db.sessions)} · Updated live from learner activity`
-      : `${cohort.name} Cohort · Opens ${adminDay(opensAt)} at ${adminTime(opensAt)} ${ADMIN_ZONE} · ${fmt.num(learners)} learners enrolled`;
+    : progress?.kind === 'before'
+      ? `${cohortLabel(cohort)} · Week 1 opens ${fmt.mtDay(progress.week1)} · ${fmt.mtCt(progress.week1)} · ${enrolledLine}`
+      : progress
+        ? `${cohortLabel(cohort)} · ${cohortProgressLine(progress, now)} · Updated live from learner activity`
+        : started
+          ? `${cohortLine(cohort, now, db.sessions)} · Updated live from learner activity`
+          : `${cohortLabel(cohort)} · Opens ${fmt.mtDay(opensAt)} · ${fmt.mtCt(opensAt)} · ${enrolledLine}`;
 
   return {
     subline,
@@ -565,7 +599,7 @@ export function overviewR2VM(db: Db, now: number): OverviewR2VM {
     funnel,
     attendance,
     notStarted: cohort
-      ? `Deploys are counted from the first live build on ${adminDay(cohort.start)} at ${adminTime(cohort.start)} ${ADMIN_ZONE}.`
+      ? `Deploys are counted from the first live build on ${fmt.mtDay(cohort.start)} at ${fmt.mtCt(cohort.start)}.`
       : 'Deploys are counted from the first live build.',
   };
 }

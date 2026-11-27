@@ -20,6 +20,7 @@
 // An entry that no longer matches anything fails too, so the list can only shrink: remove it in the change that moves
 // the line. `node scripts/check-cohort-hardcodes.mjs --list` prints every finding with its entry.
 import { globSync, readFileSync } from 'node:fs';
+import { code } from './code-only.mjs';
 
 const LIST = process.argv.includes('--list');
 const CONFIG = 'scripts/cohort-hardcodes.allow.json';
@@ -35,55 +36,16 @@ const CHECKS = [
   },
   { kind: 'the literal dec26', re: /['"`]dec26['"`]/ },
   { kind: 'a date literal', re: /['"`]20\d\d-[01]\d-[0-3]\d|Date\.UTC\(\s*20\d\d\b|new Date\(\s*20\d\d\s*,/ },
+  // R-5 audit (D-267): a cohort's name typed into text ("December 2026 Cohort", "December 2026", "December Cohort"): a
+  // screen, an email or a label that names one cohort where it should read the cohort's record.
+  {
+    kind: 'a cohort’s name in text',
+    // The skill guides' worked examples (apps/web/src/guides) date their own made-up reports ("October 2026"): sample
+    // content, not a cohort.
+    skip: /^apps\/web\/src\/guides\//,
+    re: /\b(January|February|March|April|May|June|July|August|September|October|November|December) (20\d\d|Cohort)\b/,
+  },
 ];
-
-/** The source with every comment blanked (strings kept), line for line. */
-function code(src) {
-  let out = '';
-  let i = 0;
-  let quote = null;
-  while (i < src.length) {
-    const c = src[i];
-    const n = src[i + 1];
-    if (quote) {
-      out += c;
-      // A quote or a double quote never spans a line (a regex literal that holds one ends this guess at the line).
-      if (c === '\n' && quote !== '`') {
-        quote = null;
-        i += 1;
-        continue;
-      }
-      if (c === '\\') {
-        out += n ?? '';
-        i += 2;
-        continue;
-      }
-      if (c === quote) quote = null;
-      i += 1;
-      continue;
-    }
-    if (c === '/' && n === '/') {
-      while (i < src.length && src[i] !== '\n') {
-        out += ' ';
-        i += 1;
-      }
-      continue;
-    }
-    if (c === '/' && n === '*') {
-      while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) {
-        out += src[i] === '\n' ? '\n' : ' ';
-        i += 1;
-      }
-      out += '  ';
-      i += 2;
-      continue;
-    }
-    if (c === "'" || c === '"' || c === '`') quote = c;
-    out += c;
-    i += 1;
-  }
-  return out;
-}
 
 const files = ROOTS.flatMap((r) => globSync(`${r}/**/*.{ts,tsx}`))
   .map((f) => f.split('\\').join('/'))
@@ -106,7 +68,7 @@ for (const f of files) {
   const lines = code(readFileSync(f, 'utf8')).split('\n');
   lines.forEach((line, i) => {
     for (const check of CHECKS) {
-      if (!check.re.test(line)) continue;
+      if (check.skip?.test(f) || !check.re.test(line)) continue;
       const e = entries.find((x) => x.file === f && line.includes(x.match) && x.used < x.count);
       const at = `${f}:${i + 1}`;
       if (e) {

@@ -315,7 +315,7 @@ function Curriculum() {
         )}
       />
       <p className={clsx(k.p, k.me)}>
-        Tier access and publish status update the learner portal immediately. Session times are MST.{' '}
+        Tier access and publish status update the learner portal immediately. Session times are MT, with CT after.{' '}
         {phone
           ? 'Reorder from the … menu.'
           : 'Drag the handle, or focus it and press Alt with an arrow key, to reorder.'}

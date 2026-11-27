@@ -99,7 +99,7 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
       'Yes, Nov 24, 2026',
     ])
       await expect(page.locator('main').getByText(t, { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('Prefers email over calls. Mornings MST.')).toBeVisible();
+    await expect(page.getByText('Prefers email over calls. Mornings MT.')).toBeVisible();
     const tabs = page.getByRole('tablist', { name: 'Section' });
     await expect(tabs.getByRole('tab')).toHaveText(['Orders', 'Progress', 'Emails sent', 'Activity']);
     await expect(rows(page)).toHaveCount(1);
@@ -108,7 +108,7 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
     for (const [tab, text] of [
       ['Progress', 'Week 2 · Own the Day'],
       // D-166: the email log for this person (the mockup's one email to Elena).
-      ['Emails sent', 'Tomorrow at 12:00 PM MST: Session 2 live build'],
+      ['Emails sent', 'Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build'],
       ['Activity', 'Account created'],
     ] as const) {
       await tabs.getByRole('tab', { name: tab }).click();

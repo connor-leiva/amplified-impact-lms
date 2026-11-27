@@ -28,7 +28,7 @@ export const NONE = '—';
 
 export const HEALTH_COPY = {
   title: 'System Health',
-  description: 'learn.amplifiedimpact.io right now. Times are MST (America/Phoenix).',
+  description: 'learn.amplifiedimpact.io right now. Times are MT (America/Denver).',
   head: {
     normal: 'All systems normal',
     attention: 'Needs attention',

@@ -292,6 +292,27 @@ export interface CohortFacts {
    * Payment Links: Read). Absent: not asked (Before It Opens' two Stripe lines are then not done).
    */
   stripe?: CohortStripeFacts | null;
+  /**
+   * R-5 audit (D-267): the second payments still to come on its two-payment seats (Needs You's "2 second payments are on
+   * the calendar"): how many, the amount of each when they are all the same (the first payment's, as Stripe charged it),
+   * and when the next is due (`secondPaymentAt`). Absent, or a count of 0: no row.
+   */
+  secondPayments?: { count: number; each: number | null; next: number | null };
+}
+
+/**
+ * R-5 audit (D-267): when a two-payment seat's second payment comes, from when its first was paid: the same day of the
+ * next month, at the same time, in Central (Stripe bills it one month later, PLAN.md § 10.5); the last day of a shorter
+ * month when that day doesn't exist.
+ */
+export function secondPaymentAt(paidAt: number): number {
+  const { date, time } = zonedInputs(paidAt, INCLUDED_TZ);
+  const [y, m, d] = date.split('-').map(Number) as [number, number, number];
+  const ny = m === 12 ? y + 1 : y;
+  const nm = m === 12 ? 1 : m + 1;
+  const last = new Date(Date.UTC(ny, nm, 0)).getUTCDate();
+  const two = (n: number) => String(n).padStart(2, '0');
+  return zonedInstant(`${ny}-${two(nm)}-${two(Math.min(d, last))}`, time, INCLUDED_TZ);
 }
 
 export const NO_FACTS: CohortFacts = { testSends: { welcome: false, week0: false }, plans: 0 };

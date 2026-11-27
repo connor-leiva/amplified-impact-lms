@@ -81,7 +81,7 @@ export const MODS0 = [
     d: 'A checked view of what your business earns and spends',
     ic: 'tiers',
     tier: 'team',
-    ses: ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST · Replay ready'],
+    ses: ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready'],
     st: 'Published',
     steps: 6,
     files: 4,
@@ -105,7 +105,7 @@ export const MODS0 = [
     d: 'A ten-minute morning brief from your own data',
     ic: 'jobs',
     tier: 'team',
-    ses: ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST · Replay ready'],
+    ses: ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MT / 1:00 PM CT · Replay ready'],
     st: 'Published',
     steps: 6,
     files: 3,
@@ -129,7 +129,7 @@ export const MODS0 = [
     d: 'Sort your sphere and plan the week of calls',
     ic: 'learners',
     tier: 'team',
-    ses: ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST'],
+    ses: ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Scheduled',
     steps: 6,
     files: 2,
@@ -153,7 +153,7 @@ export const MODS0 = [
     d: 'A weekly meeting that runs from your scorecard',
     ic: 'cohorts',
     tier: 'team',
-    ses: ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST'],
+    ses: ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Scheduled',
     steps: 6,
     files: 2,
@@ -176,7 +176,7 @@ export const MODS0 = [
     d: 'Contract-to-close checklist with dates and owners',
     ic: 'check',
     tier: 'team',
-    ses: ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST'],
+    ses: ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Draft',
     steps: 3,
     files: 0,
@@ -198,7 +198,7 @@ export const MODS0 = [
     d: 'Document each AI Employee so a teammate can run it',
     ic: 'file',
     tier: 'team',
-    ses: ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST'],
+    ses: ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MT / 1:00 PM CT'],
     st: 'Draft',
     steps: 2,
     files: 0,
@@ -262,7 +262,7 @@ export const VAULT = [
 export const ANNOUNCEMENTS = [
   ['Session 2 replay is ready', 'Team Tier', 'In-app, email', 'Sent', 'Dec 9, 3:10 PM'],
   ['New in the vault: listing appointment checklist', 'Everyone', 'In-app, email', 'Sent', 'Dec 8, 3:00 PM'],
-  ['Session 3 is Wednesday at 12:00 PM MST', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'],
+  ['Session 3 is Wednesday at 12:00 PM MT / 1:00 PM CT', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'],
   ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—'],
 ] as const;
 
@@ -497,7 +497,29 @@ export const WORKSPACE_NOTES = [
 ] as const;
 
 /** The User screen's note (on Elena Vargas). */
-export const USER_NOTES = [['Imani Brooks', 'Dec 7, 3:40 PM', 'Prefers email over calls. Mornings MST.']] as const;
+/**
+ * R-5 audit (D-267): Utah Life, the access group People › Utah Life shows (the mockup's `ULA`, handoff/admin-mockup/
+ * ia-screens.jsx): its eight agents by the mockup's own masked addresses, each last active at that stamp, or still
+ * invited. None has given a name, so each reads as the group's agent.
+ */
+export const UTAH_LIFE = {
+  id: 'utah-life',
+  name: 'Utah Life',
+  emailDomain: 'liveutah.com',
+  plan: 'agent_plan',
+  members: [
+    ['a•••••@liveutah.com', 'Dec 10, 8:02 AM'],
+    ['c•••@liveutah.com', 'Dec 9, 5:47 PM'],
+    ['j••••••@liveutah.com', 'Dec 8, 11:20 AM'],
+    ['k••••@liveutah.com', null],
+    ['m••••@liveutah.com', 'Dec 7, 2:36 PM'],
+    ['r•••••••@liveutah.com', 'Dec 6, 9:11 AM'],
+    ['s•••@liveutah.com', 'Dec 4, 4:05 PM'],
+    ['t••••••@liveutah.com', 'Dec 3, 10:30 AM'],
+  ],
+} as const;
+
+export const USER_NOTES = [['Imani Brooks', 'Dec 7, 3:40 PM', 'Prefers email over calls. Mornings MT.']] as const;
 
 /** The User screen's identity card: "Yes, Nov 24, 2026", "Password, Google", and the access groups. */
 export const IDENTITY = { verified: 'Nov 24, 2026', password: true, google: true, groups: ['library', 'agent', 'team'] } as const;
@@ -576,7 +598,7 @@ export interface MockEmail {
 
 /** `EMAILS`, verbatim. */
 export const EMAILS: readonly MockEmail[] = [
-  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM', dl: 'Dec 8, 12:00 PM', op: 2, fo: 'Dec 8, 12:41 PM', lo: 'Dec 8, 6:40 PM', cl: 1, fc: 'Dec 8, 12:42 PM', lc: 'Dec 8, 12:42 PM', ln: 'https://learn.example.com/sessions/2' },
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MT / 1:00 PM CT: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM', dl: 'Dec 8, 12:00 PM', op: 2, fo: 'Dec 8, 12:41 PM', lo: 'Dec 8, 6:40 PM', cl: 1, fc: 'Dec 8, 12:42 PM', lc: 'Dec 8, 12:42 PM', ln: 'https://learn.example.com/sessions/2' },
   { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM', dl: 'Dec 4, 9:04 AM', op: 1, fo: 'Dec 4, 9:30 AM', lo: 'Dec 4, 9:30 AM', cl: 0 },
   { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Delivered', t: 'Dec 9, 3:10 PM', dl: 'Dec 9, 3:10 PM', op: 3, fo: 'Dec 9, 3:12 PM', lo: 'Dec 9, 8:12 PM', cl: 2, fc: 'Dec 9, 3:13 PM', lc: 'Dec 9, 8:13 PM', ln: 'https://learn.example.com/replays/2' },
   { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM', dl: 'Dec 9, 11:26 AM', op: 1, fo: 'Dec 9, 11:27 AM', lo: 'Dec 9, 11:27 AM', cl: 1, fc: 'Dec 9, 11:27 AM', lc: 'Dec 9, 11:27 AM', ln: 'https://learn.example.com/sign-in' },

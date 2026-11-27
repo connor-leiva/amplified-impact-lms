@@ -8,7 +8,7 @@ import { expectAccessible } from '../../lib/a11y';
  * passes axe (zero serious or critical) at desktop and phone widths, keeps the shell's landmarks, and
  * does what BUILD-SPEC § 7 decided: "Hidden from learners" in full at 1280 and up, a "Hidden" pill at
  * laptop width, the meta line on a phone; Live session's short name at 1280 with the full title in
- * its title and name; row numbers only at 1440; one zone label, MST, and no CT. D-253 (R-5 Phase 1): each is a tab
+ * its title and name; row numbers only at 1440; one zone, MT, with CT after a time that names it (D-267). D-253 (R-5 Phase 1): each is a tab
  * now, at its new address, under its page's head (Program, or the cohort's), its own h1 dropped.
  */
 
@@ -38,9 +38,10 @@ async function expectShell(page: Page) {
   await expect(page.locator('main')).toHaveCount(1);
 }
 
-const noCentral = async (page: Page) => {
+// R-5 audit (D-267): the admin's times are MT, with CT after one that names its zone; never MST.
+const noMst = async (page: Page) => {
   const text = await page.locator('main').innerText();
-  expect(text).not.toMatch(/\bCT\b|Central/);
+  expect(text).not.toMatch(/\bMST\b/);
 };
 
 test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
@@ -52,7 +53,7 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Amplified AI Accelerator');
       if (w >= 768) await expect(page.getByRole('tab', { name: /^Curriculum/ })).toHaveAttribute('aria-selected', 'true');
       else await expect(page.getByRole('combobox', { name: 'Program' })).toHaveValue('curriculum');
-      await noCentral(page);
+      await noMst(page);
       await expectAccessible(page);
       await close();
     }
@@ -69,7 +70,7 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
     await wide.close();
 
     const desk = await openAt(browser, '/admin/program', 1280);
-    const full = 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MST · Replay ready';
+    const full = 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · Replay ready';
     const cell = desk.page.getByLabel(full);
     await expect(cell).toHaveAttribute('title', full);
     await expect(cell).toContainText('Lead-Source ROI');
@@ -83,7 +84,7 @@ test.describe('Curriculum on R2 (D-160 R2-2) @g9 @r2', () => {
     const hidden = row(lap.page, 'Finance AI Employee').getByLabel('Hidden from learners');
     await expect(hidden).toHaveText('Hidden');
     await expect(hidden).toHaveAttribute('title', 'Hidden from learners');
-    await expect(row(lap.page, 'Week 1 · Know the Business')).toContainText('Session 1 · Wed, Dec 2 · 12:00 PM MST');
+    await expect(row(lap.page, 'Week 1 · Know the Business')).toContainText('Session 1 · Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT');
     await lap.close();
 
     const phone = await openAt(browser, '/admin/program', 390);
@@ -136,8 +137,8 @@ test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-16
         await expect(page.getByRole('heading', { level: 1 })).toHaveText(h1);
         if (w >= 768) await expect(page.getByRole('tab', { name: new RegExp(`^${tab}`) })).toHaveAttribute('aria-selected', 'true');
         // D-255 (R-5 Phase 3, PLAN.md § 10.8): the Schedule writes each time in Mountain with Central after it, what
-        // learners see; the others still have no Central.
-        if (tab !== 'Schedule') await noCentral(page);
+        // learners see. R-5 audit (D-267): so does every page; none says MST.
+        await noMst(page);
         await expectAccessible(page);
         await close();
       }
@@ -180,7 +181,7 @@ test.describe('Resource Vault, Cohort › Schedule and Announcements on R2 (D-16
     const dialog = ann.page.getByRole('dialog', { name: 'New announcement' });
     await expect(dialog.getByLabel('Title')).toBeFocused();
     await dialog.getByLabel('When').selectOption('later');
-    await expect(dialog.getByLabel('Send at (MST)')).toBeVisible();
+    await expect(dialog.getByLabel('Send at (MT)')).toBeVisible();
     await expectAccessible(ann.page);
     await ann.close();
   });
@@ -195,7 +196,7 @@ test.describe('Module Builder on R2 (D-160 R2-2) @g9 @r2', () => {
         const { page, close } = await openAt(browser, path, w);
         await expectShell(page);
         await expect(page.getByRole('heading', { level: 1, name: 'Module Builder' })).toBeVisible();
-        await noCentral(page);
+        await noMst(page);
         await expectAccessible(page);
         await close();
       }
@@ -231,7 +232,7 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
         const { page, close } = await openAt(browser, path, width);
         await expectShell(page);
         await expectAccessible(page);
-        await noCentral(page);
+        await noMst(page);
         await close();
       }
     });
@@ -297,12 +298,12 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
         const { page, close } = await openAt(browser, path, width);
         await expectShell(page);
         await expectAccessible(page);
-        await noCentral(page);
+        await noMst(page);
         await close();
       }
     });
 
-  test('Audit Log: the times in MST; selecting rows draws Export selected (D-172: it exports them); a row opens its entry', async ({ browser }) => {
+  test('Audit Log: the times in MT; selecting rows draws Export selected (D-172: it exports them); a row opens its entry', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
     const table = page.getByRole('table', { name: 'Audit log entries' });
     await expect(table.getByRole('button', { name: 'View the entry from Dec 10, 8:58 AM' })).toBeVisible();
@@ -314,7 +315,7 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
     await table.getByRole('button', { name: 'View the entry from Dec 9, 9:27 PM' }).click();
     const drawer = page.locator('[data-drawer="open"]');
     await expect(drawer).toContainText('masquerade.blocked_action');
-    await expect(drawer).toContainText('Dec 9, 2026, 9:27 PM MST');
+    await expect(drawer).toContainText('Dec 9, 2026, 9:27 PM MT');
     await expectAccessible(page);
     await close();
   });

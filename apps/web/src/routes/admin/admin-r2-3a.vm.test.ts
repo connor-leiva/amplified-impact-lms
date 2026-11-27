@@ -24,7 +24,8 @@ describe('overviewR2VM (D-160 R2-3a)', () => {
       // D-253: each tile opens its page at its new address.
       ['Active learners', '148', '104 Agent · 44 Team', null, '/admin/cohort/dec26/people'],
       ['AI Employees deployed', '190', '+6 in the last 24 hours', 'ok', '/admin/program'],
-      ['Build completion', '33%', 'Of builds available', null, null],
+      // R-5 audit (D-267): every number opens the list it counts; Build completion opens the builds.
+      ['Build completion', '33%', 'Of builds available', null, '/admin/program'],
       ['Live attendance', '74%', 'Session 2 · 109 attended', null, '/admin/cohort/dec26/schedule'],
       ['Upgrade pipeline', '$8,000', '2 open requests', 'warn', '/admin/revenue/plans'],
     ]);
@@ -69,14 +70,15 @@ describe('overviewR2VM (D-160 R2-3a)', () => {
     ]);
   });
 
-  it('before the cohort opens: no chart, no feed, "Not started" and the opening in MST', () => {
+  it('before the cohort opens: no chart, no feed, "Not started" and the opening in MT and CT', () => {
     const before = overviewR2VM(parityDb('/admin'), Date.parse('2026-11-30T16:00:00Z'));
     expect(before.started).toBe(false);
     expect(before.chart).toBeNull();
     expect(before.feed).toEqual([]);
-    expect(before.subline).toBe('December 2026 Cohort · Opens Wed, Dec 2 at 12:00 PM MST · 148 learners enrolled');
+    // R-5 audit (D-267): times in MT with CT after (`fmt.mtCt`); this world's December has no run, so it reads its opening.
+    expect(before.subline).toBe('December 2026 Cohort · Opens Wed, Dec 2 · 12:00 PM MT / 1:00 PM CT · 148 learners enrolled');
     expect(before.stats[1]!.sub).toBe('Counting starts Dec 2');
-    expect(before.notStarted).toBe('Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MST.');
+    expect(before.notStarted).toBe('Deploys are counted from the first live build on Wed, Dec 2 at 12:00 PM MT / 1:00 PM CT.');
   });
 
   it('with the API’s ZERO_BASE, every figure is the modelled rows’ own', () => {

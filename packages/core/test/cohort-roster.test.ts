@@ -16,6 +16,7 @@ import {
 import type { Db, RosterAccount, RosterPlan, RosterUser } from '../src';
 import { DEFAULT_COHORT_ID } from '../src/accelerator';
 import { announcementReaches } from '../src/cohort-learner';
+import { cohortProgress, cohortProgressLine, secondPaymentAt } from '../src/cohort-page';
 
 const plan = (accountId: string, cohortId: string | null, o: Partial<RosterPlan> = {}): RosterPlan => ({
   accountId,
@@ -170,5 +171,44 @@ describe('a cohort’s announcement reaches only that cohort', () => {
       scopeSnapshot(full, { kind: 'learner', userId: me.id }, { accelerator: true, rostered }).announcements.map((a) => a.id);
     expect(ids(true)).toEqual(['mine', 'old']);
     expect(ids(false)).toEqual(['old']);
+  });
+});
+
+describe('the second payment’s day (D-267)', () => {
+  const CT = (local: string) => Date.parse(`${local}-06:00`);
+  it('is the same day of the next month, at the same time in Central; the month’s last day when it has no such day', () => {
+    expect(secondPaymentAt(CT('2026-11-30T10:00:00'))).toBe(CT('2026-12-30T10:00:00'));
+    expect(secondPaymentAt(CT('2026-12-15T10:00:00'))).toBe(CT('2027-01-15T10:00:00'));
+    expect(secondPaymentAt(CT('2027-01-31T10:00:00'))).toBe(CT('2027-02-28T10:00:00'));
+  });
+});
+
+describe('where a cohort is in its run (D-267)', () => {
+  const T = (local: string) => Date.parse(`${local}-07:00`);
+  const db = (): Db => {
+    const d = seed('live');
+    const co = d.cohorts[0]!;
+    co.run = [
+      { moduleId: 'accelerator-week-0', n: 0, opensAt: T('2026-11-24T12:00:00'), dueAt: null },
+      { moduleId: 'accelerator-week-1', n: 1, opensAt: T('2026-11-29T12:00:00'), dueAt: null },
+      { moduleId: 'accelerator-week-2', n: 2, opensAt: T('2026-12-06T12:00:00'), dueAt: null },
+    ];
+    d.modules = [0, 1, 2].map((n) => ({ ...d.modules[0]!, id: `accelerator-week-${n}`, kind: 'week' as const, status: 'published' as const, course: { ...(d.modules[0]!.course ?? ({} as never)), week: n } }));
+    return d;
+  };
+  it('names Week 0 and Week 1 before Week 1 opens, then "Week N of M"', () => {
+    const d = db();
+    const id = d.cohorts[0]!.id;
+    const line = (t: number) => {
+      const p = cohortProgress(d, id, t);
+      return p ? cohortProgressLine(p, t) : null;
+    };
+    expect(line(T('2026-11-20T12:00:00'))).toBe('Week 0 opens Tue, Nov 24 · Week 1 opens Sun, Nov 29');
+    expect(line(T('2026-11-27T12:00:00'))).toBe('Week 0 opened Tue, Nov 24 · Week 1 opens Sun, Nov 29');
+    expect(line(T('2026-11-29T12:00:00'))).toBe('Week 1 of 2');
+    expect(line(T('2026-12-10T12:00:00'))).toBe('Week 2 of 2');
+    // A cohort whose run holds no Week 1 says nothing.
+    d.cohorts[0]!.run = [];
+    expect(cohortProgress(d, id, T('2026-12-10T12:00:00'))).toBeNull();
   });
 });

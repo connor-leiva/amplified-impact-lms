@@ -124,7 +124,9 @@ export function Stat({
   const body = (
     <>
       <span className={clsx(k.mu, k.stl)}>{label}</span>
-      <span className={k.fig}>{value}</span>
+      <span className={k.fig} data-number="">
+        {value}
+      </span>
       {sub ? (
         <span className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn, tone === 'bad' && k.toneBad)}>{sub}</span>
       ) : null}
@@ -310,7 +312,9 @@ export function Facts({ items }: { items: readonly { label: string; value: React
       {items.map((f) => (
         <div key={f.label} className={f.wide ? k.fxw : undefined}>
           <span className={k.me}>{f.label}</span>
-          <span className={clsx(k.w5, k.el)}>{f.value}</span>
+          <span className={clsx(k.w5, k.el)} data-number="">
+            {f.value}
+          </span>
         </div>
       ))}
     </div>
@@ -386,7 +390,11 @@ export function Tabs<T extends string>({
             onClick={() => onChange(t.id)}
           >
             {t.label}
-            {t.count !== undefined ? <span className={k.sgmCount}>{t.count}</span> : null}
+            {t.count !== undefined ? (
+              <span className={k.sgmCount} data-number="">
+                {t.count}
+              </span>
+            ) : null}
           </button>
         ))}
       </div>
@@ -403,7 +411,11 @@ export function Tabs<T extends string>({
           onClick={() => onChange(t.id)}
         >
           {t.label}
-          {t.count !== undefined ? <span className={clsx(k.mu, k.count)}>{t.count}</span> : null}
+          {t.count !== undefined ? (
+            <span className={clsx(k.mu, k.count)} data-number="">
+              {t.count}
+            </span>
+          ) : null}
         </button>
       ))}
     </div>

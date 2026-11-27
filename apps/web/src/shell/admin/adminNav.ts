@@ -164,6 +164,23 @@ export const AREAS: Readonly<Record<AreaId, AreaDef>> = {
   },
 };
 
+/**
+ * R-5 audit (D-267, Connor; spec Phase 7: "One tab per access group, named by the group"): People has a tab for each
+ * access group (Utah Life), after Teams, named by `access_groups.name`, at `/admin/people/groups/:groupId`. Read-only, and
+ * for the roles that can read Users (spec § 7: real addresses, for roles that can read Users today).
+ */
+export interface GroupTab {
+  id: string;
+  name: string;
+}
+const GROUP_PREFIX = 'group:';
+/** A group's tab id: `group:utah-life`, never one of People's own. */
+export const groupTabId = (groupId: string): string => `${GROUP_PREFIX}${groupId}`;
+/** The group a tab id names, or null for any other tab. */
+export const groupOfTab = (tab: string | undefined): string | null => (tab?.startsWith(GROUP_PREFIX) ? tab.slice(GROUP_PREFIX.length) : null);
+const groupTabs = (groups: readonly GroupTab[]): AreaTabDef[] =>
+  groups.map((g) => ({ id: groupTabId(g.id), label: g.name, was: 'users', cap: 'users.read' }));
+
 /** The Overview's row. No tabs; every staff role. */
 export const OVERVIEW = { id: 'overview', label: 'Overview' as const, icon: 'r2Overview' as IconName, path: '/admin' };
 
@@ -182,16 +199,26 @@ export function tabPath(area: AreaId, tab: string, cohortId: string): string {
       return tab === 'settings' ? '/admin/program/course' : tab === 'vault' ? '/admin/program/vault' : '/admin/program';
     case 'cohort':
       return tab === 'overview' ? cohortBase(cohortId) : `${cohortBase(cohortId)}/${tab}`;
-    case 'people':
+    case 'people': {
+      const group = groupOfTab(tab);
+      if (group !== null) return `/admin/people/groups/${encodeURIComponent(group)}`;
       return tab === 'everyone' ? '/admin/people' : `/admin/people/${tab}`;
+    }
     case 'revenue':
       return tab === 'summary' ? '/admin/revenue' : `/admin/revenue/${tab}`;
   }
 }
 
-/** The tabs a role may open, in order. A tab it can't open is not drawn (spec § 4, rule 5). */
-export function areaTabs(area: AreaId, role: string | null): AreaTabDef[] {
-  return AREAS[area].tabs.filter((t) => !t.cap || consoleCan(role, t.cap));
+/**
+ * The tabs a role may open, in order. A tab it can't open is not drawn (spec § 4, rule 5). People's access groups
+ * (`groups`, from staff's snapshot) come after Teams.
+ */
+export function areaTabs(area: AreaId, role: string | null, groups: readonly GroupTab[] = []): AreaTabDef[] {
+  const all =
+    area === 'people' && groups.length
+      ? AREAS.people.tabs.flatMap((t) => (t.id === 'teams' ? [t, ...groupTabs(groups)] : [t]))
+      : AREAS[area].tabs;
+  return all.filter((t) => !t.cap || consoleCan(role, t.cap));
 }
 
 // ---- where an address is ----------------------------------------------------------------------------------------------
@@ -257,6 +284,8 @@ export function placeOf(pathname: string): Place | null {
     if (c === undefined && b === 'comp') return at('teams', true);
     if (c === undefined && b === 'masquerade') return at('masquerade');
     if (b === 'teams' && one(c) && d === undefined) return at('teams', true);
+    // R-5 audit (D-267): an access group's tab (Utah Life).
+    if (b === 'groups' && one(c) && d === undefined) return at(groupTabId(decodeURIComponent(c!)));
     if (c === undefined) return at('everyone', true);
     return null;
   }
@@ -299,6 +328,8 @@ export interface AdminNavInput {
    * state for the session; the shell clears it when the address changes. Only Operations and Access open.
    */
   peek: SystemGroup | null | undefined;
+  /** R-5 audit (D-267): the access groups People has a tab for (staff's snapshot's `groups`). */
+  groups?: readonly GroupTab[];
 }
 
 export interface AdminNavRow {
@@ -391,13 +422,13 @@ function pageTarget(area: AreaId, tabs: AreaTabDef[], cohortId: string): string 
 
 /** The sidebar, as the shell draws it. */
 export function adminNav(input: AdminNavInput): AdminNavEntry[] {
-  const { pathname, role, fullNav, counts, peek, cohortId } = input;
+  const { pathname, role, fullNav, counts, peek, cohortId, groups = [] } = input;
   const place = placeOf(pathname);
   const out: AdminNavEntry[] = [
     { kind: 'page', label: 'Overview', id: OVERVIEW.id, icon: GROUP_ICON.Overview, to: OVERVIEW.path, active: place?.row === 'overview' },
   ];
   for (const area of AREA_IDS) {
-    const tabs = areaTabs(area, role);
+    const tabs = areaTabs(area, role, groups);
     // A page with no tab left is not in the sidebar.
     if (!tabs.length) continue;
     const roll = rollOf(area, input, tabs);
@@ -464,17 +495,17 @@ export interface NavPage {
  * The pages a role may open (the mockup's `searchAll` Pages): the single rows and the groups' rows in the sidebar's
  * order, then each page's tabs as "Program › Curriculum".
  */
-export function navPages(role: string | null, fullNav: boolean, cohortId: string): NavPage[] {
+export function navPages(role: string | null, fullNav: boolean, cohortId: string, groups: readonly GroupTab[] = []): NavPage[] {
   const out: NavPage[] = [{ id: OVERVIEW.id, label: OVERVIEW.label, icon: OVERVIEW.icon, to: OVERVIEW.path }];
   for (const area of AREA_IDS) {
-    const tabs = areaTabs(area, role);
+    const tabs = areaTabs(area, role, groups);
     if (tabs.length) out.push({ id: area, label: AREAS[area].label, icon: AREAS[area].paletteIcon, to: pageTarget(area, tabs, cohortId) });
   }
   for (const [, defs] of R2_NAV)
     for (const d of defs)
       if ((fullNav ? !d.offMockup : true) && (!d.cap || consoleCan(role, d.cap))) out.push({ id: d.id, label: d.label, icon: d.icon, to: d.path });
   for (const area of AREA_IDS)
-    for (const t of areaTabs(area, role))
+    for (const t of areaTabs(area, role, groups))
       out.push({ id: `${area}:${t.id}`, label: `${AREAS[area].label} › ${t.label}`, icon: AREAS[area].paletteIcon, to: tabPath(area, t.id, cohortId), tab: true });
   return out;
 }
@@ -493,7 +524,7 @@ export type Crumb = { kind: 'group' | 'here' | 'record'; label: string } | { kin
  * Northshore Group`), the tab then a link too. Overview is `Overview`. Empty for an address that is no page's (the
  * 404, Denied, the search page).
  */
-export function crumbsOf(place: Place | null, opts: { record?: string | null; cohortId: string }): Crumb[] {
+export function crumbsOf(place: Place | null, opts: { record?: string | null; cohortId: string; groups?: readonly GroupTab[] }): Crumb[] {
   if (!place) return [];
   const name = place.record && opts.record ? opts.record : null;
   if (place.row === 'overview') return [{ kind: 'here', label: OVERVIEW.label }];
@@ -506,7 +537,9 @@ export function crumbsOf(place: Place | null, opts: { record?: string | null; co
   if (place.area) {
     const area = AREAS[place.area];
     const cohortId = place.cohortId ?? opts.cohortId;
-    const tab = area.tabs.find((t) => t.id === (place.tab ?? area.tabs[0]!.id))!;
+    const want = place.tab ?? area.tabs[0]!.id;
+    // R-5 audit (D-267): an access group's tab is named by the group; one the snapshot doesn't hold, by its id.
+    const tab = area.tabs.find((t) => t.id === want) ?? groupTabs(opts.groups ?? []).find((t) => t.id === want) ?? { id: want, label: groupOfTab(want) ?? want, was: 'users' };
     return [
       { kind: 'link', label: area.label, to: areaPath(place.area, cohortId) },
       place.record ? { kind: 'link', label: tab.label, to: tabPath(place.area, tab.id, cohortId) } : { kind: 'here', label: tab.label },
