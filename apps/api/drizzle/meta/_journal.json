@@ -339,10 +339,10 @@
       "breakpoints": true
     },
     {
-      "idx": 49,
+      "idx": 48,
       "version": "7",
-      "when": 1797300000000,
-      "tag": "0049_announcement_cohort",
+      "when": 1797200000000,
+      "tag": "0048_announcement_cohort",
       "breakpoints": true
     }
   ]
