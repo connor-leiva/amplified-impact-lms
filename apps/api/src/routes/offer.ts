@@ -129,7 +129,7 @@ export function fillTokens(template: string, values: Readonly<Record<string, str
 
 /**
  * R-5 Phase 5 (D-262, PLAN § 10.10): the cohort the AI Accelerator's two carts sell (`cohortOnSale`: the cohort whose
- * enrollment is open), with its settings, and whether its enrollment is open. With none open, the carts read "closed"
+ * enrollment is open; with two open, the next to start), with its settings, and whether its enrollment is open. With none open, the carts read "closed"
  * and the page's other cohort facts are December's.
  */
 export interface OfferSale {
@@ -368,7 +368,7 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     let sale: OfferSale;
     try {
       const env = sellingEnvOf(config);
-      const on = await onSaleOf(getDb(), env);
+      const on = await onSaleOf(getDb(), env, now());
       sale = on ? { selling: on.selling, open: true } : { selling: await sellingOf(getDb(), DEFAULT_COHORT_ID, env), open: false };
     } catch (err) {
       log.error({ reason: errorReason(err) }, 'offer: the cohort on sale could not be read; selling December as before');
@@ -462,7 +462,7 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
   const welcomeCalendar = async (known: string | null | undefined): Promise<string | null> => {
     if (!options.database) return null;
     try {
-      const id = known === undefined ? ((await onSaleOf(getDb(), sellingEnvOf(config)))?.id ?? null) : known;
+      const id = known === undefined ? ((await onSaleOf(getDb(), sellingEnvOf(config), now()))?.id ?? null) : known;
       // December's files are the bare addresses, so its buttons keep `CALENDAR_URL_*` when it is set.
       return id && cohortIcsPath(BUILDS_ICS_URL, id) !== BUILDS_ICS_URL ? id : null;
     } catch {

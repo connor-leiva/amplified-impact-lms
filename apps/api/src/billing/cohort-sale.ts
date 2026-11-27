@@ -93,10 +93,13 @@ export async function cohortExists(db: Reader, cohortId: string): Promise<boolea
  */
 export const orderCohortId = (order: { cohortId: string | null }): string => order.cohortId ?? DEFAULT_COHORT_ID;
 
-/** The cohort the offer sells right now (`cohortOnSale`), with its settings; null when no cohort's enrollment is open. */
-export async function onSaleOf(db: Reader, env: SellingEnv): Promise<{ id: string; selling: CohortSelling } | null> {
+/**
+ * The cohort the offer sells at `now` (`cohortOnSale`: with two open, the next to start), with its settings; null when
+ * no cohort's enrollment is open.
+ */
+export async function onSaleOf(db: Reader, env: SellingEnv, now: number): Promise<{ id: string; selling: CohortSelling } | null> {
   const all = await sellingCohorts(db);
-  const id = cohortOnSale({ cohorts: all });
+  const id = cohortOnSale({ cohorts: all }, now);
   return id === null ? null : { id, selling: cohortSelling({ cohorts: all }, id, env) };
 }
 

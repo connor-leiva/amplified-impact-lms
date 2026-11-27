@@ -342,11 +342,13 @@ export async function provisionSkillBuyer(
 }
 
 /**
- * R-5 Phase 5 (D-262): the team follows its newest live cohort plan (`cohortOfPlans`, Q-23's stated assumption: a team
- * is in one cohort at a time). Every learner on the team gets that cohort as `users.cohort_id`, so Community and files
- * (which read plans) and the snapshot and join (which read `users.cohort_id`) agree. A team that held a live seat in
- * another cohort is moved, and the move is written to the audit log for Connor (`cohort.team_moved`); its progress and
- * files stay, keyed by team and week. A brand-new team has nothing to move: provisioning made it in the cohort.
+ * R-5 Phase 5 (D-262): the team follows its newest purchase (Connor's answer to Q-23, Nov 26, 2026: a team is in one
+ * cohort at a time, and the newest purchase decides). That is its newest cohort plan that has not ended, by when it was
+ * bought (`cohortOfPlans`), whichever cohort starts first. Every learner on the team gets that cohort as
+ * `users.cohort_id`, so Community and files (which read plans) and the snapshot and join (which read `users.cohort_id`)
+ * agree. A team that held a live seat in another cohort is moved, and the move is written to the audit log for Connor
+ * (`cohort.team_moved`); its progress and files stay, keyed by team and week. A brand-new team has nothing to move:
+ * provisioning made it in the cohort.
  */
 async function placeTeam(tx: Pick<Database, 'select' | 'update' | 'insert'>, teamId: string, orderId: string, now: number, log: BillingLog): Promise<void> {
   const accts = await tx.select({ id: accounts.id }).from(accounts).where(eq(accounts.teamId, teamId));

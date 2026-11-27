@@ -76,10 +76,12 @@ no new capability, as the brief asks ("pick the existing permission that fits").
   included-time end, 2027-05-04, starts at the constant's instant, so its plan dates are byte-identical (§ 10.5).
 - **The team's `users.cohort_id` follows**: the owner and everyone on the team are written into the cohort the new plan
   is for, so Community and files (plans) and the snapshot and join (`users.cohort_id`) agree (D-261 item 9).
-- **Q-23 is still open.** This builds the spec's stated assumption: a team is in one cohort at a time, the newest live
-  cohort plan decides which (`cohortOfPlans`), the sale is logged for Connor in an audit row
-  (`cohort.team_moved`, from and to), and the team's December progress and files stay (they are keyed by team and
-  week). Flagged in D-262.
+- **Q-23, answered (Connor, Nov 26, 2026): a team is in one cohort at a time, and the newest purchase decides.** The
+  newest purchase is the team's newest cohort plan that has not ended, by when it was bought (`plans.created_at`, set
+  when the checkout is provisioned; `cohortOfPlans`). It decides whichever cohort starts first: a January team that
+  later buys through a December link is in December. A purchase that is not a cohort seat (a membership, a skill) moves
+  no one, and a refunded seat (its plan ended) no longer counts as a purchase. The move is written to the audit log
+  (`cohort.team_moved`, from and to), and the team's progress and files stay (they are keyed by team and week).
 - A sale in a cohort that is not open (a link still live in Stripe after Close) is placed and logged for Connor; a paid
   checkout is never refused (D-154's rule for the 16th seat).
 
@@ -115,10 +117,14 @@ source file and fails on `prices.create`, `paymentLinks.create` or `products.cre
 
 ## 6. The offer page, its welcome page and the calendar files
 
-- **The cohort on sale** is the cohort whose enrollment is open (`enrolling`, not archived). With two open, the one
-  that starts last sells (the next cohort), so opening January moves the page to it without closing December first.
-  Flagged. With none open, the Accelerator's two carts read "closed" (the waitlist). A database with no December row at
-  all (most API test databases) reads December's built-in values, as before.
+- **The cohort on sale** is the cohort whose enrollment is open (`enrolling`, not archived). **With two or more open,
+  the next cohort to start sells (Connor, Nov 26, 2026)**: of the open cohorts whose `start` is still ahead, the
+  soonest (`cohortOnSale(db, now)`). So with December and January both open, the page sells December until December
+  starts (its `start`, Wed, Dec 2, 2026, 1:00 PM CT), then January, without closing December first. When every open
+  cohort has already started there is no next one, and the one that started last sells (flagged in D-262). One open
+  cohort sells whether or not it has started, as December does today. With none open, the Accelerator's two carts read
+  "closed" (the waitlist). A database with no December row at all (most API test databases) reads December's built-in
+  values, as before.
 - The page's cohort facts come from that cohort: founding open or closed and its deadline, its seats (sold, total,
   left), its two links, and two payments only when offered. `GET /api/offer` keeps its exact shape.
 - **Calendar files**: a cohort's public builds and office-hours files are `/calendar/builds.ics?cohort=<id>` and
@@ -188,13 +194,15 @@ planting a violation and seeing it fail, then removing it.
 - **December**: `december.test.ts` and its golden unchanged; `others.json`'s new capture (writes 1 and 2, plan dates,
   the cap) matching; a sabotage (one value moved on purpose) failing it, then reverted.
 - **Core** (`cohort-selling.test.ts`): reading a cohort's selling settings with and without stored values, plan dates
-  per cohort, the pin, the sold-out line, the offer's cohort on sale (none, one, two open), Before It Opens' Stripe
+  per cohort, the pin, the sold-out line, the offer's cohort on sale (none, one, two open: the next to start, before
+  and after the first starts; three open; both started), Q-23's newest purchase in either order, Before It Opens' Stripe
   lines, the four actions (permission, audit, refusals), the data step (writes, leaves alone, names) and its rollback.
 - **API** (`cohort-selling.test.ts`, the fake Stripe in test mode): the spec's Done-when, as tests: a checkout through
   a January link provisions a January team Phase 4 serves (its course, sessions and Community are January's); a
   checkout through a December link provisions what it does today; the seat after January's last behaves as December's
   16th (logged, January's links off, December's untouched). Also: the actions over HTTP (403 without `billing`, one
-  audit row, 422 refusals), the facts route's Stripe lines, Q-23's move and its audit row, the data step against a
+  audit row, 422 refusals), the facts route's Stripe lines, the offer selling December then January with both open,
+  Q-23's move both ways (December to January, and January back to December) with its audit row, the data step against a
   database of production's shape, and that nothing calls `prices.create` or `paymentLinks.create`.
 - **Web**: the Enrollment card's view-model, its dialogs; e2e for Settings › Enrollment, the price dialog, Open
   enrollment refused and then ready, and Close enrollment.

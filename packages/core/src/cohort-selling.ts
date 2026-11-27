@@ -173,16 +173,18 @@ export const soldOutMessage = (s: Pick<CohortSelling, 'capacity' | 'founding'>):
 
 /**
  * The cohort the offer page, its welcome page and the calendar files sell (§ 10.10): the cohort whose enrollment is
- * open (`enrolling`, not archived). With two open, the one that starts last (the next cohort), so opening a new cohort
- * moves the page to it. With none open, null: the Accelerator's carts read "closed". A database that holds no cohort at
- * all (a test database, a fresh one) sells December, as before R-5.
+ * open (`enrolling`, not archived). With two or more open, the next cohort to start (Connor, Nov 26, 2026): of those
+ * whose `start` is still ahead at `now`, the soonest. When every open cohort has already started, there is no next one,
+ * so the one that started last sells (D-262). With none open, null: the Accelerator's carts read "closed". A database
+ * that holds no cohort at all (a test database, a fresh one) sells December, as before R-5.
  */
-export function cohortOnSale(db: Pick<Db, 'cohorts'>): string | null {
+export function cohortOnSale(db: Pick<Db, 'cohorts'>, now: number): string | null {
   if (!db.cohorts.length) return DEFAULT_COHORT_ID;
-  const open = db.cohorts
-    .filter((c) => c.status === 'enrolling' && c.archivedAt === undefined)
-    .sort((a, b) => b.start - a.start || a.id.localeCompare(b.id));
-  return open[0]?.id ?? null;
+  const open = db.cohorts.filter((c) => c.status === 'enrolling' && c.archivedAt === undefined);
+  if (open.length <= 1) return open[0]?.id ?? null;
+  const ahead = open.filter((c) => c.start > now).sort((a, b) => a.start - b.start || a.id.localeCompare(b.id));
+  if (ahead.length) return ahead[0]!.id;
+  return [...open].sort((a, b) => b.start - a.start || a.id.localeCompare(b.id))[0]!.id;
 }
 
 /** Whether a cohort is taking sales: its enrollment is open and it is not archived. */

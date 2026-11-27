@@ -11,8 +11,9 @@
 //   - a test-mode checkout through a December link provisions exactly what it does today;
 //   - the seat after January's last behaves as December's 16th does today.
 // Then: the four Enrollment actions over HTTP (the billing permission, one audit row each), what Stripe says on the
-// facts route, Q-23's move, an unknown `ai_cohort`, the offer page selling the cohort on sale, and a source scan that
-// nothing calls `prices.create` or `paymentLinks.create`.
+// facts route, Q-23's move both ways (Connor, Nov 26: the newest purchase decides), an unknown `ai_cohort`, the offer
+// page selling the next cohort to start (Connor, Nov 26), and a source scan that nothing calls `prices.create` or
+// `paymentLinks.create`.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -184,6 +185,10 @@ const session = (who: string, option: 'full' | 'two_pay', cohort: string | null)
 const event = (type: string, object: unknown) => ({ id: `evt_direct_${++eventN}`, object: 'event', type, data: { object } }) as unknown as Stripe.Event;
 const deps = () => ({ stripe: fake.client, config, prices: createPriceCache(() => fake.client), log, now: () => Date.parse(process.env.FIXED_NOW!), db: handle });
 
+/** December's `start` as production holds it (its first live build, Wed, Dec 2, 2026, 1:00 PM CT). */
+const decemberStart = async (): Promise<number> =>
+  Number((await handle.select({ start: cohorts.start }).from(cohorts).where(eq(cohorts.id, DEFAULT_COHORT_ID)))[0]!.start);
+
 const planOf = async (email: string) =>
   (
     await handle
@@ -318,8 +323,8 @@ describe('Done when: a checkout names its cohort', () => {
       metadata: { ai_soldout: '1' },
     });
     expect(fake.links.get('plink_dec_full')!.active).toBe(true);
-    // The offer sells January (the cohort on sale), sold out.
-    const offer = (await (await appAt(NOV27 + 5 * 60_000)).inject({ method: 'GET', url: '/api/offer' })).json() as { seats: unknown; carts: { id: string; state: string }[] };
+    // Once December has started, January is the next to start, so the offer sells it, sold out.
+    const offer = (await (await appAt(await decemberStart())).inject({ method: 'GET', url: '/api/offer' })).json() as { seats: unknown; carts: { id: string; state: string }[] };
     expect(offer.seats).toEqual({ total: 2, sold: 3, left: 0 });
     expect(offer.carts.filter((c) => c.id.startsWith('cohort')).map((c) => c.state)).toEqual(['soldout', 'soldout']);
     // A refund frees a January seat: its links come back on (founding open, enrollment open); December's stay as they were.
@@ -361,7 +366,30 @@ describe('Done when: a checkout names its cohort', () => {
     expect(await handle.select().from(plans).where(eq(plans.orderId, order!.id))).toEqual([]);
   });
 
-  it('Q-23: a December team that buys January is moved to it, logged for Connor; its December plan stays', async () => {
+  it('with two cohorts open, the offer sells the next to start (Connor, Nov 26): December until it starts, then January', async () => {
+    await readyJanuary();
+    expect((await act('st_owner', 'openCohortEnrollment', { cohortId: jan })).statusCode).toBe(200);
+    expect((await handle.select({ status: cohorts.status }).from(cohorts)).map((c) => c.status).sort()).toEqual(['enrolling', 'enrolling']);
+    type Offer = { seats: { total: number }; carts: { id: string; state: string; paymentLink: string | null }[] };
+    const offerAt = async (t: number) => (await (await appAt(t)).inject({ method: 'GET', url: '/api/offer' })).json() as Offer;
+    const link = (o: Offer) => o.carts.find((c) => c.id === 'cohort-full')!.paymentLink;
+    const decStart = await decemberStart();
+    expect(decStart).toBe(Date.parse('2026-12-02T13:00:00-06:00'));
+    // Both open and both ahead: December, the next to start, with its own links and 15 seats.
+    const before = await offerAt(NOV27);
+    expect(link(before)).toBe(DEC_LINKS.full);
+    expect(before.carts.find((c) => c.id === 'cohort-two-pay')!.paymentLink).toBe(DEC_LINKS.twoPay);
+    expect(before.seats.total).toBe(15);
+    expect(JSON.stringify(before)).not.toContain(JAN_LINKS.full);
+    // December has started: January is the next to start.
+    const after = await offerAt(decStart);
+    expect(link(after)).toBe(JAN_LINKS.full);
+    expect(after.carts.find((c) => c.id === 'cohort-two-pay')!.paymentLink).toBe(JAN_LINKS.twoPay);
+    expect(after.seats.total).toBe(15);
+    expect(JSON.stringify(after)).not.toContain(DEC_LINKS.full);
+  });
+
+  it('Q-23 (Connor, Nov 26): a December team that buys January is moved to it, logged; its December plan stays', async () => {
     await readyJanuary();
     expect((await act('st_owner', 'openCohortEnrollment', { cohortId: jan })).statusCode).toBe(200);
     await deliver('checkout.session.completed', session('both', 'full', null));
@@ -377,6 +405,26 @@ describe('Done when: a checkout names its cohort', () => {
     const rows = await handle.select().from(auditLog).where(eq(auditLog.action, 'cohort.team_moved'));
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ actorSource: 'system', targetType: 'team', before: { cohortId: DEFAULT_COHORT_ID }, after: { cohortId: jan } });
+  });
+
+  it('Q-23 (Connor, Nov 26): the newest purchase decides, back to December too; a team is in one cohort at a time', async () => {
+    await readyJanuary();
+    expect((await act('st_owner', 'openCohortEnrollment', { cohortId: jan })).statusCode).toBe(200);
+    await deliver('checkout.session.completed', session('back', 'full', jan));
+    const [owner] = await handle.select().from(users).where(eq(users.email, 'back@buyers.example.test'));
+    expect(owner!.cohortId).toBe(jan);
+    // Later, the same team buys a seat through a December link (no ai_cohort): the newest purchase is December's.
+    at(NOV27 + 60_000);
+    const res = await deliver('checkout.session.completed', { ...session('back', 'two_pay', null), id: 'cs_test_sell_back_december0' });
+    expect(res.statusCode, res.body).toBe(200);
+    const [moved] = await handle.select().from(users).where(eq(users.id, owner!.id));
+    expect(moved!.cohortId).toBe(DEFAULT_COHORT_ID);
+    // Both plans stay; the team is in one cohort, the newest purchase's.
+    const held = await handle.select({ cohortId: plans.cohortId }).from(plans).orderBy(asc(plans.createdAt));
+    expect(held.filter((p) => p.cohortId !== null).map((p) => p.cohortId)).toEqual([jan, DEFAULT_COHORT_ID]);
+    const rows = await handle.select().from(auditLog).where(eq(auditLog.action, 'cohort.team_moved'));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ before: { cohortId: jan }, after: { cohortId: DEFAULT_COHORT_ID } });
   });
 });
 

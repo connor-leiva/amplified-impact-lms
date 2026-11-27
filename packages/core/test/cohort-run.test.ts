@@ -301,6 +301,13 @@ describe('which cohort a viewer is in', () => {
       ]),
     ).toBe('dec26');
   });
+  it('Q-23 (Connor, Nov 26): the newest purchase decides, whichever cohort starts first and in any order', () => {
+    // A January team that then buys December is in December: the purchase decides, not the cohort's dates.
+    expect(cohortOfPlans([plan({ cohortId: 'c_jan', createdAt: 1 }), plan({ cohortId: 'dec26', createdAt: 2 })])).toBe('dec26');
+    expect(cohortOfPlans([plan({ cohortId: 'dec26', createdAt: 2 }), plan({ cohortId: 'c_jan', createdAt: 1 })])).toBe('dec26');
+    // A purchase that is not a cohort seat (a membership) moves no one.
+    expect(cohortOfPlans([plan({ cohortId: 'c_jan', createdAt: 1 }), plan({ kind: 'membership', cohortId: null, createdAt: 2 })])).toBe('c_jan');
+  });
 });
 
 describe('createCohortFromShape: a draft, from a shape, a start day and a source cohort', () => {

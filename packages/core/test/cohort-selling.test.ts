@@ -165,14 +165,44 @@ describe('a cohort’s selling settings (PLAN § 10.10)', () => {
 });
 
 describe('which cohort the offer sells (§ 10.10)', () => {
-  it('the cohort whose enrollment is open; with two open, the one that starts last; with none, none; with no rows, December', () => {
-    const { db, id } = withJanuary();
-    expect(cohortOnSale(db)).toBe(DEFAULT_COHORT_ID);
-    const both = { ...db, cohorts: db.cohorts.map((c) => (c.id === id ? { ...c, status: 'enrolling' as const } : c)) };
-    expect(cohortOnSale(both)).toBe(id);
+  const NOV27 = MT('2026-11-27T12:00:00');
+  it('the cohort whose enrollment is open; with none, none; with no rows, December', () => {
+    const { db } = withJanuary();
+    expect(cohortOnSale(db, NOV27)).toBe(DEFAULT_COHORT_ID);
+    // One open cohort sells whether or not it has started (December is open and running).
+    expect(cohortOnSale(db, MT('2026-12-10T12:00:00'))).toBe(DEFAULT_COHORT_ID);
     const none = { ...db, cohorts: db.cohorts.map((c) => ({ ...c, status: 'live' as const })) };
-    expect(cohortOnSale(none)).toBeNull();
-    expect(cohortOnSale({ cohorts: [] })).toBe(DEFAULT_COHORT_ID);
+    expect(cohortOnSale(none, NOV27)).toBeNull();
+    const archived = { ...db, cohorts: db.cohorts.map((c) => ({ ...c, archivedAt: NOV27 })) };
+    expect(cohortOnSale(archived, NOV27)).toBeNull();
+    expect(cohortOnSale({ cohorts: [] }, NOV27)).toBe(DEFAULT_COHORT_ID);
+  });
+
+  it('with two open, the next cohort to start (Connor, Nov 26): December until it starts, then January', () => {
+    const { db, id } = withJanuary();
+    const both = { ...db, cohorts: db.cohorts.map((c) => (c.id === id ? { ...c, status: 'enrolling' as const } : c)) };
+    const dec = both.cohorts.find((c) => c.id === DEFAULT_COHORT_ID)!;
+    const jan = both.cohorts.find((c) => c.id === id)!;
+    expect(dec.start).toBeLessThan(jan.start);
+    // Both still ahead: the sooner, December.
+    expect(cohortOnSale(both, NOV27)).toBe(DEFAULT_COHORT_ID);
+    expect(cohortOnSale(both, dec.start - 1)).toBe(DEFAULT_COHORT_ID);
+    // December has started: January is the next to start.
+    expect(cohortOnSale(both, dec.start)).toBe(id);
+    expect(cohortOnSale(both, jan.start - 1)).toBe(id);
+    // Order in the table does not matter.
+    expect(cohortOnSale({ cohorts: [...both.cohorts].reverse() }, NOV27)).toBe(DEFAULT_COHORT_ID);
+    // Three open: the soonest still ahead, not the latest.
+    const feb = { ...jan, id: 'c_feb', start: jan.start + 35 * 86_400_000 };
+    expect(cohortOnSale({ cohorts: [...both.cohorts, feb] }, dec.start)).toBe(id);
+  });
+
+  it('with two open and both started, none is next, so the one that started last sells', () => {
+    const { db, id } = withJanuary();
+    const both = { ...db, cohorts: db.cohorts.map((c) => (c.id === id ? { ...c, status: 'enrolling' as const } : c)) };
+    const jan = both.cohorts.find((c) => c.id === id)!;
+    expect(cohortOnSale(both, jan.start)).toBe(id);
+    expect(cohortOnSale(both, jan.start + 60 * 86_400_000)).toBe(id);
   });
 });
 
