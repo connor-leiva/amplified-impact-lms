@@ -13,6 +13,13 @@
 //   3. R-5 Phase 4 (D-261): January's test team (the deploy's `seedTestMember`, placed in January by hand) sees only
 //      January, and neither it nor December's people can reach the other cohort's sessions by address. Plain
 //      assertions, with no golden of their own: `others.json` is unchanged by this phase.
+//   4. R-5 Phase 5 (PLAN.md § 10.5): the Stripe writes the golden does not capture, before Phase 5 changes anything.
+//      A December checkout through each of its two links (no `ai_cohort`), delivered to the webhook's own handler
+//      against a fake Stripe in test mode: write 1 (`subscriptions.update`, the full cart's `trial_end` pinned to
+//      May 4, 2027), write 2 (`subscriptions.create`, two payments' Team Leader Insiders trialing to the same day),
+//      the plan dates provisioning gives each (`initialPlanDates`), and `invoicePaid`'s cap on a period end past the
+//      pin. Captured into `others.json`'s `stripe-writes` on `main` @ e5032e2, twice, byte-identical; the buyers are
+//      at `stripe-writes.example.test`, run after every other check, and are never one of December's viewers.
 //
 // WHY AN `afterAll`. Ticking the tour is a staff save of Week 0, which changes Week 0's stored row, so it must not run
 // before December's sections read that row. Every test of a file runs before its `afterAll` hooks, so these checks
@@ -32,10 +39,16 @@ import { MASQUERADE_PATHS, moduleVersion } from '@ai/core';
 import type { Db } from '@ai/core';
 import type { VideoBlock } from '@ai/core/course-types';
 import { LMS_TOUR_PREF, tourSeen, tourVideoOf } from '@ai/core/lms-tour';
+import type Stripe from 'stripe';
+import { DEFAULT_FOUNDING_CLOSES_AT, DEFAULT_INVITES_FROM } from '@ai/core/offer';
 import { build } from '../src/app';
 import type { App } from '../src/app';
+import type { OfferConfig } from '../src/billing/config';
+import { createPriceCache } from '../src/billing/prices';
+import type { BillingStripe, PriceInfo, SubscriptionInfo } from '../src/billing/stripe';
+import { handleStripeEvent } from '../src/billing/webhook';
 import type { Database } from '../src/db/client';
-import { accounts, learnerPrefs, sessions, teams, users } from '../src/db/schema';
+import { accounts, learnerPrefs, orders, plans, sessions, teams, users } from '../src/db/schema';
 import { seedTestMember } from '../src/db/seed-test-member';
 import { resetS3 } from '../src/storage';
 import { startFakeBucket } from './fake-bucket';
@@ -442,6 +455,11 @@ async function beyondTheGolden(db: Database): Promise<void> {
     delete process.env.FIXED_NOW;
   });
 
+  // ---- 4. R-5 Phase 5 (PLAN.md § 10.5): Stripe writes 1 and 2, provisioning's plan dates and invoicePaid's cap --------
+  await check('December’s Stripe writes 1 and 2, its plan dates and invoicePaid’s cap', async () => {
+    same('stripe-writes', await decemberStripeWrites(db));
+  });
+
   if (CAPTURE) {
     mkdirSync(dirname(GOLDEN), { recursive: true });
     writeFileSync(GOLDEN, `${JSON.stringify(canon(captured), null, 1)}\n`);
@@ -456,3 +474,182 @@ async function beyondTheGolden(db: Database): Promise<void> {
 afterAll(async () => {
   if (world) await beyondTheGolden(world);
 }, 600_000);
+
+// ---------------------------------------------------------------------------------------------------------------------
+// R-5 Phase 5 (PLAN.md § 10.5): what a December checkout writes to Stripe, through the webhook's own handler
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** The buyers' domain: never one of December's viewers, so nothing December's checks read is theirs. */
+const WRITES_DOMAIN = 'stripe-writes.example.test';
+/** Thu, Nov 26, 2026, 10:00 AM MT: founding still open, before the first live build (so `startsAt` is Dec 2). */
+const WRITES_AT = MT('2026-11-26T10:00:00');
+const DAY_MS = 86_400_000;
+
+/** The prices the webhook asks Stripe for: December's three lookup keys and the legacy Insiders price, as Stripe has them. */
+const WRITES_PRICES: PriceInfo[] = [
+  { lookupKey: 'cohort_founding_full', id: 'price_dw_full', unitAmount: 750000, currency: 'usd', interval: null, productName: 'Amplified AI Accelerator' },
+  { lookupKey: 'cohort_founding_two_pay', id: 'price_dw_two', unitAmount: 375000, currency: 'usd', interval: 'month', productName: 'Amplified AI Accelerator' },
+  { lookupKey: 'membership_monthly_team_leader', id: 'price_dw_mtl', unitAmount: 16900, currency: 'usd', interval: 'month', productName: 'Amplified Insiders' },
+  { lookupKey: 'membership_monthly', id: 'price_dw_mm', unitAmount: 19700, currency: 'usd', interval: 'month', productName: 'Amplified Insiders' },
+];
+
+/**
+ * A fake Stripe in test mode (`rk_test_…`): it answers reads from a table and records every write, so a write it is
+ * asked to make is captured whole (its params and its idempotency key). Nothing leaves this process.
+ */
+function writesStripe() {
+  const writes: { call: string; id?: string; params: unknown; key?: string }[] = [];
+  const subs = new Map<string, Partial<SubscriptionInfo>>([
+    // Paid in full: the link's relative trial ends 90 days from checkout, before the webhook pins it.
+    ['sub_dw_full', { status: 'trialing', customer: 'cus_dw_full', trialEnd: WRITES_AT + 90 * DAY_MS, defaultPaymentMethod: 'pm_dw_full' }],
+    // Two payments: the first installment is charged at checkout.
+    ['sub_dw_two', { status: 'active', customer: 'cus_dw_two', trialEnd: null, defaultPaymentMethod: 'pm_dw_two_sub' }],
+  ]);
+  const sub = (id: string): SubscriptionInfo => ({
+    id,
+    status: 'active',
+    customer: null,
+    trialEnd: null,
+    defaultPaymentMethod: null,
+    metadata: {},
+    cancelAt: null,
+    cancelAtPeriodEnd: false,
+    currentPeriodEnd: null,
+    ...subs.get(id),
+  });
+  const client = {
+    pricesByLookupKeys: async () => WRITES_PRICES,
+    retrieveSubscription: async (id: string) => sub(id),
+    paidInvoiceIds: async (id: string) => (id === 'sub_dw_two' ? ['in_dw_two_1'] : []),
+    updateSubscription: async (id: string, params: unknown, key?: string) => {
+      writes.push({ call: 'subscriptions.update', id, params, ...(key ? { key } : {}) });
+      return sub(id);
+    },
+    createSubscription: async (params: unknown, key: string) => {
+      writes.push({ call: 'subscriptions.create', params, key });
+      return sub('sub_dw_insiders');
+    },
+    cancelSubscription: async (id: string) => {
+      writes.push({ call: 'subscriptions.cancel', id, params: null });
+      return sub(id);
+    },
+    activeSubscriptionWithPrice: async () => null,
+    paymentMethodOfPaymentIntent: async (id: string) => `pm_of_${id}`,
+    subscriptionOfPaymentIntent: async () => null,
+    retrievePaymentLink: async (id: string) => {
+      writes.push({ call: 'paymentLinks.retrieve', id, params: null });
+      throw Object.assign(new Error('no Payment Link in this capture'), { statusCode: 404 });
+    },
+    updatePaymentLink: async (id: string, params: unknown, key: string) => {
+      writes.push({ call: 'paymentLinks.update', id, params, key });
+      throw Object.assign(new Error('no Payment Link in this capture'), { statusCode: 404 });
+    },
+  } as unknown as BillingStripe;
+  return { client, writes };
+}
+
+/** A completed Checkout Session from one of December's two links: its metadata names no cohort (`ai_cohort`). */
+const decemberSession = (who: 'full' | 'two', option: 'full' | 'two_pay', amount: number) => ({
+  id: `cs_test_decwrites_${who}000000001`,
+  object: 'checkout.session',
+  client_reference_id: null,
+  payment_link: `plink_dw_${who}`,
+  metadata: { ai_plan: 'cohort', ai_option: option },
+  payment_status: 'paid',
+  customer: `cus_dw_${who}`,
+  payment_intent: `pi_dw_${who}`,
+  subscription: `sub_dw_${who}`,
+  amount_total: amount,
+  currency: 'usd',
+  customer_details: { email: `${who}@${WRITES_DOMAIN}`, name: `${who} buyer`, phone: null },
+  custom_fields: [{ key: 'company', text: { value: `${who} group` } }],
+  consent: { terms_of_service: 'accepted' },
+});
+
+const stripeEvent = (id: string, type: string, object: unknown) => ({ id, object: 'event', type, data: { object } }) as unknown as Stripe.Event;
+
+async function decemberStripeWrites(db: Database): Promise<unknown> {
+  const fake = writesStripe();
+  const config: OfferConfig = {
+    stripeSecretKey: 'rk_test_december_writes',
+    stripeWebhookSecret: 'whsec_test_december_writes',
+    open: true,
+    foundingClosesAt: Date.parse(DEFAULT_FOUNDING_CLOSES_AT),
+    invitesFrom: Date.parse(DEFAULT_INVITES_FROM),
+    invitesEnabled: false,
+    paymentLinks: {},
+    intakeUrls: {},
+    portalLoginUrl: null,
+    portalLockedConfig: null,
+    calendarUrls: { builds: null, officeHours: null },
+    teamCallUrl: null,
+    // No seat-cap links: write 5 is the golden's `seat-cap` section, not this one.
+    seatCapLinks: [],
+    skillPriceId: null,
+    skillGuestCheckout: false,
+  };
+  process.env.FIXED_NOW = iso(WRITES_AT);
+  const deps = {
+    stripe: fake.client,
+    config,
+    prices: createPriceCache(() => fake.client),
+    log: { info: () => undefined, warn: () => undefined, error: () => undefined },
+    now: () => WRITES_AT,
+    db,
+  };
+  const results: Record<string, string> = {};
+  results.full = await handleStripeEvent(stripeEvent('evt_dw_full', 'checkout.session.completed', decemberSession('full', 'full', 750000)), deps);
+  results.two = await handleStripeEvent(stripeEvent('evt_dw_two', 'checkout.session.completed', decemberSession('two', 'two_pay', 375000)), deps);
+
+  const ours = async () =>
+    (
+      await db
+        .select({ orderId: orders.id, session: orders.stripeSessionId, plan: plans })
+        .from(orders)
+        .innerJoin(plans, eq(plans.orderId, orders.id))
+    ).filter((r) => (r.session ?? '').startsWith('cs_test_decwrites_'));
+  const before = await ours();
+  // invoicePaid's cap: the full cart's first invoice carries the link's own trial line, which ends past May 4, 2027.
+  const full = before.find((r) => r.session === decemberSession('full', 'full', 0).id)!;
+  results.invoice = await handleStripeEvent(
+    stripeEvent('evt_dw_invoice', 'invoice.paid', {
+      id: 'in_dw_full_1',
+      object: 'invoice',
+      amount_paid: 750000,
+      parent: {
+        type: 'subscription_details',
+        subscription_details: { subscription: 'sub_dw_full', metadata: { order_id: full.orderId, ai_plan: 'cohort', ai_option: 'full' } },
+      },
+      lines: { data: [{ period: { start: Math.floor(WRITES_AT / 1000), end: Math.floor((WRITES_AT + 200 * DAY_MS) / 1000) } }] },
+    }),
+    deps,
+  );
+  const after = await ours();
+  delete process.env.FIXED_NOW;
+
+  const label = new Map(before.map((r) => [r.orderId, `<order:${r.session!.includes('_full') ? 'full' : 'two'}>`]));
+  const tidy = <T>(v: T): T => {
+    let out = JSON.stringify(v);
+    for (const [id, l] of label) out = out.split(id).join(l);
+    return JSON.parse(out) as T;
+  };
+  const dates = (rows: typeof before) =>
+    Object.fromEntries(
+      rows
+        .map((r) => [
+          label.get(r.orderId)!,
+          {
+            kind: r.plan.kind,
+            option: r.plan.option,
+            cohortId: r.plan.cohortId,
+            status: r.plan.status,
+            startsAt: iso(Number(r.plan.startsAt)),
+            paidThrough: r.plan.paidThrough === null ? null : iso(Number(r.plan.paidThrough)),
+            liveUntil: r.plan.liveUntil === null ? null : iso(Number(r.plan.liveUntil)),
+            stripeSubscriptionId: r.plan.stripeSubscriptionId,
+          },
+        ])
+        .sort((a, b) => String(a[0]).localeCompare(String(b[0]))),
+    );
+  return tidy({ results, writes: fake.writes, plans: dates(before), afterInvoice: dates(after) });
+}
