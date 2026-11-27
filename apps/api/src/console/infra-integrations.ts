@@ -162,7 +162,7 @@ export async function readIntegrations(deps: IntegrationsDeps, db: Database = ge
       ok: resend.ok,
       bad: resend.bad,
       source: 'email_log',
-      secrets: secretsOf(presence, 'Resend', { 'Resend API key': 'API key' }),
+      secrets: secretsOf(presence, 'Resend', { 'Resend API key': 'API key', 'Resend webhook signing secret': 'Webhook signing secret' }),
     }),
     storage: card('storage', {
       configured: storageConfigured(env),

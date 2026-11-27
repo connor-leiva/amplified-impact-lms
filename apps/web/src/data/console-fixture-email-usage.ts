@@ -5,12 +5,13 @@
 //
 // The figures are AdminRedesign.jsx's own (`parity-r2.ts`: `EMAILS`, `USAGE_BARS` and the per-seat
 // multipliers its `Usage` and `Workspace` draw with), turned into the API's shapes so the screens'
-// view-models print the mockup's words from what the API answers. Three liberties, all the mockup's:
-// the log keeps its order (the API's is newest first); a row's status is the mockup's delivery word
-// ("Delivered"), which v1 never records; and the chart's 14 bars stand for any range.
+// view-models print the mockup's words from what the API answers. Two liberties, both the mockup's:
+// the log keeps its order (the API's is newest first), and the chart's 14 bars stand for any range.
+// D-263: each row is a send Resend took, with the mockup's delivery, opens and clicks, and the page's
+// rollup is core's own count of them (`rollupOf`, `emailRollup`), as the API's SQL is tested to be.
 
-import { addDays, daysIn, emailCsv } from '@ai/core';
-import type { EmailLogFilters, EmailLogPage, EmailLogRow, UsageQuery, UsageReport } from '@ai/core';
+import { NO_DELIVERY, addDays, daysIn, emailCsv, emailLogStatus, emailRollup, rollupOf } from '@ai/core';
+import type { DeliveryState, EmailLogFilters, EmailLogPage, EmailLogRow, UsageQuery, UsageReport } from '@ai/core';
 import { planKindOf } from './console-fixture-records';
 import {
   EMAILS,
@@ -24,27 +25,47 @@ import {
   mockStamp,
 } from './parity-r2';
 
-/** `EMAILS` as the API's rows, in the mockup's order. */
+const stamp = (s: string | undefined): number | null => (s ? mockStamp(s) : null);
+
+/** `EMAILS` as the API's rows, in the mockup's order: each a send Resend took, with its delivery (D-263). */
 export function fixtureEmails(): EmailLogRow[] {
-  return EMAILS.map((e, i) => ({
-    id: String(i + 1),
-    at: mockStamp(e.t),
-    to: e.to,
-    userId: SUPPORT_USERS.find((u) => u.e === e.to)?.id ?? null,
-    template: e.tpl,
-    subject: e.sub,
-    provider: 'resend',
-    providerId: `re_fixture_${i + 1}`,
-    status: e.st.toLowerCase(),
-    errorKind: null,
-  }));
+  return EMAILS.map((e, i) => {
+    const delivery = e.st.toLowerCase() as DeliveryState;
+    const [bounceType = null, bounceSubType = null, bounceMessage = null] = e.br ? e.br.split(' · ') : [];
+    return {
+      id: String(i + 1),
+      at: mockStamp(e.t),
+      to: e.to,
+      userId: SUPPORT_USERS.find((u) => u.e === e.to)?.id ?? null,
+      template: e.tpl,
+      subject: e.sub,
+      provider: 'resend',
+      providerId: `re_fixture_${i + 1}`,
+      status: 'sent',
+      errorKind: null,
+      ...NO_DELIVERY,
+      delivery,
+      deliveredAt: stamp(e.dl),
+      bouncedAt: delivery === 'bounced' ? mockStamp(e.t) : null,
+      bounceType,
+      bounceSubType,
+      bounceMessage,
+      openCount: e.op,
+      openedFirstAt: stamp(e.fo),
+      openedLastAt: stamp(e.lo),
+      clickCount: e.cl,
+      clickedFirstAt: stamp(e.fc),
+      clickedLastAt: stamp(e.lc),
+      clickedLink: e.ln ?? null,
+    };
+  });
 }
 
 /** The API's filter, applied in memory. */
 export function emailMatches(r: EmailLogRow, f: EmailLogFilters): boolean {
   if (f.q && !(r.to + r.subject).toLowerCase().includes(f.q.toLowerCase())) return false;
   if (f.template && r.template !== f.template) return false;
-  if (f.status && r.status !== f.status.toLowerCase()) return false;
+  if (f.status && emailLogStatus(r) !== f.status.toLowerCase()) return false;
   if (f.userId) {
     const u = SUPPORT_USERS.find((x) => x.id === f.userId);
     if (r.userId !== f.userId && r.to !== u?.e) return false;
@@ -58,11 +79,13 @@ export function emailMatches(r: EmailLogRow, f: EmailLogFilters): boolean {
 }
 
 export function fixtureEmailPage(rows: EmailLogRow[], f: EmailLogFilters): EmailLogPage {
+  const picked = rows.filter((r) => emailMatches(r, f));
   return {
-    rows: rows.filter((r) => emailMatches(r, f)),
+    rows: picked,
     nextCursor: null,
     templates: [...new Set(rows.map((r) => r.template))],
     statuses: EMAIL_STATUS_OPTIONS.map((s) => s.toLowerCase()),
+    rollup: emailRollup(rollupOf(picked)),
   };
 }
 

@@ -2,12 +2,13 @@
 // and a user's "Emails sent" tab, from what the API answers. Pure; EmailLog.tsx and User.tsx only
 // render it. Times are MST (BUILD-SPEC § 7), as the page's description says.
 //
-// NO DELIVERY EVENTS IN v1. A row says whether the send went out (Sent, Failed, Skipped); the detail
-// says so in place of the mockup's "The log keeps the subject and delivery events." The fixture draws
-// the mockup's delivery words ("Delivered", "Bounced") from its own data.
+// D-263: DELIVERY FROM RESEND'S WEBHOOK. A row's badge is its delivery once Resend has reported one
+// (Delivered, Delayed, Bounced, Complained), else the send's outcome (Sent, Failed, Skipped), with its
+// opens and clicks beside it; the five tiles above the table are the rollup over every row the filters
+// pick (`emailRollup`), in the mockup's words.
 
-import { EMAIL_ERROR_LABELS, EMAIL_PROVIDER_LABELS, adminStamp, emailStatusOf } from '@ai/core';
-import type { AdminStatus, EmailErrorKind, EmailLogFilters, EmailLogRow } from '@ai/core';
+import { EMAIL_ERROR_LABELS, EMAIL_PROVIDER_LABELS, adminStamp, bounceLine, emailLogStatus, emailStatusOf } from '@ai/core';
+import type { AdminStatus, EmailErrorKind, EmailLogFilters, EmailLogRow, EmailRollup } from '@ai/core';
 import type { Option } from './workspaces.vm';
 
 export const EMAIL_COPY = {
@@ -21,7 +22,16 @@ export const EMAIL_COPY = {
   clearWorkspace: 'Show every workspace',
   template: 'Template',
   status: 'Status',
-  columns: { email: 'Email', template: 'Template', status: 'Status', sent: 'Sent', subject: 'Subject' },
+  columns: { email: 'Email', template: 'Template', status: 'Status', opens: 'Opens', clicks: 'Clicks', sent: 'Sent', subject: 'Subject' },
+  rollup: {
+    sent: 'Sent',
+    sentSub: 'Last 180 days',
+    delivered: 'Delivered',
+    bounced: 'Bounced',
+    noneSent: 'None sent',
+    opens: 'Unique opens',
+    clicks: 'Unique clicks',
+  },
   empty: 'No emails sent yet',
   userEmpty: 'No emails sent to this user',
   loadMore: 'Load more',
@@ -34,10 +44,22 @@ export const EMAIL_COPY = {
     status: 'Status',
     sent: 'Sent',
     error: 'Error',
-    note: 'The log keeps the subject and whether it was sent. Delivery events are not tracked yet. The message body is not stored here.',
+    delivered: 'Delivered',
+    bounce: 'Bounce',
+    opens: 'Opens',
+    firstOpened: 'First opened',
+    lastOpened: 'Last opened',
+    clicks: 'Clicks',
+    firstClicked: 'First clicked',
+    lastClicked: 'Last clicked',
+    lastLink: 'Last link clicked',
+    note: 'The log keeps the subject and delivery events. The message body is not stored here.',
     done: 'Done',
   },
 } as const;
+
+/** No rate to give: nothing to rate against (the mockup's `pc`). */
+export const NONE = '—';
 
 export interface EmailFilterState {
   q: string;
@@ -98,6 +120,8 @@ export interface EmailRowVM {
   to: string;
   template: string;
   status: AdminStatus;
+  opens: number;
+  clicks: number;
   sent: string;
   at: number;
 }
@@ -107,10 +131,42 @@ export const emailRowVM = (r: EmailLogRow): EmailRowVM => ({
   subject: r.subject,
   to: r.to,
   template: r.template,
-  status: emailStatusOf(r.status),
+  status: emailStatusOf(emailLogStatus(r)),
+  opens: r.openCount,
+  clicks: r.clickCount,
   sent: adminStamp(r.at),
   at: r.at,
 });
+
+const count = (n: number): string => n.toLocaleString('en-US');
+const pct = (p: number | null): string => (p === null ? NONE : `${p}%`);
+
+export interface RollupTileVM {
+  key: string;
+  label: string;
+  value: string;
+  sub: string;
+  tone: 'bad' | null;
+}
+
+/** The five tiles over the table (D-263): Sent, Delivered, Bounced, Unique opens, Unique clicks. */
+export function emailRollupVM(r: EmailRollup): RollupTileVM[] {
+  const R = EMAIL_COPY.rollup;
+  const complaints = r.complained ? ` · ${count(r.complained)} ${r.complained === 1 ? 'complaint' : 'complaints'}` : '';
+  return [
+    { key: 'sent', label: R.sent, value: count(r.sent), sub: R.sentSub, tone: null },
+    { key: 'delivered', label: R.delivered, value: pct(r.deliveredPct), sub: `${count(r.delivered)} of ${count(r.sent)} sent`, tone: null },
+    {
+      key: 'bounced',
+      label: R.bounced,
+      value: count(r.bounced),
+      sub: (r.bouncedPct === null ? R.noneSent : `${r.bouncedPct}% of sent`) + complaints,
+      tone: r.alert ? 'bad' : null,
+    },
+    { key: 'opens', label: R.opens, value: pct(r.openedPct), sub: `${count(r.opened)} of ${count(r.delivered)} delivered`, tone: null },
+    { key: 'clicks', label: R.clicks, value: pct(r.clickedPct), sub: `${count(r.clicked)} of ${count(r.delivered)} delivered`, tone: null },
+  ];
+}
 
 export interface EmailDetailVM {
   title: string;
@@ -118,9 +174,15 @@ export interface EmailDetailVM {
   note: string;
 }
 
+const mst = (t: number): string => `${adminStamp(t)} MST`;
+
 export function emailDetailVM(r: EmailLogRow): EmailDetailVM {
   const D = EMAIL_COPY.detail;
   const error = r.errorKind ? (EMAIL_ERROR_LABELS[r.errorKind as EmailErrorKind] ?? r.errorKind) : null;
+  const status = emailStatusOf(emailLogStatus(r));
+  const bounce = bounceLine(r);
+  // D-263: opens and clicks are tracked only on a send Resend took; a skipped or failed send has none to show.
+  const tracked = r.status === 'sent';
   return {
     title: r.subject,
     rows: [
@@ -128,9 +190,26 @@ export function emailDetailVM(r: EmailLogRow): EmailDetailVM {
       { label: D.from, value: D.fromValue },
       { label: D.template, value: r.template, mono: true },
       { label: D.provider, value: EMAIL_PROVIDER_LABELS[r.provider] ?? r.provider },
-      { label: D.status, value: emailStatusOf(r.status).label, status: emailStatusOf(r.status) },
+      { label: D.status, value: status.label, status },
       ...(error ? [{ label: D.error, value: error }] : []),
-      { label: D.sent, value: `${adminStamp(r.at)} MST` },
+      { label: D.sent, value: mst(r.at) },
+      ...(r.deliveredAt !== null ? [{ label: D.delivered, value: mst(r.deliveredAt) }] : []),
+      ...(bounce ? [{ label: D.bounce, value: bounce }] : []),
+      ...(tracked ? [{ label: D.opens, value: count(r.openCount) }] : []),
+      ...(tracked && r.openCount > 0 && r.openedFirstAt !== null && r.openedLastAt !== null
+        ? [
+            { label: D.firstOpened, value: mst(r.openedFirstAt) },
+            { label: D.lastOpened, value: mst(r.openedLastAt) },
+          ]
+        : []),
+      ...(tracked ? [{ label: D.clicks, value: count(r.clickCount) }] : []),
+      ...(tracked && r.clickCount > 0 && r.clickedFirstAt !== null && r.clickedLastAt !== null
+        ? [
+            { label: D.firstClicked, value: mst(r.clickedFirstAt) },
+            { label: D.lastClicked, value: mst(r.clickedLastAt) },
+          ]
+        : []),
+      ...(r.clickedLink ? [{ label: D.lastLink, value: r.clickedLink, mono: true }] : []),
     ],
     note: D.note,
   };

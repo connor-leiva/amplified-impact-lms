@@ -5,6 +5,7 @@ import {
   EMAIL_CSV_HEADER,
   EMAIL_LOG_RETENTION_DAYS,
   EMAIL_STATUSES,
+  NO_DELIVERY,
   PROGRAM_TZ,
   USAGE_KINDS,
   USAGE_MAX_DAYS,
@@ -30,7 +31,7 @@ import {
 import type { EmailLogRow } from '../src/index';
 
 describe('the email log (spec § 7.15) @console', () => {
-  it('keeps three statuses and no delivery events', () => {
+  it('keeps three send outcomes; delivery is its own field (D-263)', () => {
     expect(EMAIL_STATUSES).toEqual(['sent', 'failed', 'skipped']);
     expect(isEmailStatus('sent')).toBe(true);
     expect(isEmailStatus('delivered')).toBe(false);
@@ -55,10 +56,11 @@ describe('the email log (spec § 7.15) @console', () => {
     expect(emailStatusOf('sent')).toEqual({ label: 'Sent', tone: 'ok' });
     expect(emailStatusOf('failed')).toEqual({ label: 'Failed', tone: 'bad' });
     expect(emailStatusOf('skipped')).toEqual({ label: 'Skipped', tone: 'off' });
-    // The mockup's delivery words (fixture only in v1).
-    expect(emailStatusOf('Delivered')).toEqual({ label: 'Delivered', tone: 'ok' });
-    expect(emailStatusOf('Queued')).toEqual({ label: 'Queued', tone: 'info' });
+    // D-263: the delivery states Resend reports, in the mockup's tones.
+    expect(emailStatusOf('delivered')).toEqual({ label: 'Delivered', tone: 'ok' });
+    expect(emailStatusOf('delayed')).toEqual({ label: 'Delayed', tone: 'warn' });
     expect(emailStatusOf('Bounced')).toEqual({ label: 'Bounced', tone: 'bad' });
+    expect(emailStatusOf('complained')).toEqual({ label: 'Complained', tone: 'bad' });
     expect(emailStatusOf('odd')).toEqual({ label: 'odd', tone: 'neutral' });
   });
   it('exports CSV with no body column, formula cells defused', () => {
@@ -75,9 +77,15 @@ describe('the email log (spec § 7.15) @console', () => {
       providerId: 're_123',
       status: 'sent',
       errorKind: null,
+      ...NO_DELIVERY,
     };
     const csv = emailCsv([row]);
-    expect(csv.split('\r\n')[0]).toBe('"id","sent_at","to","user_id","template","subject","provider","provider_id","status","error_kind"');
+    // The D-166 columns first, in their order, then D-263's delivery.
+    expect(csv.split('\r\n')[0]).toBe(
+      '"id","sent_at","to","user_id","template","subject","provider","provider_id","status","error_kind",' +
+        '"delivery","delivered_at","delayed_at","bounced_at","bounce_type","bounce_sub_type","bounce_message","complained_at",' +
+        '"open_count","first_opened_at","last_opened_at","click_count","first_clicked_at","last_clicked_at","last_clicked_link"',
+    );
     expect(csv).toContain(`"'=HYPERLINK(""x"")"`);
     expect(csv).toContain('"2026-12-08T19:00:00.000Z"');
   });

@@ -62,7 +62,7 @@ import type {
   StaffRole,
 } from '@ai/core';
 import type { StaffChangePreview, StaffConsoleRequest } from '@ai/core';
-import { MutationError } from '@ai/core';
+import { MutationError, NO_ROLLUP, emailRollup } from '@ai/core';
 import type { Staff as StaffRow } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { clock } from '../lib/clock';
@@ -710,7 +710,8 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
       settle(() => {
         need('email.read');
         const page = fixtureEmailPage(emails, filters);
-        return state === 'empty' ? { ...page, rows: [] } : page;
+        // D-263: an empty log has nothing to roll up either.
+        return state === 'empty' ? { ...page, rows: [], rollup: emailRollup(NO_ROLLUP) } : page;
       }),
     exportEmails: (filters) =>
       settle(() => {

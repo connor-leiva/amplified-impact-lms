@@ -448,14 +448,17 @@ const ENDPOINTS = [
   { p: 'GET /api/course', req: '3,410', p50: '42 ms', p95: '160 ms', er: 0.1 }, { p: 'GET /api/sessions/:id/join', req: '286', p50: '90 ms', p95: '410 ms', er: 0.7 },
   { p: 'POST /api/billing/webhook', req: '142', p50: '120 ms', p95: '880 ms', er: 2.1 }, { p: 'POST /api/crm-sync', req: '96', p50: '310 ms', p95: '1,940 ms', er: 6.3 },
 ];
+/* D-263: each email's delivery from Resend's webhook (st: Sent, Delivered, Delayed, Bounced or Complained), when it
+   was delivered (dl), its opens (op, first fo, last lo), its clicks (cl, first fc, last lc) and the last link
+   clicked (ln), and a bounce's type, subtype and message (br). */
 const EMAILS = [
-  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM' },
-  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM' },
-  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Opened', t: 'Dec 9, 3:10 PM' },
-  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM' },
-  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM' },
-  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Queued', t: 'Dec 10, 9:18 AM' },
-  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM' },
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM', dl: 'Dec 8, 12:00 PM', op: 2, fo: 'Dec 8, 12:41 PM', lo: 'Dec 8, 6:40 PM', cl: 1, fc: 'Dec 8, 12:42 PM', lc: 'Dec 8, 12:42 PM', ln: 'https://learn.example.com/sessions/2' },
+  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM', dl: 'Dec 4, 9:04 AM', op: 1, fo: 'Dec 4, 9:30 AM', lo: 'Dec 4, 9:30 AM', cl: 0 },
+  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Delivered', t: 'Dec 9, 3:10 PM', dl: 'Dec 9, 3:10 PM', op: 3, fo: 'Dec 9, 3:12 PM', lo: 'Dec 9, 8:12 PM', cl: 2, fc: 'Dec 9, 3:13 PM', lc: 'Dec 9, 8:13 PM', ln: 'https://learn.example.com/replays/2' },
+  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM', dl: 'Dec 9, 11:26 AM', op: 1, fo: 'Dec 9, 11:27 AM', lo: 'Dec 9, 11:27 AM', cl: 1, fc: 'Dec 9, 11:27 AM', lc: 'Dec 9, 11:27 AM', ln: 'https://learn.example.com/sign-in' },
+  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM', op: 0, cl: 0, br: 'Permanent · General · The mailbox does not exist.' },
+  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Sent', t: 'Dec 10, 9:18 AM', op: 0, cl: 0 },
+  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM', dl: 'Dec 8, 3:00 PM', op: 0, cl: 0 },
 ];
 const DEPLOYS = [
   { sha: 'a3f91c2', m: 'Scope 16px floor and 44px targets to phone widths', a: 'Connor Leiva', t: 'Dec 9, 10:42 PM', st: 'Live', dur: '1m 48s' },
@@ -501,8 +504,8 @@ const NAV = [
 const PARENT = { builder: 'program', workspace: 'people', user: 'people', incident: 'incidents', as: 'people', newcohort: 'cohort' };
 const TONE = { Active: 'ok', Paid: 'ok', Delivered: 'ok', Opened: 'ok', Succeeded: 'ok', Live: 'ok', Published: 'ok', Connected: 'ok', Resolved: 'ok', Present: 'ok', Sent: 'ok', On: 'ok', Healthy: 'ok', Ready: 'ok', Approved: 'ok',
   Running: 'run', Retrying: 'run', Scheduled: 'info', Trialing: 'info', Queued: 'info', Acknowledged: 'info', Upcoming: 'info',
-  Failed: 'bad', 'Past due': 'bad', Bounced: 'bad', Degraded: 'bad', 'Sev 2': 'bad', 'Sev 1': 'bad',
-  Waiting: 'warn', 'Not configured': 'warn', 'Sev 3': 'warn', Pending: 'warn', Refunded: 'warn',
+  Failed: 'bad', 'Past due': 'bad', Bounced: 'bad', Complained: 'bad', Degraded: 'bad', 'Sev 2': 'bad', 'Sev 1': 'bad',
+  Waiting: 'warn', 'Not configured': 'warn', 'Sev 3': 'warn', Pending: 'warn', Refunded: 'warn', Delayed: 'warn',
   Draft: 'off', Off: 'off', Canceled: 'off', Open: 'warn' };
 
 /* ---------- primitives ---------- */
@@ -1183,13 +1186,22 @@ function Email() {
   const [q, setQ] = useState(''), [tpl, setTpl] = useState('Any template'), [st, setSt] = useState('Any status'), [open, setOpen] = useState(null);
   const rows = EMAILS.filter(e => (e.to + e.sub).toLowerCase().includes(q.toLowerCase()) && (tpl === 'Any template' || e.tpl === tpl) && (st === 'Any status' || e.st === st));
   const exp = () => guard('export', 'Export email log', () => { log('email_log.export', 'Email log', 'CSV, ' + rows.length + ' rows.'); toast('Export started. It is in the audit log.'); });
+  /* D-263: the rollup over the rows the filters pick. Delivered is against what Resend took; opens and clicks are unique
+     (a row once, however often) and against what was delivered, a complaint counted as delivered. */
+  const sent = rows.filter(e => e.st !== 'Failed' && e.st !== 'Skipped').length, got = rows.filter(e => e.st === 'Delivered' || e.st === 'Complained');
+  const bo = rows.filter(e => e.st === 'Bounced').length, cp = rows.filter(e => e.st === 'Complained').length, op = got.filter(e => e.op > 0).length, cl = got.filter(e => e.cl > 0).length;
+  const pc = (n, d) => d ? Math.round(n / d * 100) + '%' : '—';
   return <div className="pg">
     <Head t="Email Log" d="Every transactional email and notification sent through Resend. Times are MST (America/Phoenix)." right={<GBtn ic="download" perm="export" label="Export email log" go={exp}>Export CSV</GBtn>} />
-    <div className="row"><Find v={q} on={setQ} ph="Filter recipient or subject" /><Sel label="Template" v={tpl} on={setTpl} opts={['Any template', ...new Set(EMAILS.map(e => e.tpl))]} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Delivered', 'Opened', 'Queued', 'Bounced']} /></div>
+    <div className="row"><Find v={q} on={setQ} ph="Filter recipient or subject" /><Sel label="Template" v={tpl} on={setTpl} opts={['Any template', ...new Set(EMAILS.map(e => e.tpl))]} /><Sel label="Status" v={st} on={setSt} opts={['Any status', 'Sent', 'Delivered', 'Delayed', 'Bounced', 'Complained', 'Failed', 'Skipped']} /></div>
+    <Gate n={3}><div className="g5"><Stat l="Sent" v={String(sent)} sub="Last 180 days" /><Stat l="Delivered" v={pc(got.length, sent)} sub={got.length + ' of ' + sent + ' sent'} /><Stat l="Bounced" v={String(bo)} sub={(sent ? pc(bo, sent) + ' of sent' : 'None sent') + (cp ? ' · ' + cp + (cp === 1 ? ' complaint' : ' complaints') : '')} tone={cp || bo / sent >= 0.04 ? 'bad' : null} /><Stat l="Unique opens" v={pc(op, got.length)} sub={op + ' of ' + got.length + ' delivered'} /><Stat l="Unique clicks" v={pc(cl, got.length)} sub={cl + ' of ' + got.length + ' delivered'} /></div></Gate>
     <Table rows={rows} sel onRow={setOpen} bulk={<Btn onClick={exp}>Export selected</Btn>} empty={{ ic: 'email', t: 'No emails sent yet' }}
-      cols={[{ k: 'sub', l: 'Email', w: 'minmax(260px,2fr)', r: e => <Two a={e.sub} b={e.to} mo /> }, { k: 'tpl', l: 'Template', mo: 1, w: '160px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 't', l: 'Sent', w: '128px', ns: 1 }]} />
+      cols={[{ k: 'sub', l: 'Email', w: 'minmax(260px,2fr)', r: e => <Two a={e.sub} b={e.to} mo /> }, { k: 'tpl', l: 'Template', mo: 1, w: '160px', hide: 'lap' }, { k: 'st', l: 'Status', w: '104px', r: e => <St v={e.st} /> }, { k: 'op', l: 'Opens', num: 1, w: '72px' }, { k: 'cl', l: 'Clicks', num: 1, w: '72px' }, { k: 't', l: 'Sent', w: '128px', ns: 1 }]} />
     {open && <Modal title={open.sub} onClose={() => setOpen(null)} foot={<Btn k="p" onClick={() => setOpen(null)}>Done</Btn>}>
-      <KV rows={[['To', <span className="mo">{open.to}</span>], ['From', 'Amplified Impact'], ['Template', <span className="mo">{open.tpl}</span>], ['Provider', 'Resend'], ['Status', <St v={open.st} />], ['Sent', open.t + ' MST']]} />
+      <KV rows={[['To', <span className="mo">{open.to}</span>], ['From', 'Amplified Impact'], ['Template', <span className="mo">{open.tpl}</span>], ['Provider', 'Resend'], ['Status', <St v={open.st} />], ['Sent', open.t + ' MST'],
+        ...(open.dl ? [['Delivered', open.dl + ' MST']] : []), ...(open.br ? [['Bounce', open.br]] : []),
+        ['Opens', String(open.op)], ...(open.op ? [['First opened', open.fo + ' MST'], ['Last opened', open.lo + ' MST']] : []),
+        ['Clicks', String(open.cl)], ...(open.cl ? [['First clicked', open.fc + ' MST'], ['Last clicked', open.lc + ' MST']] : []), ...(open.ln ? [['Last link clicked', <span className="mo">{open.ln}</span>]] : [])]} />
       <p className="me">The log keeps the subject and delivery events. The message body is not stored here.</p>
     </Modal>}
   </div>;

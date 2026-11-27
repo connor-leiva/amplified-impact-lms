@@ -3,11 +3,14 @@
 // sent" tab print from them.
 //
 // THE EMAIL LOG keeps one row per `send()` (apps/api/src/email/transport.ts), written after it: who it
-// went to, the template, the subject, the provider and its id, and what happened. Never the body. v1
-// has no delivery events (no webhook from Resend), so a row says only whether the send went out:
+// went to, the template, the subject, the provider and its id, and what happened. Never the body. The
+// send's own outcome is its `status`:
 //   sent     production, and Resend accepted it
 //   failed   the send failed (in any mode), with an `error_kind`, never the error's words
 //   skipped  test or development: nothing left the server (the outbox, or a log line)
+// D-263: a sent row then carries what Resend's webhook reports (`email-delivery.ts`): delivered,
+// delayed, bounced or complained, and its opens and clicks. The badge says the delivery once there is
+// one (`emailLogStatus`), else the send's outcome.
 //
 // USAGE is counted per program-zone day (`PROGRAM_TZ`, America/Chicago), per learner and kind:
 // sign-ins, guide views and session joins. Nothing estimates a figure. Lesson plays have no request
@@ -18,6 +21,7 @@ import { PROGRAM_TZ } from './constants';
 import type { AdminStatus } from './console-view';
 import type { PlanKind } from './offer';
 import { toCsv } from './console';
+import type { EmailDelivery, EmailRollup } from './email-delivery';
 
 // ================================================================================================
 // Retention and limits (D6, spec § 7)
@@ -54,8 +58,8 @@ export function emailErrorKind(error: string): EmailErrorKind {
   return 'provider';
 }
 
-/** One row of the log, as the API sends it. Times are epoch ms. */
-export interface EmailLogRow {
+/** One row of the log, as the API sends it, with its delivery (D-263). Times are epoch ms. */
+export interface EmailLogRow extends EmailDelivery {
   id: string;
   at: number;
   to: string;
@@ -64,7 +68,7 @@ export interface EmailLogRow {
   subject: string;
   provider: string;
   providerId: string | null;
-  /** `EmailStatus` in production. The fixture draws the mockup's delivery words ("Delivered"). */
+  /** The send's outcome, an `EmailStatus`. Its delivery, once reported, is `delivery`. */
   status: string;
   errorKind: string | null;
 }
@@ -74,6 +78,7 @@ export interface EmailLogFilters {
   /** Words in the recipient or the subject. */
   q?: string;
   template?: string;
+  /** An `EmailLogStatus`: a delivery state, else the send's outcome (`emailLogStatus`). */
   status?: string;
   /** One person's emails: their user id, or their address. */
   userId?: string;
@@ -94,26 +99,37 @@ export interface EmailLogPage {
   templates: string[];
   /** The Status filter's options. */
   statuses: string[];
+  /** D-263: the rollup over every row the filters pick, on the first page only (null on the rest). */
+  rollup: EmailRollup | null;
 }
 
 export const EMAIL_IDS_MAX = 500;
 export const EMAIL_SUBJECT_MAX = 300;
 export const EMAIL_TO_MAX = 320;
 
-export const EMAIL_CSV_HEADER = ['id', 'sent_at', 'to', 'user_id', 'template', 'subject', 'provider', 'provider_id', 'status', 'error_kind'] as const;
+export const EMAIL_CSV_HEADER = [
+  'id', 'sent_at', 'to', 'user_id', 'template', 'subject', 'provider', 'provider_id', 'status', 'error_kind',
+  // D-263: the delivery, after the columns an older export already had.
+  'delivery', 'delivered_at', 'delayed_at', 'bounced_at', 'bounce_type', 'bounce_sub_type', 'bounce_message', 'complained_at',
+  'open_count', 'first_opened_at', 'last_opened_at', 'click_count', 'first_clicked_at', 'last_clicked_at', 'last_clicked_link',
+] as const;
 const iso = (t: number | null): string => (t === null ? '' : new Date(t).toISOString());
-export const emailCsvCells = (r: EmailLogRow): unknown[] => [r.id, iso(r.at), r.to, r.userId, r.template, r.subject, r.provider, r.providerId, r.status, r.errorKind];
+export const emailCsvCells = (r: EmailLogRow): unknown[] => [
+  r.id, iso(r.at), r.to, r.userId, r.template, r.subject, r.provider, r.providerId, r.status, r.errorKind,
+  r.delivery, iso(r.deliveredAt), iso(r.delayedAt), iso(r.bouncedAt), r.bounceType, r.bounceSubType, r.bounceMessage, iso(r.complainedAt),
+  r.openCount, iso(r.openedFirstAt), iso(r.openedLastAt), r.clickCount, iso(r.clickedFirstAt), iso(r.clickedLastAt), r.clickedLink,
+];
 export const emailCsv = (rows: readonly EmailLogRow[]): string => toCsv([[...EMAIL_CSV_HEADER], ...rows.map(emailCsvCells)]);
 
 const EMAIL_STATUS_WORDS: Readonly<Record<string, AdminStatus>> = {
   sent: { label: 'Sent', tone: 'ok' },
   failed: { label: 'Failed', tone: 'bad' },
   skipped: { label: 'Skipped', tone: 'off' },
-  // Delivery events, which v1 does not record (spec § 7.15). The fixture draws the mockup's.
+  // D-263: the delivery states Resend's webhook reports (the mockup's `TONE`).
   delivered: { label: 'Delivered', tone: 'ok' },
-  opened: { label: 'Opened', tone: 'ok' },
-  queued: { label: 'Queued', tone: 'info' },
+  delayed: { label: 'Delayed', tone: 'warn' },
   bounced: { label: 'Bounced', tone: 'bad' },
+  complained: { label: 'Complained', tone: 'bad' },
 };
 
 /** A status as a word and a tone (the mockup's `TONE`), never a colour alone. */

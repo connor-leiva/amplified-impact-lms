@@ -9,6 +9,8 @@ import { expectAccessible } from '../../lib/a11y';
  * `EMAILS` and `Usage` figures (`apps/web/src/data/parity-r2.ts`); their pixels are
  * `pnpm parity:admin-r2`'s. These hold the behaviour: the filters, the detail with its note, the
  * export and who may make it, the tiles and chart, the states, and Denied. Every state passes axe.
+ * D-263: each send's delivery, opens and clicks from Resend's webhook, and the rollup tiles, which
+ * follow the filters.
  */
 
 const NOW = '2026-12-10T09:30:00-07:00';
@@ -37,15 +39,30 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await expect(rows(page)).toHaveCount(7);
     await expect(rows(page).first()).toContainText('Tomorrow at 12:00 PM MST: Session 2 live build');
     await expect(rows(page).first()).toContainText('Dec 8, 12:00 PM');
+    // D-263: the rollup over every row the filters pick, and each row's opens and clicks.
+    // The tiles' grid is the Sent tile's parent; a tile is its label's parent ("Sent" and "Delivered" are row words too).
+    const grid = page.locator('main').getByText('Last 180 days', { exact: true }).locator('../..');
+    const tile = (label: string) => grid.getByText(label, { exact: true }).locator('..');
+    await expect(tile('Sent')).toContainText('7Last 180 days');
+    await expect(tile('Delivered')).toContainText('71%5 of 7 sent');
+    await expect(tile('Bounced')).toContainText('114% of sent');
+    await expect(tile('Unique opens')).toContainText('80%4 of 5 delivered');
+    await expect(tile('Unique clicks')).toContainText('60%3 of 5 delivered');
+    for (const h of ['Opens', 'Clicks']) await expect(page.getByRole('columnheader', { name: h })).toBeVisible();
+    await expect(rows(page).nth(2).getByRole('cell').nth(4)).toHaveText('3');
+    await expect(rows(page).nth(2).getByRole('cell').nth(5)).toHaveText('2');
     await expectAccessible(page);
 
     await page.getByRole('combobox', { name: 'Template' }).selectOption({ label: 'weekly-digest' });
     await expect(rows(page)).toHaveCount(1);
     await expect(rows(page).first()).toContainText('Bounced');
+    await expect(tile('Bounced')).toContainText('1100% of sent');
+    await expect(tile('Unique opens')).toContainText('—0 of 0 delivered');
     await page.getByRole('combobox', { name: 'Template' }).selectOption({ label: 'Any template' });
-    await page.getByRole('combobox', { name: 'Status' }).selectOption({ label: 'Queued' });
+    await page.getByRole('combobox', { name: 'Status' }).selectOption({ label: 'Sent' });
     await expect(rows(page)).toHaveCount(1);
     await expect(rows(page).first()).toContainText('Receipt for Team Plan, 16 seats');
+    await expect(tile('Delivered')).toContainText('0%0 of 1 sent');
     await page.getByRole('combobox', { name: 'Status' }).selectOption({ label: 'Any status' });
     await page.getByRole('textbox', { name: 'Filter recipient or subject' }).fill('nobody at all');
     await expect(page.getByText('No matches')).toBeVisible();
@@ -57,9 +74,12 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await rows(page).nth(1).getByRole('cell').nth(2).click();
     const dialog = page.getByRole('dialog', { name: 'Your Insiders payment did not go through' });
     await expect(dialog).toBeVisible();
-    for (const t of ['sam@tidewaterproperty.example', 'Amplified Impact', 'payment-failed', 'Resend', 'Dec 4, 9:04 AM MST'])
+    for (const t of ['sam@tidewaterproperty.example', 'Amplified Impact', 'payment-failed', 'Resend', 'First opened', 'Last opened'])
       await expect(dialog.getByText(t, { exact: true })).toBeVisible();
-    await expect(dialog).toContainText('Delivery events are not tracked yet. The message body is not stored here.');
+    // Sent and Delivered the same minute; one open, so its first and last are the same minute too.
+    await expect(dialog.getByText('Dec 4, 9:04 AM MST', { exact: true })).toHaveCount(2);
+    await expect(dialog.getByText('Dec 4, 9:30 AM MST', { exact: true })).toHaveCount(2);
+    await expect(dialog).toContainText('The log keeps the subject and delivery events. The message body is not stored here.');
     await expectAccessible(page);
     await dialog.getByRole('button', { name: 'Done' }).click();
     await expect(dialog).toHaveCount(0);
@@ -86,7 +106,11 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     const [all] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
     expect(all.suggestedFilename()).toMatch(/^email-log-\d{4}-\d{2}-\d{2}\.csv$/);
     const csv = (await readFile((await all.path())!, 'utf8')).trimEnd().split('\r\n');
-    expect(csv[0]).toBe('"id","sent_at","to","user_id","template","subject","provider","provider_id","status","error_kind"');
+    expect(csv[0]).toBe(
+      '"id","sent_at","to","user_id","template","subject","provider","provider_id","status","error_kind",' +
+        '"delivery","delivered_at","delayed_at","bounced_at","bounce_type","bounce_sub_type","bounce_message","complained_at",' +
+        '"open_count","first_opened_at","last_opened_at","click_count","first_clicked_at","last_clicked_at","last_clicked_link"',
+    );
     expect(csv).toHaveLength(8);
     await expect(page.getByRole('status').filter({ hasText: 'Export started. It is in the audit log.' })).toBeVisible();
     await rows(page).nth(0).getByRole('checkbox', { name: 'Select row' }).check();
@@ -108,6 +132,8 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
   test('the shared states, and Denied for a role without email.read', async ({ browser }) => {
     for (const [state, text] of [
       ['empty', 'No emails sent yet'],
+      // D-263: an empty log's tiles have nothing to rate.
+      ['empty', 'None sent'],
       ['error', 'This didn’t load.'],
       ['rate_limited', 'Too many requests.'],
     ] as const) {

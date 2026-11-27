@@ -76,6 +76,7 @@ Railway → **web** → Variables:
 | Name | Where it comes from |
 |---|---|
 | `RESEND_API_KEY` | Resend → API Keys |
+| `RESEND_WEBHOOK_SECRET` | D-263, the Email Log's delivery, opens and clicks: Resend → Webhooks → Add endpoint `https://learn.amplifiedimpact.io/api/webhooks/resend` with `email.sent`, `email.delivered`, `email.delivery_delayed`, `email.bounced`, `email.complained`, `email.opened` and `email.clicked`, then its signing secret (`whsec_…`). Until it is set the endpoint answers 503 and Resend retries; the log reads as before. Opens and clicks also need the domain's open and click tracking on in Resend |
 | `EMAIL_FROM` | an address at the domain you verified in step 1 |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | the bucket's **Credentials** tab |
 | `S3_URL_STYLE` | optional: `path` (the default) or `virtual`. The bucket's Credentials tab says which URL style it takes: Railway's buckets created since its move to virtual-hosted URLs want `virtual`. Production's `skills` bucket takes `path` (the pre-deploy uploads through it) |

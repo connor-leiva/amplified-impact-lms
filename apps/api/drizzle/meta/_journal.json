@@ -323,6 +323,13 @@
       "when": 1796900000000,
       "tag": "0045_comp_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1797000000000,
+      "tag": "0046_resend_delivery",
+      "breakpoints": true
     }
   ]
 }

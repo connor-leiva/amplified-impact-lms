@@ -616,7 +616,7 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
     // D-166: the email log's 180 days and usage's 400 (D6), the same way: its own try/catch, outside the lock.
     try {
       const pruned = await pruneEmailAndUsage(runOptions.db ?? getDb(), clock.now());
-      if (pruned.emails + pruned.usage > 0) log.info(pruned, 'email log and usage pruned');
+      if (pruned.emails + pruned.usage + pruned.events > 0) log.info(pruned, 'email log, Resend events and usage pruned');
     } catch (err) {
       log.error({ err }, 'email log and usage prune failed; the next tick retries');
     }

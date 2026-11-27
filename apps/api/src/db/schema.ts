@@ -747,6 +747,12 @@ export const jobTicks = pgTable('job_ticks', {
 // failure's kind, never its words. NEVER THE BODY: there is no column for one. `user_id` is the user
 // whose address it went to when one existed at the time, with no foreign key, so a send inside a
 // transaction that is still creating that user can never wait on it. Pruned after 180 days (D6).
+//
+// D-263: what Resend's webhook reports about a sent row, all nullable with no default (D-173), so a
+// row from before reads back as it did. Never written one event at a time: `email/resend-webhook.ts`
+// writes the whole set from `foldResendEvents` over the email's `resend_events`, matched on
+// `provider_id`. A null count is 0. `delivery_status` is the badge's state (`DELIVERY_STATES`), null
+// until the first event.
 export const emailLog = pgTable('email_log', {
   id: bigserial('id', { mode: 'number' }).primaryKey(),
   at: ts('at').notNull(),
@@ -758,16 +764,58 @@ export const emailLog = pgTable('email_log', {
   providerId: text('provider_id'),
   status: text('status').notNull(),
   errorKind: text('error_kind'),
+  deliveryStatus: text('delivery_status'),
+  deliveredAt: ts('delivered_at'),
+  delayedAt: ts('delayed_at'),
+  bouncedAt: ts('bounced_at'),
+  bounceType: text('bounce_type'),
+  bounceSubType: text('bounce_sub_type'),
+  bounceMessage: text('bounce_message'),
+  complainedAt: ts('complained_at'),
+  openCount: integer('open_count'),
+  openedFirstAt: ts('opened_first_at'),
+  openedLastAt: ts('opened_last_at'),
+  clickCount: integer('click_count'),
+  clickedFirstAt: ts('clicked_first_at'),
+  clickedLastAt: ts('clicked_last_at'),
+  clickedLink: text('clicked_link'),
 }, (t) => [
   index('email_log_at_idx').on(t.at),
   index('email_log_user_idx').on(t.userId),
   index('email_log_template_idx').on(t.template),
+  // D-263: a webhook event finds its row by Resend's id.
+  index('email_log_provider_id_idx').on(t.providerId),
+  // `DELIVERY_STATES` in `@ai/core`, typed out because drizzle-kit reads this file on its own.
+  check('email_log_delivery_status', sql`${t.deliveryStatus} is null or ${t.deliveryStatus} in ('sent', 'delivered', 'delayed', 'bounced', 'complained')`),
   // The closed lists in `@ai/core` (EMAIL_STATUSES, EMAIL_PROVIDERS, EMAIL_ERROR_KINDS), typed out
   // because drizzle-kit reads this file on its own.
   check('email_log_status', sql`${t.status} in ('sent', 'failed', 'skipped')`),
   check('email_log_provider', sql`${t.provider} in ('resend', 'outbox', 'log')`),
   // A failure names its kind; nothing else has one.
   check('email_log_error_kind', sql`(${t.status} = 'failed' and ${t.errorKind} in ('invalid_recipient', 'subject', 'render', 'config', 'provider')) or (${t.status} <> 'failed' and ${t.errorKind} is null)`),
+]);
+
+// `resend_events` (D-263): every Resend webhook event the email log records, once. `id` is the webhook
+// message id (`svix-id`), the same on every retry, so a redelivery inserts nothing and changes nothing.
+// `email_id` is Resend's id for the email, which `email_log.provider_id` holds; an event that arrives
+// before its row is kept here and folded in when the row is written. Only what the fold reads is kept:
+// the type, when it happened, a bounce's details and a click's link. Never the recipient, subject,
+// sender, IP address or user agent. Pruned with the email log, after 180 days (D6).
+export const resendEvents = pgTable('resend_events', {
+  id: text('id').primaryKey(),
+  type: text('type').notNull(),
+  emailId: text('email_id').notNull(),
+  occurredAt: ts('occurred_at').notNull(),
+  receivedAt: ts('received_at').notNull(),
+  bounceType: text('bounce_type'),
+  bounceSubType: text('bounce_sub_type'),
+  bounceMessage: text('bounce_message'),
+  link: text('link'),
+}, (t) => [
+  index('resend_events_email_idx').on(t.emailId),
+  index('resend_events_received_idx').on(t.receivedAt),
+  // `RESEND_EVENT_TYPES` in `@ai/core`, typed out because drizzle-kit reads this file on its own.
+  check('resend_events_type', sql`${t.type} in ('email.sent', 'email.delivered', 'email.delivery_delayed', 'email.bounced', 'email.complained', 'email.opened', 'email.clicked')`),
 ]);
 
 // `usage_daily`: how often each learner signed in, viewed a guided setup and joined a live session,

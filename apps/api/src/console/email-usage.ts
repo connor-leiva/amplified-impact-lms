@@ -3,7 +3,9 @@
 // refusals and 429s included.
 //
 //   GET  /api/console/email          `?q&template&status&userId&teamId&from&to&cursor&limit` → a page, newest
-//                                    first, with the filters' options. email.read (Owner, Admin, Support)
+//                                    first, with the filters' options; the first page (no cursor) also
+//                                    carries the rollup over every row the filters pick (D-263).
+//                                    email.read (Owner, Admin, Support)
 //   GET  /api/console/email/:id      one row. email.read
 //   POST /api/console/email/export   the same filters (and `ids`, for "Export selected") → CSV, 10,000
 //                                    rows at most (else 422 `export_too_large`). export (Owner, Admin);
@@ -23,20 +25,22 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   EMAIL_IDS_MAX,
-  EMAIL_STATUSES,
+  EMAIL_LOG_STATUSES,
   USAGE_MAX_DAYS,
   addDays,
   containsPattern,
   daysIn,
   emailCsv,
+  emailRollup,
   isDay,
-  isEmailStatus,
+  isDeliveryState,
+  isEmailLogStatus,
   isPlanKind,
   lastDays,
   programDay,
   programDayStart,
 } from '@ai/core';
-import type { EmailLogFilters, EmailLogPage, EmailLogRow, UsageQuery, UsageReport, UsageWorkspaceRow } from '@ai/core';
+import type { EmailLogFilters, EmailLogPage, EmailLogRow, EmailRollupCounts, UsageQuery, UsageReport, UsageWorkspaceRow } from '@ai/core';
 import { requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
@@ -85,7 +89,8 @@ export function parseEmailFilters(input: Record<string, unknown>): Parsed<EmailL
     out.template = input.template;
   }
   if (present(input.status)) {
-    if (!isEmailStatus(input.status)) return { ok: false, field: 'status' };
+    // D-263: a delivery state or a send's outcome, as the badge says it.
+    if (!isEmailLogStatus(input.status)) return { ok: false, field: 'status' };
     out.status = input.status;
   }
   if (present(input.userId)) {
@@ -118,7 +123,8 @@ function emailWhere(f: EmailLogFilters): SQL | undefined {
     parts.push(or(sql`${emailLog.to} ilike ${p}`, sql`${emailLog.subject} ilike ${p}`));
   }
   if (f.template !== undefined) parts.push(eq(emailLog.template, f.template));
-  if (f.status !== undefined) parts.push(eq(emailLog.status, f.status));
+  // D-263: the badge's status, `emailLogStatus`: the delivery once reported, else the send's outcome.
+  if (f.status !== undefined) parts.push(sql`coalesce(${emailLog.deliveryStatus}, ${emailLog.status}) = ${f.status}`);
   // A person's emails: those logged with their id, or sent to their address before they had one.
   if (f.userId !== undefined) parts.push(or(eq(emailLog.userId, f.userId), sql`lower(${emailLog.to}) = (select u.email from ${users} u where u.id = ${f.userId})`));
   // A workspace's emails: to any of its people, the same two ways.
@@ -132,6 +138,7 @@ function emailWhere(f: EmailLogFilters): SQL | undefined {
 }
 
 type EmailRaw = typeof emailLog.$inferSelect;
+const num0 = (v: number | null): number | null => (v === null ? null : Number(v));
 const toEmailRow = (r: EmailRaw): EmailLogRow => ({
   id: String(r.id),
   at: Number(r.at),
@@ -143,7 +150,53 @@ const toEmailRow = (r: EmailRaw): EmailLogRow => ({
   providerId: r.providerId,
   status: r.status,
   errorKind: r.errorKind,
+  // D-263: the delivery, folded from Resend's events; a null count is 0.
+  delivery: isDeliveryState(r.deliveryStatus) ? r.deliveryStatus : null,
+  deliveredAt: num0(r.deliveredAt),
+  delayedAt: num0(r.delayedAt),
+  bouncedAt: num0(r.bouncedAt),
+  bounceType: r.bounceType,
+  bounceSubType: r.bounceSubType,
+  bounceMessage: r.bounceMessage,
+  complainedAt: num0(r.complainedAt),
+  openCount: Number(r.openCount ?? 0),
+  openedFirstAt: num0(r.openedFirstAt),
+  openedLastAt: num0(r.openedLastAt),
+  clickCount: Number(r.clickCount ?? 0),
+  clickedFirstAt: num0(r.clickedFirstAt),
+  clickedLastAt: num0(r.clickedLastAt),
+  clickedLink: r.clickedLink,
 });
+
+/**
+ * The rollup's counts over every row the filters pick (D-263), as `rollupOf` counts rows in hand: sends
+ * Resend took, deliveries with complaints among them, and opens and clicks only on delivered rows.
+ */
+export async function readEmailRollup(db: Database, f: EmailLogFilters): Promise<EmailRollupCounts> {
+  const sent = sql`${emailLog.status} = 'sent'`;
+  const reached = sql`${sent} and ${emailLog.deliveryStatus} in ('delivered', 'complained')`;
+  const [r] = await db
+    .select({
+      sent: sql<number>`count(*) filter (where ${sent})::int`,
+      delivered: sql<number>`count(*) filter (where ${reached})::int`,
+      delayed: sql<number>`count(*) filter (where ${sent} and ${emailLog.deliveryStatus} = 'delayed')::int`,
+      bounced: sql<number>`count(*) filter (where ${sent} and ${emailLog.deliveryStatus} = 'bounced')::int`,
+      complained: sql<number>`count(*) filter (where ${sent} and ${emailLog.deliveryStatus} = 'complained')::int`,
+      opened: sql<number>`count(*) filter (where ${reached} and coalesce(${emailLog.openCount}, 0) > 0)::int`,
+      clicked: sql<number>`count(*) filter (where ${reached} and coalesce(${emailLog.clickCount}, 0) > 0)::int`,
+    })
+    .from(emailLog)
+    .where(emailWhere(f));
+  return {
+    sent: Number(r?.sent ?? 0),
+    delivered: Number(r?.delivered ?? 0),
+    delayed: Number(r?.delayed ?? 0),
+    bounced: Number(r?.bounced ?? 0),
+    complained: Number(r?.complained ?? 0),
+    opened: Number(r?.opened ?? 0),
+    clicked: Number(r?.clicked ?? 0),
+  };
+}
 
 export async function readEmails(db: Database, f: EmailLogFilters, opts: { before?: number; limit: number }): Promise<EmailLogRow[]> {
   const where = and(emailWhere(f), opts.before !== undefined ? lt(emailLog.id, opts.before) : undefined);
@@ -299,16 +352,19 @@ export function registerEmailUsageRoutes(scope: FastifyInstance, deps: UsageDeps
       before = n;
     }
     const db = getDb();
-    const [raw, templates] = await Promise.all([
+    const [raw, templates, rollup] = await Promise.all([
       readEmails(db, parsed.value, { before, limit: size + 1 }),
       db.selectDistinct({ template: emailLog.template }).from(emailLog).orderBy(emailLog.template),
+      // D-263: once per filter, on the first page; "Load more" doesn't count it again.
+      before === undefined ? readEmailRollup(db, parsed.value) : Promise.resolve(null),
     ]);
     const rows = raw.slice(0, size);
     const page: EmailLogPage = {
       rows,
       nextCursor: raw.length > size ? rows[rows.length - 1]!.id : null,
       templates: templates.map((t) => t.template),
-      statuses: [...EMAIL_STATUSES],
+      statuses: [...EMAIL_LOG_STATUSES],
+      rollup: rollup ? emailRollup(rollup) : null,
     };
     return reply.send(page);
   });

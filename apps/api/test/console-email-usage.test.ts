@@ -96,7 +96,12 @@ describe('the email log is written after each send, and never in its way (spec �
     expect(row).toMatchObject({ to: 'Jamie@OrtizHomes.com', userId: 'u_jamie', template: 'sign-in', provider: 'outbox', providerId: null, status: 'skipped', errorKind: null, at: NOW });
     expect(row!.subject).toBe(res.subject);
     // No column for a body, and nothing of it in the row: the token is in the body only.
-    expect(getTableConfig(emailLog).columns.map((c) => c.name).sort()).toEqual(['at', 'error_kind', 'id', 'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id']);
+    // D-263 adds the delivery Resend reports, and still no column that could hold a body.
+    expect(getTableConfig(emailLog).columns.map((c) => c.name).sort()).toEqual([
+      'at', 'bounce_message', 'bounce_sub_type', 'bounce_type', 'bounced_at', 'click_count', 'clicked_first_at', 'clicked_last_at', 'clicked_link',
+      'complained_at', 'delayed_at', 'delivered_at', 'delivery_status', 'error_kind', 'id', 'open_count', 'opened_first_at', 'opened_last_at',
+      'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id',
+    ]);
     expect(JSON.stringify(row)).not.toContain('tok-SECRET-123');
     expect(getTableName(emailLog)).toBe('email_log');
   });
@@ -165,10 +170,19 @@ describe('GET /api/console/email (spec § 7.15) @console', () => {
     const page = res.json() as EmailLogPage;
     expect(page.rows.map((r) => r.template)).toEqual(['session-24h', 'sign-in', 'team-invite']);
     expect(page.templates).toEqual(['session-24h', 'sign-in', 'team-invite']);
-    expect(page.statuses).toEqual(['sent', 'failed', 'skipped']);
+    // D-263: the delivery states, then the send's own outcomes.
+    expect(page.statuses).toEqual(['sent', 'delivered', 'delayed', 'bounced', 'complained', 'failed', 'skipped']);
     expect(page.nextCursor).toBeNull();
     expect(page.rows[1]).toMatchObject({ status: 'failed', errorKind: 'provider', providerId: null });
-    expect(Object.keys(page.rows[0]!).sort()).toEqual(['at', 'errorKind', 'id', 'provider', 'providerId', 'status', 'subject', 'template', 'to', 'userId']);
+    expect(Object.keys(page.rows[0]!).sort()).toEqual([
+      'at', 'bounceMessage', 'bounceSubType', 'bounceType', 'bouncedAt', 'clickCount', 'clickedFirstAt', 'clickedLastAt', 'clickedLink',
+      'complainedAt', 'delayedAt', 'deliveredAt', 'delivery', 'errorKind', 'id', 'openCount', 'openedFirstAt', 'openedLastAt',
+      'provider', 'providerId', 'status', 'subject', 'template', 'to', 'userId',
+    ]);
+    // A row Resend has reported nothing about yet: no delivery, no opens or clicks (D-263).
+    expect(page.rows[0]).toMatchObject({ delivery: null, deliveredAt: null, openCount: 0, clickCount: 0, clickedLink: null });
+    // The first page carries the rollup over every row the filters pick: two sent, nothing delivered yet.
+    expect(page.rollup).toMatchObject({ sent: 2, delivered: 0, bounced: 0, opened: 0, clicked: 0, deliveredPct: 0, openedPct: null });
     expect((await (await db()).select().from(auditLog)).length).toBe(0);
   });
 
@@ -201,7 +215,7 @@ describe('GET /api/console/email (spec § 7.15) @console', () => {
     const second = (await get(`/api/console/email?limit=3&cursor=${first.nextCursor}`)).json() as EmailLogPage;
     expect(second.rows.map((r) => r.subject)).toEqual(['Join Northline']);
     expect(second.nextCursor).toBeNull();
-    for (const bad of ['?status=delivered', '?template=Bad%20One', '?limit=0', '?cursor=x', '?from=9&to=1', `?q=${'x'.repeat(101)}`]) {
+    for (const bad of ['?status=opened', '?template=Bad%20One', '?limit=0', '?cursor=x', '?from=9&to=1', `?q=${'x'.repeat(101)}`]) {
       const res = await get(`/api/console/email${bad}`);
       expect(res.statusCode, bad).toBe(400);
       expect(res.json().code).toBe('invalid_query');
@@ -230,7 +244,11 @@ describe('POST /api/console/email/export (D6) @console', () => {
     expect(res.headers['content-type']).toContain('text/csv');
     expect(res.headers['content-disposition']).toBe('attachment; filename="email-log-2026-12-07.csv"');
     const lines = res.body.trim().split('\r\n');
-    expect(lines[0]).toBe('"id","sent_at","to","user_id","template","subject","provider","provider_id","status","error_kind"');
+    expect(lines[0]).toBe(
+      '"id","sent_at","to","user_id","template","subject","provider","provider_id","status","error_kind",' +
+        '"delivery","delivered_at","delayed_at","bounced_at","bounce_type","bounce_sub_type","bounce_message","complained_at",' +
+        '"open_count","first_opened_at","last_opened_at","click_count","first_clicked_at","last_clicked_at","last_clicked_link"',
+    );
     expect(lines).toHaveLength(3);
     const [audit] = await (await db()).select().from(auditLog);
     expect(audit).toMatchObject({ action: 'email_log.export', outcome: 'ok', actorUserId: 'st1', targetType: 'email_log', targetLabel: 'Email log', after: { rows: 2, format: 'csv', filters: { template: 'sign-in' } } });
@@ -378,10 +396,10 @@ describe('retention: 180 days of email, 400 of usage (D6) @console', () => {
       { at: NOW - 179 * DAY, to: 'a@b.co', template: 'sign-in', subject: 'kept', provider: 'outbox', status: 'skipped' },
     ]);
     await d.insert(usageDaily).values([counted('2025-11-01', 'u_jamie', null, 'sign_in', 1), counted('2025-11-03', 'u_jamie', null, 'sign_in', 1)]);
-    expect(await pruneEmailAndUsage(d, NOW)).toEqual({ emails: 1, usage: 1 });
+    expect(await pruneEmailAndUsage(d, NOW)).toEqual({ emails: 1, usage: 1, events: 0 });
     expect((await emailRows()).map((r) => r.subject)).toEqual(['kept']);
     expect((await d.select().from(usageDaily)).map((r) => r.day)).toEqual(['2025-11-03']);
     // The audit log is never pruned.
-    expect(await pruneEmailAndUsage(d, NOW)).toEqual({ emails: 0, usage: 0 });
+    expect(await pruneEmailAndUsage(d, NOW)).toEqual({ emails: 0, usage: 0, events: 0 });
   });
 });
