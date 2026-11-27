@@ -545,10 +545,15 @@ function scheduledAnnouncements(db: Db, now: number): DueWork {
 export function announcementSends(db: Db, a: Announcement): Send[] {
   if (!a.channels.includes('email')) return [];
   const sends: Send[] = [];
+  // R-5 audit (D-267): an announcement sent from a cohort's tab goes to the people who count in that cohort only
+  // (`db.roster`, which the scheduler and Send now read), never to an access group's member; as the in-app banner
+  // (`announcementReaches`). One that names no cohort goes where it always has.
+  const reached = a.cohortId !== undefined ? new Set(db.roster?.[a.cohortId]?.learners ?? []) : null;
   for (const u of db.users) {
     // R-5 Phase 4 (D-261): an announcement about a session goes to that session's cohort (`announcementInCohort`), as
     // the in-app banner does (`scope.ts`).
-    if (!mailable(u) || !inAudience(a, u) || !announcementInCohort(a, db.sessions, u.cohortId)) continue;
+    if (!mailable(u) || !inAudience(a, u)) continue;
+    if (reached ? !reached.has(u.id) : !announcementInCohort(a, db.sessions, u.cohortId)) continue;
     sends.push({
       job: 'announcement',
       key: jobKey('announcement', a.id, u.id),

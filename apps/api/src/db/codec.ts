@@ -26,8 +26,9 @@
 // real cohort moves through its dates on its own. `Dashboard.vm.ts` already reads an absent phase
 // as `'live'`, which is the correct answer for production.
 
-import { DB_V, ZERO_BASE } from '@ai/core';
+import { DB_V, ZERO_BASE, rosterCount } from '@ai/core';
 import type {
+  CohortRoster,
   AIEmployee,
   ActivityEvent,
   Announcement,
@@ -223,6 +224,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
   announcements: [
     'id',
     'sessionId',
+    'cohortId',
     'title',
     'body',
     'severity',
@@ -439,6 +441,7 @@ const resourceRow = (r: Resource, seq: number): Row => ({
 const announcementRow = (a: Announcement): Row => ({
   id: a.id,
   sessionId: col(a.sessionId),
+  cohortId: col(a.cohortId),
   title: a.title,
   body: a.body,
   severity: a.severity,
@@ -547,7 +550,7 @@ export function toRows(db: Db): Rows {
 const str = (v: unknown): string => v as string;
 const num = (v: unknown): number => v as number;
 
-export function fromRows(rows: Rows): Db {
+export function fromRows(rows: Rows, roster?: CohortRoster): Db {
   const progressByUser = new Map<string, Record<string, Progress>>();
   for (const r of rows.progress) {
     const forUser = progressByUser.get(str(r.userId)) ?? {};
@@ -641,10 +644,14 @@ export function fromRows(rows: Rows): Db {
       last: r.last as number | null,
     }));
 
-  // Derived, per § 7.2: the number of learners whose cohort it is. A seeded test account is enrolled
-  // for real and is left out of the number (D-202).
+  // Derived, per § 7.2. R-5 audit (D-267): with the roster (`@ai/core/cohort-roster`, read by `loadDb` for the snapshot
+  // route), the learners who count in the cohort by the one rule: a live cohort plan for it, not a test account, kind
+  // learner, so an access group's member (Utah Life) or another plan's buyer is in no cohort's number. Without it (the
+  // codec's own round trip, a mutation's before and after), the number of learners whose row names the cohort, a seeded
+  // test account left out (D-202), as before.
   const enrolled = new Map<string, number>();
-  for (const u of users) if (!u.test) enrolled.set(u.cohortId, (enrolled.get(u.cohortId) ?? 0) + 1);
+  if (roster) for (const id of Object.keys(roster)) enrolled.set(id, rosterCount(roster, id));
+  else for (const u of users) if (!u.test) enrolled.set(u.cohortId, (enrolled.get(u.cohortId) ?? 0) + 1);
 
   const dismissed: Record<string, 1> = {};
   for (const r of rows.dismissals) dismissed[`${str(r.userId)}:${str(r.announcementId)}`] = 1;
@@ -786,7 +793,8 @@ export function fromRows(rows: Rows): Db {
           at: num(r.at),
           opens: r.opens === null || r.opens === undefined ? null : num(r.opens) / 100,
         },
-        { sessionId: r.sessionId },
+        // R-5 audit (D-267): null for every announcement made before it (absent, so nothing already sent moves).
+        { sessionId: r.sessionId, cohortId: r.cohortId },
       ),
     ),
     dismissed,

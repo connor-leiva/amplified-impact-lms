@@ -3,6 +3,7 @@
 // exactly: the goldens and the differential tests rely on the shape.
 import type { IconName } from './icons';
 import type { CohortCourse, ModuleCourse, StepPaths } from './course-types';
+import type { CohortRoster } from './cohort-roster';
 
 export type Tier = 'agent' | 'team';
 export type Phase = 'week0' | 'live' | 'post';
@@ -187,7 +188,7 @@ export interface Resource {
 }
 /** A piece of learner-facing copy the builder edits (D-173), e.g. `locked.utah_life`. */
 export interface CopyString { key: string; value: string; audience: string }
-export interface Announcement { id: string; sessionId?: string; title: string; body: string; severity: 'info' | 'warning'; action: 'calendar' | 'sessions' | null; actionLabel: string; audience: 'all' | 'agent' | 'team' | 'owners'; channels: ('inapp' | 'email')[]; /** `draft` (D-160 R2-2) is never sent: learners see `sent` only. */ status: 'sent' | 'scheduled' | 'draft'; at: number; opens: number | null }
+export interface Announcement { id: string; sessionId?: string; /** R-5 audit (D-267): the cohort it was sent to, from its Announcements tab; absent for one made before (the program's, as it always was). */ cohortId?: string; title: string; body: string; severity: 'info' | 'warning'; action: 'calendar' | 'sessions' | null; actionLabel: string; audience: 'all' | 'agent' | 'team' | 'owners'; channels: ('inapp' | 'email')[]; /** `draft` (D-160 R2-2) is never sent: learners see `sent` only. */ status: 'sent' | 'scheduled' | 'draft'; at: number; opens: number | null }
 export interface Reminder { id: string; label: string; channel: string; on: boolean }
 export interface TierDef { id: Tier; name: string; price: number; seats: number; blurb: string; features: string[] }
 export interface UpgradeRequest { id: string; userId: string | null; name: string; email: string; source: string; at: number; status: 'new' | 'contacted' | 'converted' | 'closed'; /** What is asked for, as the R2 Tiers screen's Request column prints it (D-160 R2-3), e.g. "Agent → Team · 16 seats". Optional: display only; without it the column reads "Agent → Team". */ ask?: string }
@@ -204,5 +205,36 @@ export interface Db {
   base: Baseline; activity: ActivityEvent[];
   /** The builder's copy strings (D-173). Optional: absent when there are none, as in every fixture. */
   copy?: CopyString[];
+  /**
+   * R-5 audit (D-267): who counts in each cohort (`cohort-roster.ts`), in staff's snapshot only. Absent in every learner's
+   * snapshot and in the fixture, where the screens read the learners' rows as before.
+   */
+  roster?: CohortRoster;
+  /** R-5 audit (D-267): each access group (Utah Life) and its people outside every cohort, in staff's snapshot only. */
+  groups?: AccessGroupView[];
+}
+
+/** R-5 audit (D-267): an access group as People › its tab shows it, from `access_groups` and its members. */
+export interface AccessGroupView {
+  id: string;
+  /** `access_groups.name`: the tab's label ("Utah Life"). */
+  name: string;
+  /** Its exact domain (`liveutah.com`), or null for a group that is a list only. */
+  emailDomain: string | null;
+  /** The plan it grants, as `access_groups.plan` holds it. */
+  plan: string;
+  /** The learners in it by their address who are in no cohort, by name. */
+  members: AccessGroupMember[];
+}
+
+/** One of an access group's people: their sign-in, never a seat. */
+export interface AccessGroupMember {
+  userId: string;
+  /** Their name, or empty for a self-serve sign-up who has given none. */
+  name: string;
+  email: string;
+  last: number | null;
+  /** Still `invited`: they haven't followed their link. */
+  invited: boolean;
 }
 export const ZERO_BASE: Baseline = { learners: 0, agent: 0, teamSeats: 0, teams: 0, mod: {}, daily: [0] };

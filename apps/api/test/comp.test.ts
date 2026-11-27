@@ -88,7 +88,9 @@ describe('compAcceleratorTeam', () => {
 
     expect(await cohortSeatsSold(db)).toBe(0);
     expect(await acceleratorFromDb(db)).toMatchObject({ sold: 0, collectedCents: 0, scheduledCents: 0, paidInFull: 0 });
-    expect(await cohortFactsOf(db, 'dec26')).toMatchObject({ plans: 0, teams: 0, paidInFull: 0 });
+    // R-5 audit (D-267): a comp is placed in its cohort like any seat, so its team is in the cohort's roster (Teams, and its
+    // people), and it is still no seat sold (`plans`) and not paid in full.
+    expect(await cohortFactsOf(db, 'dec26')).toMatchObject({ plans: 0, teams: 1, learners: 1, paidInFull: 0 });
     expect(await acceleratorAccess(db, out.userId, NOW)).toBe(true);
 
     const again = await compAcceleratorTeam({ email: 'dana@example.com', name: 'Dana Reyes', teamName: 'Northwind' }, opts());

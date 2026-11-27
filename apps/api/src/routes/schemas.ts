@@ -514,6 +514,8 @@ export const SCHEMAS: { [K in MutationName]: z.ZodType<MutationArgs<K>> } = {
     severity: z.enum(['info', 'warning']).optional(),
     // `''` is what the form's "no action" option sends.
     action: z.union([z.enum(['calendar', 'sessions']), z.literal(''), z.null()]).optional(),
+    // R-5 audit (D-267): the cohort whose Announcements tab it is sent from.
+    cohortId: z.string().max(80).optional(),
   }),
   toggleReminder: z.strictObject({ id }),
 

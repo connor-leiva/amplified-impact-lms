@@ -57,6 +57,7 @@ import type { Db } from '@ai/core';
 import { close, databaseNameOf, readDatabaseUrl, useDatabase, withDatabase } from '../src/db/client';
 import type { Database } from '../src/db/client';
 import { insertSnapshot, loadDb as loadDbFrom } from '../src/db/io';
+import { accessGroupViews, cohortRoster } from '../src/lib/cohort-roster';
 import * as schema from '../src/db/schema';
 import { settleEmails } from '../src/auth/mailer';
 import { settleObserved } from '../src/lib/observe';
@@ -291,6 +292,17 @@ export async function resetDatabase(snapshot?: Db): Promise<void> {
  * could agree on a shape that neither screen nor `@ai/core` accepts.
  */
 export const loadDb = async (): Promise<Db> => loadDbFrom(await ensure());
+
+/**
+ * R-5 audit (D-267): the database as `GET /api/snapshot` reads it before scoping: each cohort's `enrolled` counted from
+ * the roster (`lib/cohort-roster.ts`), and for staff the roster itself and the access groups (`Db.roster`, `Db.groups`).
+ */
+export const servedDb = async (staff: boolean, now = Date.now()): Promise<Db> => {
+  const db = await ensure();
+  const roster = await cohortRoster(db);
+  const all = await loadDbFrom(db, { roster });
+  return staff ? { ...all, roster, groups: await accessGroupViews(db, roster, now) } : all;
+};
 
 /**
  * Drop this slot's database. Nothing calls it automatically — see the header on why the database is

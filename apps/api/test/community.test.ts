@@ -210,7 +210,9 @@ describe('the Community (D-231)', () => {
     const waits = (id: number) => staff.threads.find((t) => t.id === id)?.waiting;
     // A learner had the last word on A; staff answered B; staff started C.
     expect([waits(a), waits(b), waits(c)]).toEqual([true, false, false]);
-    expect(staff.members).toEqual({ learners: 3, teams: 3 });
+    // R-5 audit (D-267): the people who count in the cohort by the one rule (a live cohort plan for it): teams A and B.
+    // Team N holds no plan, so though its row names December it is in no cohort's count.
+    expect(staff.members).toEqual({ learners: 2, teams: 2 });
 
     // A learner answers staff on B: it waits again. Staff hide that reply: the last word the cohort sees is staff's.
     const thanks = (await replyTo('own-b', b, 'Thank you!')).json().id as number;

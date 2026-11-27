@@ -104,7 +104,7 @@ import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { clock } from '../lib/clock';
-import { acceleratorAccess } from '../lib/course-access';
+import { acceleratorAccess, viewerCohortId } from '../lib/course-access';
 import { recordUsage } from '../lib/usage';
 
 /**
@@ -144,12 +144,14 @@ export function registerJoinRoute(app: FastifyInstance): void {
       const db = await loadDb(getDb());
       const me = db.users.find((u) => u.id === actor.userId);
       const session = db.sessions.find((s) => s.id === id);
+      // R-5 audit (D-267): the cohort this learner is in by the one rule (`viewerCohortId`), as their snapshot has it.
+      const cohortId = me ? await viewerCohortId(getDb(), me.id) : null;
 
       // ONE answer for three states: the id names nothing, the id names a session in a cohort this
       // learner is not in, and (unreachably, but `scopeSnapshot`'s `denyAll` is total for the same
       // reason) a session cookie whose learner row has since been deleted. See the header on why
       // they must be indistinguishable.
-      if (!me || !session || session.cohortId !== me.cohortId) {
+      if (!me || !session || session.cohortId !== cohortId) {
         return reply.code(404).send({ error: `No session ${id}` });
       }
 
@@ -164,7 +166,7 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // the course itself still opens at `COURSE_OPENS_AT`.
       // R-5 Phase 4 (D-261): the session's week as the learner's own cohort has it (`cohortView`), the view their
       // snapshot is drawn from. The same modules for a cohort with no stored run.
-      const mine = cohortView(db, me.cohortId);
+      const mine = cohortView(db, session.cohortId);
       const owner = moduleForSession(mine, session);
       const planAt = joinMode(session, now) === 'disabled' ? now : now + JOIN_WINDOW_MS;
       const course = owner && isCourseWeek(owner.id) ? await acceleratorAccess(getDb(), me.id, planAt) : undefined;

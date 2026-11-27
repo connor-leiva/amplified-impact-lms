@@ -65,7 +65,7 @@ import type { Actor, Db, Learner } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { resources } from '../src/db/schema';
-import { loadDb, resetDatabase, testDatabase } from './helpers';
+import { resetDatabase, servedDb, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T10:42:00-06:00');
 
@@ -211,7 +211,8 @@ beforeAll(async () => {
     const res = await app.inject({ method: 'GET', url: '/api/snapshot', headers: { cookie } });
     seen[name as ViewerName] = { db: res.json() as Db, raw: res.body, status: res.statusCode };
   }
-  whole = await loadDb();
+  // R-5 audit (D-267): as the route reads it, with the roster and the access groups staff's snapshot carries.
+  whole = await servedDb(true);
 });
 
 afterAll(async () => {

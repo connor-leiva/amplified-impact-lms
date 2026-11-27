@@ -4,9 +4,9 @@
 //               `week0.test_send` in `audit_log`, targeting the cohort (PLAN.md § 10.3: no new table).
 //   plans       cohort plans placed in it, any status, not a test account's (D-202): a seat sold. Once there is one,
 //               its included time is frozen (Q-22).
-//   teams       its Teams by the spec's rule 2: teams with a `cohort` plan for it that has not ended, test accounts left
-//               out (`countedCohortSeat`'s filter).
-//   learners    the people on those teams who are not test accounts.
+//   teams       its Teams by the spec's rule 2, the one rule (R-5 audit, D-267, `cohortRoster`): teams whose newest live
+//               `cohort` plan is for it, test accounts left out. A comp's team is placed like any seat.
+//   learners    the people on those teams of kind learner who are not test accounts.
 //   intake      of those teams, how many have not started their intake (no `team_intake` row), and how many sent one
 //               that did not reach GoHighLevel (`ghl_sync_status` is `failed`): the "Needs you" rows.
 //   readiness   of those teams, how many have someone signed in, their intake submitted, and are paid in full.
@@ -18,8 +18,8 @@
 // Read-only. "Before it opens" (`beforeItOpens` in `@ai/core`) reads these beside the snapshot, and so does Open
 // enrollment's refusal, so the checklist and the refusal cannot drift. Two booleans and counts; no names.
 
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
-import type { CohortFacts } from '@ai/core';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import type { CohortFacts, CohortRoster } from '@ai/core';
 import type { CohortStripeFacts, StripeLink, StripePrice } from '@ai/core/cohort-selling';
 import type { Database } from '../db/client';
 import { accounts, auditLog, orders, plans, teamIntake, users } from '../db/schema';
@@ -27,6 +27,7 @@ import { envOf, sellingOf } from '../billing/cohort-sale';
 import type { OfferConfig } from '../billing/config';
 import type { PriceCache } from '../billing/prices';
 import type { BillingStripe } from '../billing/stripe';
+import { cohortRoster } from './cohort-roster';
 
 type Reader = Pick<Database, 'select'>;
 
@@ -96,7 +97,7 @@ const notComp = sql`not exists (
   where o.id = ${plans.orderId} and o.origin = 'comp'
 )`;
 
-export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: StripeFactsReader): Promise<CohortFacts> {
+export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: StripeFactsReader, known?: CohortRoster): Promise<CohortFacts> {
   const sends = await db
     .select({ action: auditLog.action })
     .from(auditLog)
@@ -113,12 +114,13 @@ export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: Strip
     .from(plans)
     .innerJoin(accounts, eq(accounts.id, plans.accountId))
     .where(and(eq(plans.kind, 'cohort'), eq(plans.cohortId, cohortId), notTest, notComp));
-  const live = [...new Set(sold.filter((p) => p.status !== 'ended').map((p) => p.teamId))];
-  const people = live.length
-    ? await db
-        .select({ id: users.id, teamId: users.teamId, last: users.last })
-        .from(users)
-        .where(and(inArray(users.teamId, live), eq(users.kind, 'learner'), ne(users.isTest, true)))
+  // R-5 audit (D-267): its teams and learners are the one rule's (`cohortRoster`): a team is in one cohort at a time
+  // (Q-23), a comp's team is placed like any seat, and an access group's member is in none.
+  const roster = (known ?? (await cohortRoster(db)))[cohortId] ?? { teams: [], learners: [] };
+  const live = roster.teams;
+  const inRoster = new Set(live);
+  const people = roster.learners.length
+    ? await db.select({ id: users.id, teamId: users.teamId, last: users.last }).from(users).where(inArray(users.id, roster.learners))
     : [];
   const intake = live.length
     ? await db
@@ -138,7 +140,7 @@ export async function cohortFactsOf(db: Reader, cohortId: string, stripe?: Strip
     intakeGhlFailed: intake.filter((r) => r.ghl === 'failed').length,
     signedIn: new Set(people.filter((u) => u.last !== null).map((u) => u.teamId)).size,
     intakeSubmitted: intake.filter((r) => r.submittedAt !== null).length,
-    paidInFull: new Set(sold.filter((p) => p.status !== 'ended' && p.option === 'full').map((p) => p.teamId)).size,
+    paidInFull: new Set(sold.filter((p) => p.status !== 'ended' && p.option === 'full' && inRoster.has(p.teamId)).map((p) => p.teamId)).size,
     ...(stripe ? { stripe: await stripe(db, cohortId) } : {}),
   };
 }

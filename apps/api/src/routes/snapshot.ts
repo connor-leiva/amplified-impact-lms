@@ -33,6 +33,14 @@
 // the `Db` alone cannot tell who bought it. The route reads the learner's plans (lib/course-access.ts)
 // and hands `scopeSnapshot` a yes or no; the filtering itself stays in the one tested function.
 
+//
+// AND WHO COUNTS IN EACH COHORT (R-5 audit, D-267). The rows the snapshot holds can't tell a learner on a team with a
+// live cohort plan from an access group's member (Utah Life) or another plan's buyer: provisioning names a cohort on
+// every account's row. The route reads the roster (`lib/cohort-roster.ts`), and every cohort's `enrolled` is counted
+// from it (the learner Home's "N in your cohort"). The roster itself and each access group's people go to staff only
+// (`Db.roster`, `Db.groups`): `scopeSnapshot` hands neither to a learner. A learner's cohort is the one rule's
+// (`viewerCohortId`), and whether they count in it decides whether a cohort's own announcement reaches them.
+
 import { scopeSnapshot } from '@ai/core';
 import type { Db } from '@ai/core';
 import type { FastifyInstance } from 'fastify';
@@ -40,14 +48,20 @@ import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { clock } from '../lib/clock';
-import { viewerAccessFor } from '../lib/course-access';
+import { accessGroupViews, cohortRoster } from '../lib/cohort-roster';
+import { viewerAccessFor, viewerCohortId } from '../lib/course-access';
 
 export function registerSnapshotRoute(app: FastifyInstance): void {
   app.get('/api/snapshot', { preHandler: requireSession }, async (req): Promise<Db> => {
     const { actor } = viewerOrThrow(req);
     const db = getDb();
+    const now = clock.now();
+    const roster = await cohortRoster(db);
+    const all = await loadDb(db, { roster });
+    if (actor.kind !== 'learner') return scopeSnapshot({ ...all, roster, groups: await accessGroupViews(db, roster, now) }, actor);
     // D-175: the course opens to a learner on its own dates (the preview, each week's opening).
-    const access = actor.kind === 'learner' ? await viewerAccessFor(db, actor.userId, clock.now()) : undefined;
-    return scopeSnapshot(await loadDb(db), actor, access);
+    const cohortId = await viewerCohortId(db, actor.userId);
+    const access = { ...(await viewerAccessFor(db, actor.userId, now)), cohortId, rostered: (roster[cohortId]?.learners ?? []).includes(actor.userId) };
+    return scopeSnapshot(all, actor, access);
   });
 }

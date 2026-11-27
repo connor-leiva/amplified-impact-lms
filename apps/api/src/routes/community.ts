@@ -50,7 +50,8 @@ import { audit } from '../console/audit';
 import { staffActor } from '../console/guard';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
-import { communityPosts, communityThreads, teams, users } from '../db/schema';
+import { cohorts, communityPosts, communityThreads, teams, users } from '../db/schema';
+import { cohortRoster } from '../lib/cohort-roster';
 import { clock } from '../lib/clock';
 import { courseEntryFor, viewerCohortId } from '../lib/course-access';
 
@@ -91,8 +92,22 @@ function spacesWith(m: Member, used: Iterable<string>): CommunitySpace[] {
   return [...known.filter((s) => s.id !== 'wins'), ...strays, ...wins];
 }
 
-/** A learner whose course isn't open isn't in the community (C-22's `notMember`); staff always are. */
-async function memberOf(req: FastifyRequest, now: number): Promise<Member | null> {
+/**
+ * R-5 audit (D-267): the cohort staff read and write: the one their request names (`?cohort=`, Cohort › Community's own
+ * cohort), when it is a cohort that exists; else the default, as before.
+ */
+async function staffCohortOf(req: FastifyRequest): Promise<string> {
+  const asked = (req.query as { cohort?: unknown } | undefined)?.cohort;
+  if (typeof asked !== 'string' || !asked) return DEFAULT_COHORT_ID;
+  const [row] = await getDb().select({ id: cohorts.id }).from(cohorts).where(eq(cohorts.id, asked)).limit(1);
+  return row?.id ?? DEFAULT_COHORT_ID;
+}
+
+/**
+ * A learner whose course isn't open isn't in the community (C-22's `notMember`); staff always are. `cohortForStaff`: a
+ * thread's own cohort, for staff opening or acting on that thread.
+ */
+async function memberOf(req: FastifyRequest, now: number, cohortForStaff?: string): Promise<Member | null> {
   const viewer = viewerOrThrow(req);
   const staff = viewer.user.kind === 'staff';
   let entry: CourseEntry | null = null;
@@ -101,8 +116,8 @@ async function memberOf(req: FastifyRequest, now: number): Promise<Member | null
     if (!entry.open) return null;
   }
   // R-5 Phase 4 (D-261): the viewer's own cohort (`viewerCohortId`), its threads and its weeks as its run has them.
-  // Staff read the default cohort's, as they always have.
-  const cohortId = staff ? DEFAULT_COHORT_ID : await viewerCohortId(getDb(), viewer.user.id);
+  // R-5 audit (D-267): staff read the cohort Cohort › Community names, or the thread's.
+  const cohortId = staff ? (cohortForStaff ?? (await staffCohortOf(req))) : await viewerCohortId(getDb(), viewer.user.id);
   // The spaces: General, a space for each week open to this viewer, Wins. Staff get the weeks open by their
   // dates, the cohort's own (a test account's early access is its own, and opens more).
   const snapshot = await loadDb(getDb());
@@ -126,12 +141,14 @@ async function peopleOf(ids: readonly string[]): Promise<Record<string, Communit
   );
 }
 
-/** D-238: the cohort's learners, not those still invited (as the Console counts them), and the teams they are in. */
+/**
+ * D-238: the cohort's learners, not those still invited (as the Console counts them), and the teams they are in. R-5
+ * audit (D-267): the people who count in it by the one rule (`cohortRoster`), so an access group's member is in no
+ * cohort's figure.
+ */
 async function membersOf(cohortId: string): Promise<CommunityMembers> {
-  const rows = await getDb()
-    .select({ teamId: users.teamId, status: users.status })
-    .from(users)
-    .where(and(eq(users.kind, 'learner'), eq(users.cohortId, cohortId)));
+  const ids = (await cohortRoster(getDb()))[cohortId]?.learners ?? [];
+  const rows = ids.length ? await getDb().select({ teamId: users.teamId, status: users.status }).from(users).where(inArray(users.id, ids)) : [];
   const live = rows.filter((r) => r.status !== 'invited');
   return { learners: live.length, teams: new Set(live.flatMap((r) => (r.teamId ? [r.teamId] : []))).size };
 }
@@ -143,6 +160,20 @@ const threadVisible = (t: ThreadRow, m: Member): boolean =>
 async function threadFor(id: number, m: Member): Promise<ThreadRow | null> {
   const [t] = await getDb().select().from(communityThreads).where(eq(communityThreads.id, id));
   return t && threadVisible(t, m) ? t : null;
+}
+
+/** R-5 audit (D-267): the cohort of a thread, for staff opening or acting on it; undefined for none, or a learner. */
+async function threadCohortFor(req: FastifyRequest, threadId: number | null): Promise<string | undefined> {
+  if (threadId === null || viewerOrThrow(req).user.kind !== 'staff') return undefined;
+  const [t] = await getDb().select({ cohortId: communityThreads.cohortId }).from(communityThreads).where(eq(communityThreads.id, threadId));
+  return t?.cohortId;
+}
+
+/** The same, from one of the thread's posts. */
+async function postCohortFor(req: FastifyRequest, postId: number | null): Promise<string | undefined> {
+  if (postId === null || viewerOrThrow(req).user.kind !== 'staff') return undefined;
+  const [p] = await getDb().select({ threadId: communityPosts.threadId }).from(communityPosts).where(eq(communityPosts.id, postId));
+  return p ? threadCohortFor(req, p.threadId) : undefined;
 }
 
 /** A thread's posts this member may see, oldest first. The first is the thread's own. */
@@ -237,7 +268,7 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
 
   app.get(COMMUNITY_THREAD_PATH, read, async (req, reply): Promise<FastifyReply> => {
     reply.header('cache-control', 'no-store');
-    const m = await memberOf(req, clock.now());
+    const m = await memberOf(req, clock.now(), await threadCohortFor(req, idOf((req.params as { id?: string }).id)));
     if (!m) return reply.code(403).send({ error: COMMUNITY_ERRORS.notMember });
     const id = idOf((req.params as { id?: string }).id);
     const t = id === null ? null : await threadFor(id, m);
@@ -277,7 +308,7 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
   app.post(COMMUNITY_REPLIES_PATH, write, async (req, reply): Promise<FastifyReply> => {
     reply.header('cache-control', 'no-store');
     const now = clock.now();
-    const m = await memberOf(req, now);
+    const m = await memberOf(req, now, await threadCohortFor(req, idOf((req.params as { id?: string }).id)));
     if (!m) return reply.code(403).send({ error: COMMUNITY_ERRORS.notMember });
     const id = idOf((req.params as { id?: string }).id);
     const t = id === null ? null : await threadFor(id, m);
@@ -296,7 +327,7 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
   // B-33: staff pin or unpin a thread, or hide or show it. Audited.
   app.patch(COMMUNITY_THREAD_PATH, write, async (req, reply): Promise<FastifyReply> => {
     reply.header('cache-control', 'no-store');
-    const m = await memberOf(req, clock.now());
+    const m = await memberOf(req, clock.now(), await threadCohortFor(req, idOf((req.params as { id?: string }).id)));
     if (!m) return reply.code(403).send({ error: COMMUNITY_ERRORS.notMember });
     if (!m.staff) return reply.code(403).send({ error: COMMUNITY_ERRORS.staffOnly });
     const id = idOf((req.params as { id?: string }).id);
@@ -324,7 +355,7 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
   app.patch(COMMUNITY_POST_PATH, write, async (req, reply): Promise<FastifyReply> => {
     reply.header('cache-control', 'no-store');
     const now = clock.now();
-    const m = await memberOf(req, now);
+    const m = await memberOf(req, now, await postCohortFor(req, idOf((req.params as { postId?: string }).postId)));
     if (!m) return reply.code(403).send({ error: COMMUNITY_ERRORS.notMember });
     const postId = idOf((req.params as { postId?: string }).postId);
     const [p] = postId === null ? [] : await getDb().select().from(communityPosts).where(eq(communityPosts.id, postId));
@@ -360,7 +391,7 @@ export function registerCommunityRoutes(app: FastifyInstance): void {
   app.post(COMMUNITY_POST_DELETE_PATH, write, async (req, reply): Promise<FastifyReply> => {
     reply.header('cache-control', 'no-store');
     const now = clock.now();
-    const m = await memberOf(req, now);
+    const m = await memberOf(req, now, await postCohortFor(req, idOf((req.params as { postId?: string }).postId)));
     if (!m) return reply.code(403).send({ error: COMMUNITY_ERRORS.notMember });
     const postId = idOf((req.params as { postId?: string }).postId);
     const [p] = postId === null ? [] : await getDb().select().from(communityPosts).where(eq(communityPosts.id, postId));

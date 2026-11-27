@@ -42,7 +42,7 @@
 
 import { and, asc, desc, eq, getTableColumns } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
-import type { Db } from '@ai/core';
+import type { CohortRoster, Db } from '@ai/core';
 // Type-only, and `verbatimModuleSyntax` erases it entirely — io.ts must not pull `client.ts` in at
 // runtime, or importing the codec would resolve DATABASE_URL. See `client.ts`'s header.
 import type { Database } from './client';
@@ -136,10 +136,10 @@ async function rowsOf(tx: Queryable, table: TableName): Promise<Row[]> {
  * tidiness one. Fourteen round trips is also the whole cost of a snapshot, and the lock already
  * serializes writers.
  */
-export async function loadDb(tx: Queryable): Promise<Db> {
+export async function loadDb(tx: Queryable, opts: { roster?: CohortRoster } = {}): Promise<Db> {
   const rows = {} as Rows;
   for (const table of Object.keys(TABLES) as TableName[]) rows[table] = await rowsOf(tx, table);
-  return fromRows(rows);
+  return fromRows(rows, opts.roster);
 }
 
 /**

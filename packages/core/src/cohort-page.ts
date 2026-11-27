@@ -178,6 +178,38 @@ export function week1OpensAt(db: Pick<Db, 'cohorts' | 'modules' | 'sessions'>, c
   return cohortRun(db, cohortId).find((w) => w.n === 1)?.opensAt ?? null;
 }
 
+/**
+ * R-5 audit (D-267, Connor, Nov 26): where a cohort is in its run. Before Week 1 opens: Week 1's opening, and its setup
+ * week's (the run's Week 0, else the preview it opens with), if it has one. Once Week 1 has opened: "Week N of M", N the
+ * last of its building weeks to open and M how many it has. Null for a cohort whose run holds no Week 1.
+ */
+export type CohortProgress =
+  | { kind: 'before'; setup: number | null; week1: number }
+  | { kind: 'running'; n: number; of: number };
+
+export function cohortProgress(db: Pick<Db, 'cohorts' | 'modules' | 'sessions'>, cohortId: string, now: number): CohortProgress | null {
+  const co = cohortOf(db, cohortId);
+  if (!co) return null;
+  const run = cohortRun(db, cohortId);
+  const week1 = run.find((w) => w.n === 1)?.opensAt ?? null;
+  if (week1 === null) return null;
+  const building = run.filter((w) => w.n >= 1);
+  if (now < week1) {
+    const setupWeek = run.find((w) => w.n === 0);
+    const setup = setupWeek ? (setupWeek.opensAt ?? co.previewOpensAt ?? null) : null;
+    return { kind: 'before', setup, week1 };
+  }
+  const opened = building.filter((w) => w.opensAt !== null && w.opensAt <= now);
+  return { kind: 'running', n: Math.max(1, ...opened.map((w) => w.n)), of: building.length };
+}
+
+/** "Week 0 opened Tue, Nov 24 · Week 1 opens Sun, Nov 29", "Week 1 opens Sun, Jan 3", or "Week 2 of 6". */
+export function cohortProgressLine(p: CohortProgress, now: number): string {
+  if (p.kind === 'running') return `Week ${p.n} of ${p.of}`;
+  const w1 = `Week 1 opens ${fmt.mtDay(p.week1)}`;
+  return p.setup === null ? w1 : `Week 0 ${p.setup <= now ? 'opened' : 'opens'} ${fmt.mtDay(p.setup)} · ${w1}`;
+}
+
 // ================================================================================================
 // Included time (Q-22, PLAN.md § 10.3): a date; its instant is the start of that day in America/Chicago
 // ================================================================================================

@@ -17,6 +17,7 @@
 
 import { produce } from 'immer';
 import { adminDay, fromAdminLocal } from './admin-build';
+import { rosterLearners, rosterTeams } from './cohort-roster';
 import { can, requirePerm } from './can';
 import type { AuditAction } from './console';
 import { EXEC_CATEGORIES } from './constants';
@@ -631,8 +632,18 @@ export interface AnnouncementFields {
   email: boolean;
   severity?: Announcement['severity'];
   action?: Announcement['action'] | '';
-  /** `YYYY-MM-DDTHH:MM`, MST, for a schedule. */
+  /** `YYYY-MM-DDTHH:MM`, MT, for a schedule. */
   at?: string;
+  /**
+   * R-5 audit (D-267): the cohort whose Announcements tab it is made on. It then reaches the people who count in that
+   * cohort only (`announcementReaches`). Kept when it is edited.
+   */
+  cohortId?: string;
+}
+
+/** R-5 audit (D-267): a cohort an announcement names must exist. */
+function checkAnnouncementCohort(db: Db, cohortId: string | undefined): void {
+  if (cohortId !== undefined && !db.cohorts.some((co) => co.id === cohortId)) throw new MutationError('not_found', `No cohort ${cohortId}`);
 }
 
 const announcementOf = (db: Db, id: string): Announcement => {
@@ -645,20 +656,24 @@ const channelsOf = (f: AnnouncementFields): Announcement['channels'] => [...(f.i
 
 const announcementSummary = (an: Announcement) => ({ title: an.title, status: an.status, audience: an.audience, channels: an.channels, at: an.at });
 
-/** The schedule's instant from its MST `YYYY-MM-DDTHH:MM`, or `now` when it can't be read (as `sendAnnouncement`). */
+/** The schedule's instant from its MT `YYYY-MM-DDTHH:MM`, or `now` when it can't be read (as `sendAnnouncement`). */
 const scheduleAt = (at: string | undefined, now: number): number => {
   const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(at ?? '');
   const t = m ? fromAdminLocal(m[1]!, m[2]!) : NaN;
   return Number.isNaN(t) ? now : t;
 };
 
-/** How many a send reaches, as `sendAnnouncement` counts them. */
-const reachOf = (db: Db, audience: Announcement['audience']): number => {
+/**
+ * How many a send reaches, as `sendAnnouncement` counts them. R-5 audit (D-267): one that names a cohort counts the people
+ * who count in it (`rosterLearners`, `rosterTeams`).
+ */
+export const reachOf = (db: Db, audience: Announcement['audience'], cohortId?: string): number => {
   const B = db.base;
-  const users = db.users.filter((u) => u.status !== 'invited');
+  const people = cohortId !== undefined ? rosterLearners(db, cohortId) : db.users;
+  const users = people.filter((u) => u.status !== 'invited');
   if (audience === 'agent') return B.agent + users.filter((u) => u.tier === 'agent').length;
   if (audience === 'team') return B.teamSeats + users.filter((u) => u.tier === 'team').length;
-  if (audience === 'owners') return B.teams + db.teams.length;
+  if (audience === 'owners') return B.teams + (cohortId !== undefined ? rosterTeams(db, cohortId) : db.teams).length;
   return B.learners + users.length;
 };
 
@@ -679,11 +694,12 @@ const contentOf = (f: AnnouncementFields) => {
 /** New announcement › Save draft: a draft, never sent. Toast: the mockup's "Saved as a draft". */
 export function saveAnnouncementDraft(db: Db, a: Actor, args: AnnouncementFields, c: Ctx): AdminOutcome {
   requirePerm(db, a, 'announce');
+  checkAnnouncementCohort(db, args.cohortId);
   const content = contentOf(args);
   if (!content.title) return { db, error: 'Add a title.' };
   if (!content.channels.length) return { db, error: 'Pick at least one channel.' };
   const id = c.id('a');
-  const row: Announcement = { id, ...content, status: 'draft', at: c.now, opens: null };
+  const row: Announcement = { id, ...(args.cohortId !== undefined ? { cohortId: args.cohortId } : {}), ...content, status: 'draft', at: c.now, opens: null };
   return {
     db: produce(db, (d) => {
       d.announcements.unshift(row);
@@ -714,7 +730,7 @@ export function updateAnnouncement(db: Db, a: Actor, args: AnnouncementFields & 
     const x = d.announcements.find((y) => y.id === an.id)!;
     Object.assign(x, content, { status, at, opens: status === 'sent' ? 0 : null });
   });
-  const reach = reachOf(db, args.audience);
+  const reach = reachOf(db, args.audience, an.cohortId);
   const msg =
     status === 'draft'
       ? 'Saved as a draft'
